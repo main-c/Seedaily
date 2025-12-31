@@ -1,0 +1,422 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Module 5: Génération PowerPoint
+
+Ce module génère la présentation PowerPoint finale du rapport comptable.
+
+Fonctionnalités:
+- Création de diapositives à partir des données Excel
+- Intégration des commentaires du Module 4
+- Génération de tableaux et graphiques
+- Mise en forme professionnelle
+- Utilisation du modèle PPT existant comme référence
+"""
+
+from pptx import Presentation
+from pptx.util import Inches, Pt, Cm
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
+from pptx.dml.color import RGBColor
+from pptx.chart.data import CategoryChartData
+from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+import openpyxl
+import pandas as pd
+import logging
+from pathlib import Path
+from typing import Dict, Optional, List, Tuple
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+
+def generate_powerpoint(excel_path: str, output_path: str, commentaires: Optional[Dict] = None,
+                       template_path: Optional[str] = None):
+    """
+    Génère le rapport PowerPoint final complet
+
+    Args:
+        excel_path: Chemin vers le fichier Excel généré
+        output_path: Chemin de sortie du PowerPoint
+        commentaires: Dictionnaire avec les commentaires (du Module 4)
+        template_path: Chemin vers le template PowerPoint (optionnel)
+    """
+    logger.info("=" * 80)
+    logger.info("GÉNÉRATION DU RAPPORT POWERPOINT")
+    logger.info("=" * 80)
+    logger.info(f"Fichier Excel source: {excel_path}")
+    logger.info(f"Fichier PowerPoint cible: {output_path}")
+
+    try:
+        # Charger les données Excel
+        logger.info("Chargement des données Excel...")
+        excel_data = load_excel_data(excel_path)
+
+        # Créer une nouvelle présentation
+        logger.info("Création de la présentation...")
+        prs = Presentation()
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(7.5)
+
+        # Extraire les informations
+        periode = commentaires.get('periode', 'Septembre 2025') if commentaires else 'Septembre 2025'
+        cabinet = commentaires.get('cabinet', '2BN CONSULTING') if commentaires else '2BN CONSULTING'
+        client = commentaires.get('client', 'BAMBOO IMMO') if commentaires else 'BAMBOO IMMO'
+
+        # 1. Diapositive de titre
+        logger.info("Création de la diapositive de titre...")
+        add_title_slide(prs, cabinet, client, periode)
+
+        # 2. Diapositive Bilan
+        logger.info("Création de la diapositive Bilan...")
+        bilan_comment = commentaires.get('bilan', {}).get('commentaire', '') if commentaires else ''
+        add_bilan_slide(prs, excel_data, bilan_comment)
+
+        # 3. Diapositive Compte de Résultat
+        logger.info("Création de la diapositive Compte de Résultat...")
+        cr_comment = commentaires.get('compte_resultat', {}).get('commentaire', '') if commentaires else ''
+        add_compte_resultat_slide(prs, excel_data, cr_comment)
+
+        # 4. Diapositive SIG
+        logger.info("Création de la diapositive SIG...")
+        sig_comment = commentaires.get('sig', {}).get('commentaire', '') if commentaires else ''
+        add_sig_slide(prs, excel_data, sig_comment)
+
+        # 5. Diapositive Suivi d'Activité
+        logger.info("Création de la diapositive Suivi d'Activité...")
+        suivi_comment = commentaires.get('suivi_activite', {}).get('commentaire', '') if commentaires else ''
+        add_suivi_activite_slide(prs, excel_data, suivi_comment)
+
+        # 6. Diapositive Synthèse
+        logger.info("Création de la diapositive Synthèse...")
+        synthese_comment = commentaires.get('synthese', {}).get('commentaire', '') if commentaires else ''
+        add_synthese_slide(prs, synthese_comment)
+
+        # Sauvegarder la présentation
+        logger.info(f"Sauvegarde de la présentation: {output_path}")
+        prs.save(output_path)
+
+        logger.info("=" * 80)
+        logger.info(f"✅ Rapport PowerPoint généré avec succès!")
+        logger.info(f"📄 Fichier: {output_path}")
+        logger.info(f"📊 Nombre de diapositives: {len(prs.slides)}")
+        logger.info("=" * 80)
+
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la génération du PowerPoint: {e}", exc_info=True)
+        raise
+
+
+def load_excel_data(excel_path: str) -> Dict:
+    """
+    Charge les données depuis le fichier Excel généré
+
+    Args:
+        excel_path: Chemin vers le fichier Excel
+
+    Returns:
+        Dictionnaire contenant les données de toutes les feuilles
+    """
+    try:
+        wb = openpyxl.load_workbook(excel_path)
+        data = {}
+
+        # Charger les données de chaque feuille
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            sheet_data = []
+
+            for row in ws.iter_rows(values_only=True):
+                sheet_data.append(row)
+
+            data[sheet_name] = sheet_data
+
+        logger.info(f"Données chargées depuis {len(data)} feuilles")
+        return data
+
+    except Exception as e:
+        logger.error(f"Erreur lors du chargement du fichier Excel: {e}")
+        raise
+
+
+def add_title_slide(prs: Presentation, cabinet: str, client: str, periode: str):
+    """
+    Ajoute la diapositive de titre
+
+    Args:
+        prs: Objet Presentation
+        cabinet: Nom du cabinet
+        client: Nom du client
+        periode: Période du rapport
+    """
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
+
+    # Fond bleu
+    background = slide.background
+    fill = background.fill
+    fill.solid()
+    fill.fore_color.rgb = RGBColor(54, 96, 146)  # Bleu professionnel
+
+    # Titre principal
+    left = Inches(1)
+    top = Inches(2)
+    width = Inches(8)
+    height = Inches(1.5)
+    textbox = slide.shapes.add_textbox(left, top, width, height)
+    text_frame = textbox.text_frame
+    text_frame.text = "RAPPORT COMPTABLE"
+    p = text_frame.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p.font.bold = True
+    p.font.size = Pt(44)
+    p.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Client
+    top = Inches(3.7)
+    height = Inches(1)
+    textbox = slide.shapes.add_textbox(left, top, width, height)
+    text_frame = textbox.text_frame
+    text_frame.text = client
+    p = text_frame.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p.font.bold = True
+    p.font.size = Pt(36)
+    p.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Période
+    top = Inches(5)
+    height = Inches(0.8)
+    textbox = slide.shapes.add_textbox(left, top, width, height)
+    text_frame = textbox.text_frame
+    text_frame.text = periode
+    p = text_frame.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p.font.size = Pt(28)
+    p.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Cabinet (en bas)
+    top = Inches(6.5)
+    height = Inches(0.5)
+    textbox = slide.shapes.add_textbox(left, top, width, height)
+    text_frame = textbox.text_frame
+    text_frame.text = cabinet
+    p = text_frame.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p.font.size = Pt(18)
+    p.font.color.rgb = RGBColor(200, 200, 200)
+
+
+def update_dates(prs: Presentation, date: str):
+    """
+    Met à jour les dates sur les slides
+
+    Args:
+        prs: Objet Presentation
+        date: Date au format DD/MM/YYYY
+    """
+    logger.info(f"Mise à jour de la date: {date}")
+
+    try:
+        # Slide 1 (index 0): Page de garde
+        if len(prs.slides) > 0:
+            slide = prs.slides[0]
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and "date" in shape.text.lower():
+                    shape.text = shape.text.replace("{{DATE}}", date)
+                    # Chercher aussi d'autres patterns
+                    if "202" in shape.text or "201" in shape.text:
+                        # Remplacer les anciennes dates
+                        import re
+                        shape.text = re.sub(r'\d{2}/\d{2}/\d{4}', date, shape.text)
+
+        # Slide 2 (index 1): Sommaire
+        if len(prs.slides) > 1:
+            slide = prs.slides[1]
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and ("date" in shape.text.lower() or "202" in shape.text):
+                    import re
+                    shape.text = re.sub(r'\d{2}/\d{2}/\d{4}', date, shape.text)
+
+        logger.info("Dates mises à jour")
+
+    except Exception as e:
+        logger.warning(f"Erreur lors de la mise à jour des dates: {e}")
+
+
+def insert_evenements(prs: Presentation, evenements: str, slide_index: int = 3):
+    """
+    Insère les événements significatifs
+
+    Args:
+        prs: Objet Presentation
+        evenements: Texte des événements
+        slide_index: Index de la slide (défaut: 3)
+    """
+    logger.info("Insertion des événements significatifs")
+
+    try:
+        if len(prs.slides) > slide_index:
+            slide = prs.slides[slide_index]
+
+            # Chercher une zone de texte existante ou en créer une
+            text_frame = None
+
+            # Chercher un placeholder de contenu
+            for shape in slide.shapes:
+                if shape.has_text_frame and not shape.text.strip() == slide.shapes.title.text:
+                    text_frame = shape.text_frame
+                    break
+
+            # Si pas trouvé, créer une nouvelle zone de texte
+            if text_frame is None:
+                left = Inches(1)
+                top = Inches(2)
+                width = Inches(8)
+                height = Inches(4)
+                textbox = slide.shapes.add_textbox(left, top, width, height)
+                text_frame = textbox.text_frame
+
+            # Insérer le texte
+            text_frame.clear()
+            text_frame.text = evenements if evenements else "Aucun événement significatif à signaler."
+            text_frame.word_wrap = True
+
+            # Style du texte
+            for paragraph in text_frame.paragraphs:
+                paragraph.font.size = Pt(14)
+
+            logger.info("Événements insérés")
+
+        else:
+            logger.warning(f"Slide {slide_index} non trouvée")
+
+    except Exception as e:
+        logger.warning(f"Erreur lors de l'insertion des événements: {e}")
+
+
+def insert_commentaires(prs: Presentation, commentaires: str, slide_index: int = -1):
+    """
+    Insère les commentaires de conclusion
+
+    Args:
+        prs: Objet Presentation
+        commentaires: Texte des commentaires
+        slide_index: Index de la slide (défaut: dernière slide ou slide 11)
+    """
+    logger.info("Insertion des commentaires de conclusion")
+
+    try:
+        # Déterminer l'index de la slide
+        if slide_index == -1:
+            # Chercher la slide de commentaires (généralement index 11)
+            target_index = min(11, len(prs.slides) - 1) if len(prs.slides) > 11 else len(prs.slides) - 1
+        else:
+            target_index = slide_index
+
+        if len(prs.slides) > target_index:
+            slide = prs.slides[target_index]
+
+            # Chercher une zone de texte existante ou en créer une
+            text_frame = None
+
+            for shape in slide.shapes:
+                if shape.has_text_frame and not shape.text.strip() == slide.shapes.title.text:
+                    text_frame = shape.text_frame
+                    break
+
+            # Si pas trouvé, créer une nouvelle zone de texte
+            if text_frame is None:
+                left = Inches(1)
+                top = Inches(2)
+                width = Inches(8)
+                height = Inches(4)
+                textbox = slide.shapes.add_textbox(left, top, width, height)
+                text_frame = textbox.text_frame
+
+            # Insérer le texte
+            text_frame.clear()
+            text_frame.text = commentaires if commentaires else "Aucun commentaire particulier."
+            text_frame.word_wrap = True
+
+            # Style du texte
+            for paragraph in text_frame.paragraphs:
+                paragraph.font.size = Pt(14)
+
+            logger.info("Commentaires insérés")
+
+        else:
+            logger.warning(f"Slide {target_index} non trouvée")
+
+    except Exception as e:
+        logger.warning(f"Erreur lors de l'insertion des commentaires: {e}")
+
+
+def insert_text(prs: Presentation, slide_idx: int, text: str, placeholder_idx: int = 1):
+    """
+    Insère du texte sur une slide spécifique
+
+    Args:
+        prs: Objet Presentation
+        slide_idx: Index de la slide
+        text: Texte à insérer
+        placeholder_idx: Index du placeholder (défaut: 1)
+    """
+    if len(prs.slides) > slide_idx:
+        slide = prs.slides[slide_idx]
+
+        if len(slide.placeholders) > placeholder_idx:
+            placeholder = slide.placeholders[placeholder_idx]
+            placeholder.text = text
+            logger.debug(f"Texte inséré sur slide {slide_idx}")
+        else:
+            logger.warning(f"Placeholder {placeholder_idx} non trouvé sur slide {slide_idx}")
+    else:
+        logger.warning(f"Slide {slide_idx} non trouvée")
+
+
+def save_presentation(prs: Presentation, output_path: str):
+    """
+    Sauvegarde la présentation PowerPoint
+
+    Args:
+        prs: Objet Presentation
+        output_path: Chemin de sortie
+    """
+    logger.info(f"Sauvegarde de la présentation: {output_path}")
+
+    try:
+        prs.save(output_path)
+        logger.info("Présentation sauvegardée avec succès")
+
+    except Exception as e:
+        logger.error(f"Erreur lors de la sauvegarde: {e}")
+        raise PowerPointGenerationError(f"Impossible de sauvegarder la présentation: {e}")
+
+
+# Note: Les fonctions suivantes nécessitent Excel installé pour convertir les tableaux en images
+# Elles sont laissées en commentaire pour une implémentation future
+
+"""
+def excel_to_image(excel_path: str, sheet: str, cell_range: str) -> Image:
+    '''
+    Convertit une plage Excel en image PNG
+
+    Nécessite: win32com (Windows) ou LibreOffice (Linux/Mac)
+    '''
+    # TODO: Implémenter la conversion Excel vers image
+    pass
+
+def insert_image(prs: Presentation, slide_idx: int, image_path: str,
+                 left: float = 1, top: float = 2, width: float = 8):
+    '''
+    Insère une image sur une slide
+    '''
+    if len(prs.slides) > slide_idx:
+        slide = prs.slides[slide_idx]
+        slide.shapes.add_picture(
+            image_path,
+            Inches(left),
+            Inches(top),
+            width=Inches(width)
+        )
+        logger.debug(f"Image insérée sur slide {slide_idx}")
+"""

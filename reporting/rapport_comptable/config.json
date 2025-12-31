@@ -1,0 +1,80 @@
+{
+  "application": {
+    "name": "Système d'automatisation de rapports comptables",
+    "version": "1.0",
+    "author": "Yannik KADJIE",
+    "client": "2BN CONSULTING"
+  },
+  "paths": {
+    "template_ppt": "templates/rapport_template.pptx",
+    "output_dir": "output",
+    "logs_dir": "logs"
+  },
+  "sage_parser": {
+    "encoding": "ISO-8859-1",
+    "delimiter": "\t",
+    "columns": [
+      "N°C",
+      "DATES",
+      "CJ",
+      "N°P",
+      "LIBELLES",
+      "LETRES",
+      "D",
+      "C",
+      "SOLDE"
+    ],
+    "date_format": "%d%m%y"
+  },
+  "excel": {
+    "sheets": {
+      "grand_livre": "GL BI SEP",
+      "balance": "BG BI SEP",
+      "bilan_synth": "BILAN SYNTH",
+      "cr_synth": "CR SYNTH",
+      "sig": "SIG",
+      "suivi_activite": "SUIVI ACTIVITE"
+    },
+    "styles": {
+      "header_font_size": 11,
+      "header_bold": true,
+      "header_bg_color": "366092",
+      "header_font_color": "FFFFFF",
+      "border_color": "000000"
+    }
+  },
+  "powerpoint": {
+    "slides": {
+      "page_garde": 0,
+      "sommaire": 1,
+      "objectif": 2,
+      "evenements": 3,
+      "tableaux_start": 4,
+      "commentaires": 11,
+      "annexes_start": 12
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "date_format": "%Y-%m-%d %H:%M:%S",
+    "file_prefix": "rapport_",
+    "error_file": "rapport_errors.log"
+  },
+  "validation": {
+    "min_lines": 1,
+    "max_lines": 50000,
+    "required_columns": [
+      "N°C",
+      "DATES",
+      "CJ",
+      "N°P",
+      "LIBELLES"
+    ],
+    "account_number_length": 8
+  },
+  "performance": {
+    "max_processing_time": 1200,
+    "chunk_size": 10000
+  }
+}

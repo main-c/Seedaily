@@ -1,0 +1,282 @@
+{
+  "client_name": "BAMBOO IMMO",
+  "categories": {
+    "personnel": {
+      "Appoitements": {
+        "libelle": "Appoitements",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "Indemnite_de_transport": {
+        "libelle": "Indemnité de transport",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Indemnite_de_logement": {
+        "libelle": "Indemnité de logement",
+        "comptes": [
+          "66130000"
+        ]
+      },
+      "Indeminite_de_responsabilite": {
+        "libelle": "Indeminité de responsabilité",
+        "comptes": [
+          "66140000"
+        ]
+      },
+      "Indeminite_de_representation": {
+        "libelle": "Indeminité de représentation",
+        "comptes": [
+          "66140000"
+        ]
+      },
+      "Indeminite_de_vehicule": {
+        "libelle": "Indeminité de vehicule",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Indemnite_de_blanchissage": {
+        "libelle": "Indemnité de blanchissage",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Primes_fonction": {
+        "libelle": "Primes fonction",
+        "comptes": [
+          "66150000"
+        ]
+      },
+      "Primes_panier": {
+        "libelle": "Primes panier",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Primes_vestimenatire": {
+        "libelle": "Primes vestimenatire",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Primes_d_anciennete": {
+        "libelle": "Primes d'anciennete",
+        "comptes": [
+          "66150000"
+        ]
+      },
+      "Prime_d_assiduite": {
+        "libelle": "Prime d'assiduité",
+        "comptes": [
+          "66150000"
+        ]
+      },
+      "Conges": {
+        "libelle": "Congés",
+        "comptes": [
+          "66160000"
+        ]
+      },
+      "Cotisations_patronales": {
+        "libelle": "Cotisations patronales",
+        "comptes": [
+          "66400000"
+        ]
+      },
+      "Appoint_du_mois": {
+        "libelle": "Appoint du mois",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "Pharmacie": {
+        "libelle": "Pharmacie",
+        "comptes": [
+          "66170000"
+        ]
+      },
+      "Assurance_maladie": {
+        "libelle": "Assurance maladie",
+        "comptes": [
+          "66400000"
+        ]
+      }
+    },
+    "charges": {
+      "Matieres_consommable": {
+        "libelle": "Matieres consommable",
+        "comptes": [
+          "60400000"
+        ]
+      },
+      "Fournitures_de_bureau": {
+        "libelle": "Fournitures de bureau",
+        "comptes": [
+          "60410000",
+          "60570000"
+        ]
+      },
+      "Eau_electricite": {
+        "libelle": "Eau/electricité",
+        "comptes": [
+          "60520000",
+          "60530000"
+        ]
+      },
+      "Carburant": {
+        "libelle": "Carburant",
+        "comptes": [
+          "60610000"
+        ]
+      },
+      "Transports": {
+        "libelle": "Transports",
+        "comptes": [
+          "61000000"
+        ]
+      },
+      "Telecommunication": {
+        "libelle": "Télécommunication(internet&credit appel)",
+        "comptes": [
+          "62620000",
+          "62630000"
+        ]
+      },
+      "Entretien": {
+        "libelle": "Entretien",
+        "comptes": [
+          "62260000"
+        ]
+      },
+      "Formation": {
+        "libelle": "Formation",
+        "comptes": [
+          "62280000"
+        ]
+      },
+      "Restauration": {
+        "libelle": "Restauration",
+        "comptes": [
+          "62470000"
+        ]
+      },
+      "Location_materiel": {
+        "libelle": "Location materiel",
+        "comptes": [
+          "62220000"
+        ]
+      },
+      "Loyer": {
+        "libelle": "Loyer",
+        "comptes": [
+          "62210000"
+        ]
+      },
+      "Assurace_risque": {
+        "libelle": "Assurace risque",
+        "comptes": [
+          "61600000"
+        ]
+      },
+      "Publicite": {
+        "libelle": "Publicité",
+        "comptes": [
+          "62700000"
+        ]
+      },
+      "Impots_Taxes": {
+        "libelle": "Impots & Taxes",
+        "comptes": [
+          "64000000",
+          "64120000"
+        ]
+      },
+      "Intermediaire_conseils": {
+        "libelle": "Intermediaire & conseils",
+        "comptes": [
+          "62200000",
+          "63240000"
+        ]
+      },
+      "Frais_bancaires": {
+        "libelle": "Frais bancaires",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "Redevances_logiciels": {
+        "libelle": "Redevances logiciels",
+        "comptes": [
+          "62630000"
+        ]
+      },
+      "Reception": {
+        "libelle": "Reception",
+        "comptes": [
+          "62470000",
+          "63830000",
+          "63840000"
+        ]
+      },
+      "Interets_emprunt": {
+        "libelle": "Interets emprunt",
+        "comptes": [
+          "67100000"
+        ]
+      },
+      "Amortissement": {
+        "libelle": "Amortissement",
+        "comptes": [
+          "68000000",
+          "68130000"
+        ]
+      },
+      "Frais_de_mission": {
+        "libelle": "Frais de mission",
+        "comptes": [
+          "62500000"
+        ]
+      },
+      "Penalites": {
+        "libelle": "Pénalités",
+        "comptes": []
+      },
+      "Autres_charges_divers": {
+        "libelle": "Autres charges divers",
+        "comptes": [
+          "65880000"
+        ]
+      }
+    },
+    "produits": {
+      "CA_commissions": {
+        "libelle": "Commissions",
+        "comptes": [
+          "70610000",
+          "70720000"
+        ]
+      },
+      "CA_autres": {
+        "libelle": "Autres ventes",
+        "comptes": [
+          "70100000",
+          "70200000",
+          "70300000",
+          "70400000",
+          "70500000",
+          "70900000"
+        ]
+      },
+      "Autres_produits": {
+        "libelle": "Autres produits",
+        "comptes": [
+          "70800000",
+          "71000000"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+# Système d'automatisation de rapports comptables
+# Requirements - Python >= 3.8
+
+# Traitement de données
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Génération Excel
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# Génération PowerPoint
+python-pptx>=0.6.21
+
+# Manipulation d'images
+Pillow>=10.0.0
+
+# Interface graphique (inclus dans Python standard, mais on le mentionne)
+# tkinter (standard library)
+
+# Utilitaires
+python-dateutil>=2.8.0
+
+# Tests
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Documentation
+# sphinx>=7.0.0 (optionnel)

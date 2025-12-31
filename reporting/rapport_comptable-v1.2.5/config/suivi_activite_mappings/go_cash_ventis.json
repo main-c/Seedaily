@@ -1,0 +1,259 @@
+{
+  "client_name": "GO CASH & VENTIS",
+  "categories": {
+    "personnel": {
+      "APPOINTEMENTS_SALAIRES": {
+        "libelle": "APPOINTEMENTS SALAIRES",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "SURSALAIRES": {
+        "libelle": "SURSALAIRES",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "PRIME_D_ASSIDUITE": {
+        "libelle": "PRIME D'ASSIDUITE",
+        "comptes": [
+          "66120100"
+        ]
+      },
+      "INDEMNITES_DE_RESPONSABILITE": {
+        "libelle": "INDEMNITES DE RESPONSABILITE",
+        "comptes": [
+          "66180000"
+        ]
+      },
+      "PRIME_ANCIENNETE": {
+        "libelle": "PRIME ANCIENNETE",
+        "comptes": [
+          "66180100"
+        ]
+      },
+      "PRIME_VESTIMENTAIRE": {
+        "libelle": "PRIME VESTIMENTAIRE",
+        "comptes": [
+          "66180110"
+        ]
+      },
+      "INDEMNITES_DE_LOGEMENT": {
+        "libelle": "INDEMNITES DE LOGEMENT",
+        "comptes": [
+          "66310000"
+        ]
+      },
+      "INDEMNITES_DE_TRANSPORT": {
+        "libelle": "INDEMNITES DE TRANSPORT",
+        "comptes": [
+          "66340000"
+        ]
+      },
+      "INDEMNITES_DE_PANIER": {
+        "libelle": "INDEMNITES DE PANIER",
+        "comptes": [
+          "66380000"
+        ]
+      },
+      "CHARGES_PATRONALE_CNSS": {
+        "libelle": "CHARGES PATRONALE CNSS",
+        "comptes": [
+          "66410000"
+        ]
+      },
+      "CHARGES_PATRONALE_CNAMGS": {
+        "libelle": "CHARGES PATRONALE CNAMGS",
+        "comptes": [
+          "66410010"
+        ]
+      },
+      "MAJORATIONS_ET_PENALITES_SOCIALES": {
+        "libelle": "MAJORATIONS ET PENALITES SOCIALES",
+        "comptes": [
+          "66870000"
+        ]
+      },
+      "CHARGES_SOCILAES_DIVERSES": {
+        "libelle": "CHARGES SOCILAES DIVERSES",
+        "comptes": [
+          "66880000"
+        ]
+      }
+    },
+    "charges": {
+      "ACHAT_VEHICULES": {
+        "libelle": "ACHAT VEHICULES",
+        "comptes": [
+          "60110000"
+        ]
+      },
+      "VARIATION_DE_STOCK": {
+        "libelle": "VARIATION DE STOCK",
+        "comptes": [
+          "60310000"
+        ]
+      },
+      "ACHAT_CARBURANT": {
+        "libelle": "ACHAT CARBURANT",
+        "comptes": [
+          "60530000"
+        ]
+      },
+      "PRESTATIONS_DE_SERVICES": {
+        "libelle": "PRESTATIONS DE SERVICES",
+        "comptes": [
+          "60570000"
+        ]
+      },
+      "FRAIS_DE_TRANSPORT": {
+        "libelle": "FRAIS DE TRANSPORT",
+        "comptes": [
+          "61830000"
+        ]
+      },
+      "ENTRETIEN_VEHICULE_EXPERTISE": {
+        "libelle": "ENTRETIEN VEHICULE (EXPERTISE)",
+        "comptes": [
+          "62420000"
+        ]
+      },
+      "PRIME_ASSURANCE_AUTOMOBILE": {
+        "libelle": "PRIME ASSURANCE AUTOMOBILE",
+        "comptes": [
+          "62520000"
+        ]
+      },
+      "PRIME_ASSURANCE_RC": {
+        "libelle": "PRIME ASSURANCE RC",
+        "comptes": [
+          "62520100"
+        ]
+      },
+      "DOCUMENTATION_GENERALE_CARTE_GRISE": {
+        "libelle": "DOCUMENTATION GENERALE (CARTE GRISE)",
+        "comptes": [
+          "62650000"
+        ]
+      },
+      "FRAIS_BANCAIRES": {
+        "libelle": "FRAIS BANCAIRES",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "HONORAIRES_COMPTABLE": {
+        "libelle": "HONORAIRES COMPTABLE",
+        "comptes": [
+          "63240000"
+        ]
+      },
+      "HONORAIRES_PARTENAIRES_FINANCIERS": {
+        "libelle": "HONORAIRES PARTENAIRES FINANCIERS",
+        "comptes": [
+          "63240100"
+        ]
+      },
+      "FRAIS_JURIDIQUES_et_REMUNERATIONS_INTERMEDIAIRES": {
+        "libelle": "FRAIS JURIDIQUES & REMUNERATIONS INTERMEDIAIRES",
+        "comptes": [
+          "63250000"
+        ]
+      },
+      "FRAIS_ASSISTANCE_TECHNIQUE_VENTIS": {
+        "libelle": "FRAIS ASSISTANCE TECHNIQUE VENTIS",
+        "comptes": [
+          "63280100"
+        ]
+      },
+      "PERSONNEL_INTERIMAIRE": {
+        "libelle": "PERSONNEL INTERIMAIRE",
+        "comptes": [
+          "63710000"
+        ]
+      },
+      "RESTAURATION": {
+        "libelle": "RESTAURATION",
+        "comptes": [
+          "63830000"
+        ]
+      },
+      "PATENTE": {
+        "libelle": "PATENTE",
+        "comptes": [
+          "64120000"
+        ]
+      },
+      "CHARGES_FNH": {
+        "libelle": "CHARGES FNH",
+        "comptes": [
+          "64130000"
+        ]
+      },
+      "CHARGES_CFP": {
+        "libelle": "CHARGES CFP",
+        "comptes": [
+          "64150000"
+        ]
+      },
+      "AUTRES_DROITS": {
+        "libelle": "AUTRES DROITS",
+        "comptes": [
+          "64680000"
+        ]
+      },
+      "AUTRES_CHARGES_DIVERSES": {
+        "libelle": "AUTRES CHARGES DIVERSES",
+        "comptes": [
+          "65880000"
+        ]
+      },
+      "DOTATION_AUX_AMORTISSEMENT": {
+        "libelle": "DOTATION AUX AMORTISSEMENT",
+        "comptes": [
+          "68130000"
+        ]
+      }
+    },
+    "produits": {
+      "VENTES_AUTOS": {
+        "libelle": "VENTES AUTOS",
+        "comptes": [
+          "70110000"
+        ]
+      },
+      "COMMISSIONS_PERCUES": {
+        "libelle": "COMMISSIONS PERCUES",
+        "comptes": [
+          "70600000"
+        ]
+      },
+      "PENALITES_DE_RETARD": {
+        "libelle": "PENALITES DE RETARD",
+        "comptes": [
+          "70610000"
+        ]
+      },
+      "FRAIS_DE_DOSSIER": {
+        "libelle": "FRAIS DE DOSSIER",
+        "comptes": [
+          "70720000"
+        ]
+      },
+      "COMMA_PERCEVOIR_SUR_GC_ECHUS": {
+        "libelle": "COMM.A PERCEVOIR SUR GC ECHUS",
+        "comptes": [
+          "70720100"
+        ]
+      }
+    },
+    "autres": {
+      "FRAIS_FINANCIERS": {
+        "libelle": "FRAIS FINANCIERS",
+        "comptes": [
+          "67450000"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "client_name": "BLUE LOGISTIK & PORTHOS",
+  "categories": {
+    "charges": {
+      "ACHAT_MATERIELS_ET_TRAVAUX": {
+        "libelle": "ACHAT MATERIELS ET TRAVAUX",
+        "comptes": [
+          "60580000"
+        ]
+      },
+      "FRAIS_BANCAIRES": {
+        "libelle": "FRAIS BANCAIRES",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "HONORAIRES_COMPTABLE": {
+        "libelle": "HONORAIRES COMPTABLE",
+        "comptes": [
+          "63240000"
+        ]
+      },
+      "PATENTE": {
+        "libelle": "PATENTE",
+        "comptes": [
+          "64120000"
+        ]
+      }
+    },
+    "autres": {
+      "FRAIS_FINANCIERS": {
+        "libelle": "FRAIS FINANCIERS",
+        "comptes": [
+          "67450000"
+        ]
+      }
+    }
+  }
+}

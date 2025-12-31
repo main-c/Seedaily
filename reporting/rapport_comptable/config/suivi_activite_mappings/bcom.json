@@ -1,0 +1,281 @@
+{
+  "client_name": "B-COM",
+  "categories": {
+    "personnel": {
+      "Appoitements": {
+        "libelle": "Appoitements",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "Indemnite_de_transport": {
+        "libelle": "Indemnité de transport",
+        "comptes": [
+          "66340000"
+        ]
+      },
+      "Indemnite_de_logement": {
+        "libelle": "Indemnité de logement",
+        "comptes": [
+          "66310000"
+        ]
+      },
+      "Indeminite_de_responsabilite": {
+        "libelle": "Indeminité de responsabilité",
+        "comptes": [
+          "66381000"
+        ]
+      },
+      "Indemnite_de_blanchissage": {
+        "libelle": "Indemnité de blanchissage",
+        "comptes": [
+          "66380000"
+        ]
+      },
+      "Idemnite_de_transport_cnss": {
+        "libelle": "Idemnité de transport cnss",
+        "comptes": [
+          "66121000"
+        ]
+      },
+      "Primes_panier": {
+        "libelle": "Primes panier",
+        "comptes": [
+          "66383000"
+        ]
+      },
+      "Primes_vestimenatire": {
+        "libelle": "Primes vestimenatire",
+        "comptes": [
+          "66384000"
+        ]
+      },
+      "Conges_payes": {
+        "libelle": "Congés payés",
+        "comptes": [
+          "66130000"
+        ]
+      },
+      "Cotisations_patronales": {
+        "libelle": "Cotisations patronales",
+        "comptes": [
+          "66410000"
+        ]
+      },
+      "Assistance_medicale": {
+        "libelle": "Assistance médicale",
+        "comptes": [
+          "66840000"
+        ]
+      }
+    },
+    "charges": {
+      "Assistance_comptable_et_fiscale": {
+        "libelle": "Assistance comptable et fiscale",
+        "comptes": [
+          "63240000"
+        ]
+      },
+      "Autres_honoraires": {
+        "libelle": "Autres honoraires",
+        "comptes": [
+          "63270000"
+        ]
+      },
+      "Deplacements": {
+        "libelle": "Déplacements",
+        "comptes": [
+          "61000000"
+        ]
+      },
+      "Internet": {
+        "libelle": "Internet",
+        "comptes": [
+          "62810000"
+        ]
+      },
+      "Loyer_eau": {
+        "libelle": "Loyer + eau",
+        "comptes": [
+          "62220000"
+        ]
+      },
+      "Entretiens_et_reparations": {
+        "libelle": "Entretiens & reparations",
+        "comptes": [
+          "62400000"
+        ]
+      },
+      "Electricite": {
+        "libelle": "Electricité",
+        "comptes": [
+          "60520000"
+        ]
+      },
+      "Charges_diverses_locatives_et_installations": {
+        "libelle": "Charges diverses locatives & installations",
+        "comptes": [
+          "62230000"
+        ]
+      },
+      "Publicite_et_Marketing": {
+        "libelle": "Publicité & Marketing",
+        "comptes": [
+          "62720000"
+        ]
+      },
+      "Receptions": {
+        "libelle": "Réceptions",
+        "comptes": [
+          "63830000"
+        ]
+      },
+      "Missions": {
+        "libelle": "Missions",
+        "comptes": [
+          "63840000"
+        ]
+      },
+      "Fournitures_de_bureau_et_consommables": {
+        "libelle": "Fournitures de bureau et consommables",
+        "comptes": [
+          "60440000"
+        ]
+      },
+      "Carburant": {
+        "libelle": "Carburant",
+        "comptes": [
+          "60530000"
+        ]
+      },
+      "Abonnements_et_documentation": {
+        "libelle": "Abonnements & documentation",
+        "comptes": [
+          "62650000"
+        ]
+      },
+      "Assurances_RC_et_autres": {
+        "libelle": "Assurances RC et autres",
+        "comptes": [
+          "62510000"
+        ]
+      },
+      "Charges_diverses_65": {
+        "libelle": "Charges diverses (65)",
+        "comptes": [
+          "65880000"
+        ]
+      },
+      "Impots_et_taxes": {
+        "libelle": "Impôts et taxes",
+        "comptes": [
+          "64000000"
+        ]
+      },
+      "Amortissement_Mobilier_bureaux_et_fauteuils": {
+        "libelle": "Amortissement Mobilier (bureaux & fauteuils)",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amortissement_Acquisition_pick_up": {
+        "libelle": "Amortissement Acquisition pick up",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amortissement_Acquisition_Panneaux_Abribus": {
+        "libelle": "Amortissement Acquisition Panneaux + Abribus",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amortissement_Amenagement_et_installation_Panneauxabribus": {
+        "libelle": "Amortissement Amenagement & installation Panneaux+abribus",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amortissement_Materiel_Informatique_et_Technique": {
+        "libelle": "Amortissement Matériel Informatique et Technique",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amort_Vehicule_de_liaison": {
+        "libelle": "Amort Vehicule de liaison",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amort_Panneaux_solaires_et_batteries": {
+        "libelle": "Amort Panneaux solaires et batteries",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Amort_Travaux_d_amenagement_interieur_et_branding_agence": {
+        "libelle": "Amort Travaux d'aménagement intérieur et branding agence",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Frais_financiers_et_bancaires": {
+        "libelle": "Frais financiers et bancaires",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "Achat_matieres_premierres_et_fournitures_liees_602": {
+        "libelle": "Achat matieres premierres & fournitures liées (602)",
+        "comptes": [
+          "60217000"
+        ]
+      }
+    },
+    "produits": {
+      "ABRIBUS_ET_PANNEAUX_PUBLICITAIRES": {
+        "libelle": "ABRIBUS ET PANNEAUX PUBLICITAIRES",
+        "comptes": [
+          "70610000"
+        ]
+      },
+      "COMMUNICATION_INSTITUTIONNELLES": {
+        "libelle": "COMMUNICATION INSTITUTIONNELLES",
+        "comptes": [
+          "70611000"
+        ]
+      },
+      "PRESTATION_DE_COMMUNICATION_INTERFILIALES": {
+        "libelle": "PRESTATION DE COMMUNICATION INTERFILIALES",
+        "comptes": [
+          "70612000"
+        ]
+      },
+      "COMMUNICATION_DIGITALE": {
+        "libelle": "COMMUNICATION DIGITALE",
+        "comptes": [
+          "70613000"
+        ]
+      },
+      "EVENEMENTIEL": {
+        "libelle": "EVENEMENTIEL",
+        "comptes": [
+          "70614000"
+        ]
+      },
+      "PRODUCTION_DE_SUPPORT_DE_COM": {
+        "libelle": "PRODUCTION DE SUPPORT DE COM",
+        "comptes": [
+          "70615000"
+        ]
+      },
+      "MASS_MARKET": {
+        "libelle": "MASS MARKET",
+        "comptes": [
+          "70616000"
+        ]
+      }
+    }
+  }
+}

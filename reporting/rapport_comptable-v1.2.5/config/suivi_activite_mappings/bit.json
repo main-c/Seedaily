@@ -1,0 +1,191 @@
+{
+  "client_name": "B.IT",
+  "categories": {
+    "personnel": {
+      "Appoitements": {
+        "libelle": "Appoitements",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "Indemnite_de_transport": {
+        "libelle": "Indemnité de transport",
+        "comptes": [
+          "66340000"
+        ]
+      },
+      "Indemnite_de_logement": {
+        "libelle": "Indemnité de logement",
+        "comptes": [
+          "66383000"
+        ]
+      },
+      "Indeminite_de_responsabilite": {
+        "libelle": "Indeminité de responsabilité",
+        "comptes": [
+          "66381000"
+        ]
+      },
+      "Indeminite_de_deplacement": {
+        "libelle": "Indeminité de  déplacement",
+        "comptes": [
+          "66340000"
+        ]
+      },
+      "Indemnite_de_blanchissage": {
+        "libelle": "Indemnité de blanchissage",
+        "comptes": [
+          "66380000"
+        ]
+      },
+      "Primes_panier": {
+        "libelle": "Primes panier",
+        "comptes": [
+          "66310000"
+        ]
+      },
+      "Primes_vestimenatire": {
+        "libelle": "Primes vestimenatire",
+        "comptes": [
+          "66384000"
+        ]
+      },
+      "ISR_imposable": {
+        "libelle": "ISR imposable",
+        "comptes": [
+          "66140000"
+        ]
+      },
+      "Conges_payes_principal": {
+        "libelle": "Congés payés principal",
+        "comptes": [
+          "66230000"
+        ]
+      },
+      "Cotisations_patronales": {
+        "libelle": "Cotisations patronales",
+        "comptes": [
+          "66410000"
+        ]
+      },
+      "Indemnite_de_logement_impo": {
+        "libelle": "Indemnité de logement impo",
+        "comptes": [
+          "66385000"
+        ]
+      }
+    },
+    "charges": {
+      "Fournitures_de_bureau": {
+        "libelle": "Fournitures de bureau",
+        "comptes": [
+          "60470000"
+        ]
+      },
+      "Eau": {
+        "libelle": "Eau",
+        "comptes": [
+          "60510000"
+        ]
+      },
+      "Electricite": {
+        "libelle": "Electricité",
+        "comptes": [
+          "60520000"
+        ]
+      },
+      "Carburant": {
+        "libelle": "Carburant",
+        "comptes": [
+          "60530000"
+        ]
+      },
+      "Transports": {
+        "libelle": "Transports",
+        "comptes": [
+          "61000000"
+        ]
+      },
+      "Telecommunicationinternetetcredit_appel": {
+        "libelle": "Télécommunication(internet&credit appel)",
+        "comptes": [
+          "62810000"
+        ]
+      },
+      "Entretien": {
+        "libelle": "Entretien",
+        "comptes": [
+          "62400000"
+        ]
+      },
+      "Restauration": {
+        "libelle": "Restauration",
+        "comptes": [
+          "63830000"
+        ]
+      },
+      "Loyer": {
+        "libelle": "Loyer",
+        "comptes": [
+          "62220000"
+        ]
+      },
+      "Assurance_risque": {
+        "libelle": "Assurance risque",
+        "comptes": [
+          "62510000"
+        ]
+      },
+      "Impots_et_Taxes": {
+        "libelle": "Impots & Taxes",
+        "comptes": [
+          "64000000"
+        ]
+      },
+      "Honoraires": {
+        "libelle": "Honoraires",
+        "comptes": [
+          "63240000"
+        ]
+      },
+      "Frais_bancaires": {
+        "libelle": "Frais bancaires",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "Redevances_logiciels": {
+        "libelle": "Redevances logiciels",
+        "comptes": [
+          "63420000"
+        ]
+      },
+      "Amortissement": {
+        "libelle": "Amortissement",
+        "comptes": [
+          "68130000"
+        ]
+      },
+      "Penalites": {
+        "libelle": "Pénalités",
+        "comptes": [
+          "64780000"
+        ]
+      },
+      "Autres_charges_divers": {
+        "libelle": "Autres charges divers",
+        "comptes": [
+          "65880000"
+        ]
+      }
+    },
+    "produits": {
+      "Chiffre_d_affaires": {
+        "libelle": "Chiffre d'affaires",
+        "comptes": [
+          "70610000"
+        ]
+      }
+    }
+  }
+}

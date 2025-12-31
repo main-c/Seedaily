@@ -1,0 +1,287 @@
+{
+  "client_name": "BLUE LEASE",
+  "categories": {
+    "personnel": {
+      "Appoitements": {
+        "libelle": "Appoitements",
+        "comptes": [
+          "66110000"
+        ]
+      },
+      "Sursalaire": {
+        "libelle": "Sursalaire",
+        "comptes": [
+          "66120000"
+        ]
+      },
+      "Indemnite_de_transport": {
+        "libelle": "Indemnité de transport",
+        "comptes": [
+          "66340000"
+        ]
+      },
+      "Indemnite_de_logement": {
+        "libelle": "Indemnité de logement",
+        "comptes": [
+          "66310000"
+        ]
+      },
+      "Indeminite_de_responsabilite": {
+        "libelle": "Indeminité de responsabilité",
+        "comptes": [
+          "66121000"
+        ]
+      },
+      "Indeminite_de_representation": {
+        "libelle": "Indeminité de  représentation",
+        "comptes": [
+          "66320000"
+        ]
+      },
+      "Indemnite_de_blanchissage": {
+        "libelle": "Indemnité de blanchissage",
+        "comptes": [
+          "66182000"
+        ]
+      },
+      "Idemnite_de_transport_cnss": {
+        "libelle": "Idemnité de transport cnss",
+        "comptes": [
+          "66381000"
+        ]
+      },
+      "Primes_panier": {
+        "libelle": "Primes panier",
+        "comptes": [
+          "66181000"
+        ]
+      },
+      "Primes_vestimenatire": {
+        "libelle": "Primes vestimenatire",
+        "comptes": [
+          "66318200"
+        ]
+      },
+      "Primes_d_anciennete": {
+        "libelle": "Primes d'anciennete",
+        "comptes": [
+          "66120100"
+        ]
+      },
+      "Prime_d_assiduite": {
+        "libelle": "Prime d'assiduite",
+        "comptes": [
+          "66122000"
+        ]
+      },
+      "Arrondies": {
+        "libelle": "Arrondies",
+        "comptes": [
+          "66380000"
+        ]
+      },
+      "Conges_payes": {
+        "libelle": "Congés payés",
+        "comptes": [
+          "66130000"
+        ]
+      },
+      "Cotisations_patronalescnss_cnamgs": {
+        "libelle": "Cotisations patronales(cnss/cnamgs)",
+        "comptes": [
+          "66400000"
+        ]
+      }
+    },
+    "charges": {
+      "Eaux": {
+        "libelle": "Eaux",
+        "comptes": [
+          "60510000"
+        ]
+      },
+      "Electricite": {
+        "libelle": "Electricité",
+        "comptes": [
+          "60520000"
+        ]
+      },
+      "Carburant": {
+        "libelle": "Carburant",
+        "comptes": [
+          "60530000"
+        ]
+      },
+      "Fournitures_de_bureaux": {
+        "libelle": "Fournitures de bureaux",
+        "comptes": [
+          "60550000"
+        ]
+      },
+      "achat_petit_materiel_et_outillage": {
+        "libelle": "achat petit materiel et outillage",
+        "comptes": [
+          "60560000"
+        ]
+      },
+      "Achat_d_etude_et_pretation_de_services": {
+        "libelle": "Achat d'etude et pretation de services",
+        "comptes": [
+          "60570000"
+        ]
+      },
+      "Achat_travaux_equipements_et_materiels": {
+        "libelle": "Achat travaux , equipements et materiels",
+        "comptes": [
+          "60580000"
+        ]
+      },
+      "Transport_Administratif": {
+        "libelle": "Transport Administratif",
+        "comptes": [
+          "61830000"
+        ]
+      },
+      "Transport_plie": {
+        "libelle": "Transport plie",
+        "comptes": [
+          "61600000"
+        ]
+      },
+      "Location_materiels_equipements": {
+        "libelle": "Location materiels/equipements",
+        "comptes": [
+          "62230000"
+        ]
+      },
+      "Loyer_mensuel_BLUE_LEASE": {
+        "libelle": "Loyer mensuel BLUE LEASE",
+        "comptes": [
+          "62220000"
+        ]
+      },
+      "Entretien_Reparations_et_MaintenanceVehiculs": {
+        "libelle": "Entretien, Reparations et Maintenance(Vehiculs)",
+        "comptes": [
+          "62420000"
+        ]
+      },
+      "Remorquage_maintenance": {
+        "libelle": "Remorquage/maintenance",
+        "comptes": [
+          "62430000"
+        ]
+      },
+      "Primes_d_assurances": {
+        "libelle": "Primes d'assurances",
+        "comptes": [
+          "62520000"
+        ]
+      },
+      "Etudes_Expertises_et_Documentation": {
+        "libelle": "Etudes, Expertises et Documentation",
+        "comptes": [
+          "62650000"
+        ]
+      },
+      "marketing_Publicite_Publications": {
+        "libelle": "marketing (Publicité, Publications, )",
+        "comptes": [
+          "62272000"
+        ]
+      },
+      "Frais_Propres_de_telecommunicationsinternet_credit_appels": {
+        "libelle": "Frais Propres de télécommunications(internet ,credit ,appels)",
+        "comptes": [
+          "62810000"
+        ]
+      },
+      "Autres_frais_de_telecommunication": {
+        "libelle": "Autres frais de telecommunication",
+        "comptes": [
+          "62880000"
+        ]
+      },
+      "Frais_bancaires": {
+        "libelle": "Frais bancaires",
+        "comptes": [
+          "63180000"
+        ]
+      },
+      "Remuneration_d_intermediaires_et_conseil": {
+        "libelle": "Rémunération d'intermédiaires et conseil",
+        "comptes": [
+          "63240000"
+        ]
+      },
+      "Remuneration_d_acte_et_contentieux": {
+        "libelle": "Rémunération d'acte et contentieux",
+        "comptes": [
+          "63250000"
+        ]
+      },
+      "Receptions": {
+        "libelle": "Receptions",
+        "comptes": [
+          "63830000"
+        ]
+      },
+      "Missions": {
+        "libelle": "Missions",
+        "comptes": [
+          "63840000"
+        ]
+      },
+      "Impot_et_Taxes": {
+        "libelle": "Impôt et  Taxes",
+        "comptes": [
+          "64000000"
+        ]
+      },
+      "Charges_divers": {
+        "libelle": "Charges divers",
+        "comptes": [
+          "65880000"
+        ]
+      }
+    },
+    "produits": {
+      "CA_BLUE_LEASE_Commission_loyer": {
+        "libelle": "CA BLUE LEASE (Commission loyer)",
+        "comptes": [
+          "70610000"
+        ]
+      },
+      "Frais_Dossiers": {
+        "libelle": "Frais Dossiers",
+        "comptes": [
+          "70612000"
+        ]
+      },
+      "Frais_de_Mise_en_Service": {
+        "libelle": "Frais de Mise en Service",
+        "comptes": [
+          "70611000"
+        ]
+      },
+      "Depot_de_Garantie": {
+        "libelle": "Dépôt de Garantie",
+        "comptes": [
+          "70613000"
+        ]
+      },
+      "Frais_de_Mise_en_Relation": {
+        "libelle": "Frais de Mise en Relation",
+        "comptes": [
+          "70614000"
+        ]
+      },
+      "Autres_Produits": {
+        "libelle": "Autres Produits",
+        "comptes": [
+          "70615000"
+        ]
+      }
+    }
+  }
+}
