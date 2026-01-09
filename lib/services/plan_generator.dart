@@ -14,44 +14,52 @@ class PlanGenerator {
     required String title,
     required GeneratorOptions options,
   }) {
+    // Redirection pour compatibilité : bible-complete → canonical-plan
+    var actualTemplateId = templateId;
+    if (templateId == 'bible-complete' || templateId == 'chronological') {
+      actualTemplateId = templateId == 'chronological'
+          ? 'chronological-plan'
+          : 'canonical-plan';
+    }
+
     // Plans fixes avec structure prédéfinie
-    switch (templateId) {
+    switch (actualTemplateId) {
       case 'mcheyne':
         return _generateFixedPlan(
-          templateId: templateId,
+          templateId: actualTemplateId,
           title: title,
           options: options,
           dayDefinitions: mcheynePlanDays.map((d) => (d.dayIndex, d.passages)).toList(),
         );
       case 'bible-year-ligue':
         return _generateFixedPlan(
-          templateId: templateId,
+          templateId: actualTemplateId,
           title: title,
           options: options,
           dayDefinitions: liguePlanDays.map((d) => (d.dayIndex, d.passages)).toList(),
         );
       case 'revolutionary':
         return _generateFixedPlan(
-          templateId: templateId,
+          templateId: actualTemplateId,
           title: title,
           options: options,
           dayDefinitions: revolutionaryPlanDays.map((d) => (d.dayIndex, d.passages)).toList(),
         );
       case 'horner':
         return _generateHornerPlan(
-          templateId: templateId,
+          templateId: actualTemplateId,
           title: title,
           options: options,
         );
     }
 
-    // Plans personnalisables
+    // Plans personnalisables (tous les autres templates)
     final passages = _buildPassagesList(options);
     final readingDays = _generateReadingDays(passages, options);
 
     return GeneratedPlan(
       id: _uuid.v4(),
-      templateId: templateId,
+      templateId: actualTemplateId,
       title: title,
       options: options,
       days: readingDays,
@@ -123,8 +131,9 @@ class PlanGenerator {
   List<Passage> _buildPassagesList(GeneratorOptions options) {
     final List<String> bookNames = _getBookNames(options.content);
     final orderedBooks = _applyOrder(bookNames, options.order);
-    final passages = <Passage>[];
+    var passages = <Passage>[];
 
+    // Construire passages par chapitres (MVP)
     for (final bookName in orderedBooks) {
       final book = BibleData.getBook(bookName);
       if (book == null) continue;
@@ -138,22 +147,32 @@ class PlanGenerator {
       }
     }
 
+    // Appliquer OT/NT Overlap si livres AT+NT sélectionnés
+    if (options.content.hasOldTestament && options.content.hasNewTestament) {
+      passages = _applyOtNtOverlap(passages, options.distribution.otNtOverlap);
+    }
+
+    // Appliquer Reverse
+    if (options.distribution.reverse) {
+      passages = passages.reversed.toList();
+    }
+
     return passages;
   }
 
   List<String> _getBookNames(ContentOptions content) {
+    // Utiliser selectedBooks directement (nouvelle structure)
+    if (content.selectedBooks.isNotEmpty) {
+      return content.selectedBooks;
+    }
+
+    // Fallback pour anciens plans (compatibilité)
     switch (content.scope) {
-      case ContentScope.bibleComplete:
-        return BibleData.books.map((b) => b.name).toList();
-
-      case ContentScope.oldTestament:
-        return BibleData.getOldTestamentBooks().map((b) => b.name).toList();
-
-      case ContentScope.newTestament:
-        return BibleData.getNewTestamentBooks().map((b) => b.name).toList();
-
       case ContentScope.custom:
-        return content.books;
+        return content.selectedBooks;
+      case ContentScope.preset:
+        // Plans fixes : retourner tous les livres
+        return BibleData.books.map((b) => b.name).toList();
     }
   }
 
@@ -198,8 +217,49 @@ class PlanGenerator {
         return bookNames;
 
       case OrderType.jewish:
+        bookNames.sort((a, b) {
+          final bookA = BibleData.getBook(a);
+          final bookB = BibleData.getBook(b);
+          if (bookA == null || bookB == null) return 0;
+          final orderA = bookA.jewishOrder ?? 999;
+          final orderB = bookB.jewishOrder ?? 999;
+          return orderA.compareTo(orderB);
+        });
         return bookNames;
     }
+  }
+
+  List<Passage> _applyOtNtOverlap(
+    List<Passage> passages,
+    OtNtOverlapMode mode,
+  ) {
+    if (mode == OtNtOverlapMode.sequential) return passages;
+
+    // Séparer AT et NT
+    final ot = passages.where((p) {
+      final book = BibleData.getBook(p.book);
+      return book?.isOldTestament ?? false;
+    }).toList();
+
+    final nt = passages.where((p) {
+      final book = BibleData.getBook(p.book);
+      return book?.isNewTestament ?? false;
+    }).toList();
+
+    // Alterner : [OT, NT, OT, NT, ...]
+    return _interleave(ot, nt);
+  }
+
+  List<Passage> _interleave(List<Passage> list1, List<Passage> list2) {
+    final result = <Passage>[];
+    final maxLength = list1.length > list2.length ? list1.length : list2.length;
+
+    for (int i = 0; i < maxLength; i++) {
+      if (i < list1.length) result.add(list1[i]);
+      if (i < list2.length) result.add(list2[i]);
+    }
+
+    return result;
   }
 
   List<ReadingDay> _generateReadingDays(
@@ -207,6 +267,7 @@ class PlanGenerator {
     GeneratorOptions options,
   ) {
     final schedule = options.schedule;
+    final distribution = options.distribution;
     final readingDays = <ReadingDay>[];
 
     final actualReadingDays = _calculateActualReadingDays(schedule);
@@ -214,6 +275,7 @@ class PlanGenerator {
 
     DateTime currentDate = schedule.startDate;
     int passageIndex = 0;
+    int psalmIndex = 1; // Pour DailyPsalmMode.sequential
 
     while (passageIndex < passages.length) {
       if (_isReadingDay(currentDate, schedule.readingDays)) {
@@ -223,6 +285,44 @@ class PlanGenerator {
         for (int i = 0; i < count && passageIndex < passages.length; i++) {
           dayPassages.add(passages[passageIndex]);
           passageIndex++;
+        }
+
+        // Ajouter Daily Psalm si activé
+        if (distribution.dailyPsalm == DailyPsalmMode.one) {
+          dayPassages.add(Passage(
+            book: 'Psaumes',
+            fromChapter: psalmIndex,
+            toChapter: psalmIndex,
+          ));
+          psalmIndex++;
+          if (psalmIndex > 150) psalmIndex = 1; // Boucler
+        } else if (distribution.dailyPsalm == DailyPsalmMode.sequential) {
+          dayPassages.add(Passage(
+            book: 'Psaumes',
+            fromChapter: psalmIndex,
+            toChapter: psalmIndex,
+          ));
+          psalmIndex++;
+          if (psalmIndex > 150) psalmIndex = 1;
+        }
+
+        // Ajouter Daily Proverb si activé
+        if (distribution.dailyProverb == DailyProverbMode.one) {
+          final proverbChapter = (readingDays.length % 31) + 1;
+          dayPassages.add(Passage(
+            book: 'Proverbes',
+            fromChapter: proverbChapter,
+            toChapter: proverbChapter,
+          ));
+        } else if (distribution.dailyProverb == DailyProverbMode.dayOfMonth) {
+          final proverbChapter = currentDate.day;
+          if (proverbChapter <= 31) {
+            dayPassages.add(Passage(
+              book: 'Proverbes',
+              fromChapter: proverbChapter,
+              toChapter: proverbChapter,
+            ));
+          }
         }
 
         if (dayPassages.isNotEmpty) {
@@ -284,16 +384,33 @@ class PlanGenerator {
 
   List<ReadingPlanTemplate> getDefaultTemplates() {
     return [
-      // Plans personnalisables
+      // Plans personnalisables avec sélection de livres
       ReadingPlanTemplate(
-        id: 'bible-complete',
-        title: 'Bible complète',
-        image: 'assets/images/bible_complete.png',
-        description:
-            'Lisez toute la Bible de la Genèse à l\'Apocalypse, à votre rythme',
+        id: 'canonical-plan',
+        title: 'Plan Canonique',
+        image: 'assets/images/canonical.jpg',
+        description: 'Bible dans l\'ordre traditionnel',
         porte:
-            'Un voyage complet à travers toute la Parole de Dieu. Configurez la durée selon vos besoins.',
+            'Lisez la Bible dans l\'ordre canonique avec sélection personnalisée des livres.',
       ),
+      ReadingPlanTemplate(
+        id: 'chronological-plan',
+        title: 'Plan Chronologique',
+        image: 'assets/images/chronological_plan.png',
+        description: 'Bible dans l\'ordre historique',
+        porte:
+            'Suivez l\'histoire biblique telle qu\'elle s\'est déroulée, de la création à l\'Église primitive.',
+      ),
+      ReadingPlanTemplate(
+        id: 'jewish-plan',
+        title: 'Plan Juif (Tanakh)',
+        image: 'assets/images/jewish.png',
+        description: 'Torah → Neviim → Ketuvim',
+        porte:
+            'Lisez la Bible hébraïque selon l\'ordre traditionnel juif : Torah, Prophètes, Écrits.',
+      ),
+
+      // Plans simples (anciens templates conservés pour compatibilité)
       ReadingPlanTemplate(
         id: 'new-testament',
         title: 'Nouveau Testament',
@@ -335,12 +452,12 @@ class PlanGenerator {
             'La sagesse de Salomon pour la vie quotidienne. Un chapitre par jour du mois.',
       ),
       ReadingPlanTemplate(
-        id: 'chronological',
-        title: 'Bible chronologique',
-        image: 'assets/images/chronological.png',
-        description: 'La Bible dans l\'ordre historique des événements',
+        id: 'genesis-to-revelation',
+        title: 'De la Genèse à l\'Apocalypse',
+        image: 'assets/images/straight.png',
+        description: 'Lecture simple dans l\'ordre canonique',
         porte:
-            'Suivez l\'histoire biblique telle qu\'elle s\'est déroulée, de la création à l\'Église primitive.',
+            'Le plan le plus simple : lisez la Bible du début à la fin, à votre rythme.',
       ),
 
       // Plans fixes (challenges)

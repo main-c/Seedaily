@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/theme.dart';
 import 'services/storage_service.dart';
@@ -114,7 +115,7 @@ class _SeedailyAppState extends State<SeedailyApp> {
           create: (_) => PlansProvider(
             storage: widget.storageService,
             generator: widget.planGenerator,
-          ),
+          )..loadPlans(),
         ),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(
@@ -129,6 +130,15 @@ class _SeedailyAppState extends State<SeedailyApp> {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.light,
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('fr', 'FR'),
+        ],
+        locale: const Locale('fr', 'FR'),
         routerConfig: _router,
       ),
     );

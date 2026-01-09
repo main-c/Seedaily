@@ -52,6 +52,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(plan.title),
+        elevation: 0,
+        backgroundColor: AppTheme.surface,
+        foregroundColor: AppTheme.deepNavy,
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),
@@ -72,6 +75,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
           ],
           indicatorColor: AppTheme.seedGold,
           labelColor: AppTheme.deepNavy,
+          unselectedLabelColor: AppTheme.textMuted,
+          splashFactory: NoSplash.splashFactory,
         ),
       ),
       body: Column(
@@ -93,11 +98,11 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
 
   Widget _buildProgressHeader(GeneratedPlan plan) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: const BoxDecoration(
         color: AppTheme.surface,
         border: Border(
-          bottom: BorderSide(color: AppTheme.borderSubtle),
+          bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
         ),
       ),
       child: Column(
@@ -105,20 +110,20 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem(
+              _buildStatCard(
                 context,
                 icon: Icons.check_circle_outline,
                 label: 'Complétés',
                 value: '${plan.completedDays}/${plan.totalDays}',
               ),
-              _buildStatItem(
+              _buildStatCard(
                 context,
                 icon: Icons.trending_up,
                 label: 'Progression',
                 value: '${plan.progress.toStringAsFixed(0)}%',
               ),
               if (plan.currentStreak > 0)
-                _buildStatItem(
+                _buildStatCard(
                   context,
                   icon: Icons.local_fire_department,
                   label: 'Série',
@@ -131,7 +136,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: plan.progress / 100,
-              minHeight: 8,
+              minHeight: 6,
               backgroundColor: AppTheme.borderSubtle,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.seedGold,
@@ -143,28 +148,41 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
     );
   }
 
-  Widget _buildStatItem(
+  Widget _buildStatCard(
     BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
   }) {
-    return Column(
-      children: [
-        Icon(icon, color: AppTheme.seedGold, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.deepNavy,
-                fontWeight: FontWeight.bold,
-              ),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: AppTheme.backgroundLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppTheme.borderSubtle, width: 0.5),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
+        child: Column(
+          children: [
+            Icon(icon, color: AppTheme.seedGold, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppTheme.deepNavy,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -209,9 +227,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: isToday
-                ? Border.all(color: AppTheme.seedGold, width: 2)
-                : null,
+            border:
+                isToday ? Border.all(color: AppTheme.seedGold, width: 2) : null,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +237,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen>
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: day.completed
-                      ? AppTheme.seedGold
-                      : AppTheme.surface,
+                  color: day.completed ? AppTheme.seedGold : AppTheme.surface,
                   border: Border.all(
                     color: day.completed
                         ? AppTheme.seedGold
