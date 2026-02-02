@@ -24,7 +24,8 @@ class NotificationService {
 
     tz.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -57,8 +58,8 @@ class NotificationService {
     bool granted = true;
 
     if (androidImplementation != null) {
-      granted = await androidImplementation.requestNotificationsPermission() ??
-          false;
+      granted =
+          await androidImplementation.requestNotificationsPermission() ?? false;
     }
 
     if (iosImplementation != null) {
@@ -118,8 +119,6 @@ class NotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }

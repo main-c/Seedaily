@@ -44,14 +44,21 @@ class ByBookViewWidget extends StatelessWidget {
         final bookName = bookData['bookName'] as String;
         final bookDays = bookData['days'] as List<MapEntry<int, ReadingDay>>;
         final totalChapters = bookData['totalChapters'] as int;
+        final completedDays = bookData['completedDays'] as int;
         final book = BibleData.getBook(bookName);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // En-tête de livre
-            _buildBookHeader(context, bookName, book, totalChapters,
-                bookDays.length),
+            _buildBookHeader(
+              context,
+              bookName,
+              book,
+              totalChapters,
+              bookDays.length,
+              completedDays,
+            ),
             const SizedBox(height: 12),
 
             // Jours pour ce livre
@@ -81,6 +88,8 @@ class ByBookViewWidget extends StatelessWidget {
                       isPreviewMode: isPreviewMode,
                       showCheckbox: showCheckbox,
                       showDayCheckbox: true,
+                      isCurrent: isCurrent,
+                      isDayComplete: day.completed,
                     ),
                   ),
                 ),
@@ -102,12 +111,16 @@ class ByBookViewWidget extends StatelessWidget {
     BibleBook? book,
     int totalChapters,
     int daysCount,
+    int completedDays,
   ) {
     // Déterminer la catégorie du livre pour l'icône et la couleur
     final testament = book?.isOldTestament == true ? 'AT' : 'NT';
     final testamentColor = book?.isOldTestament == true
         ? AppTheme.deepNavy
         : AppTheme.seedGold;
+
+    // Calculer la progression
+    final progressPercentage = daysCount > 0 ? completedDays / daysCount : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -126,98 +139,128 @@ class ByBookViewWidget extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Icône du livre
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: testamentColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.menu_book_rounded,
-                color: AppTheme.surface,
-                size: 28,
+          Row(
+            children: [
+              // Icône du livre
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: testamentColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.menu_book_rounded,
+                    color: AppTheme.surface,
+                    size: 28,
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 16),
+              const SizedBox(width: 16),
 
-          // Informations du livre
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              // Informations du livre
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        bookName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.deepNavy,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            bookName,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.deepNavy,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: testamentColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            testament,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: testamentColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: testamentColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        testament,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: testamentColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.library_books,
+                          size: 14,
+                          color: AppTheme.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$totalChapters chapitre${totalChapters > 1 ? 's' : ''}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textMuted,
+                                fontSize: 12,
+                              ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: AppTheme.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$daysCount jour${daysCount > 1 ? 's' : ''}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textMuted,
+                                fontSize: 12,
+                              ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.library_books,
-                      size: 14,
-                      color: AppTheme.textMuted,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$totalChapters chapitre${totalChapters > 1 ? 's' : ''}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
-                            fontSize: 12,
-                          ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: AppTheme.textMuted,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$daysCount jour${daysCount > 1 ? 's' : ''}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
-                            fontSize: 12,
-                          ),
-                    ),
-                  ],
+              ),
+            ],
+          ),
+
+          // Barre de progression
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progressPercentage,
+                    backgroundColor: AppTheme.borderSubtle,
+                    valueColor: AlwaysStoppedAnimation<Color>(testamentColor),
+                    minHeight: 6,
+                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${(progressPercentage * 100).toInt()}%',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: testamentColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
           ),
         ],
       ),
@@ -229,12 +272,12 @@ class ByBookViewWidget extends StatelessWidget {
     String? currentBook;
     List<MapEntry<int, ReadingDay>> currentBookDays = [];
     Set<int> currentBookChapters = {};
+    int currentCompletedDays = 0;
 
     for (int i = 0; i < days.length; i++) {
       final day = days[i];
 
       // Trouver le premier livre dans les passages du jour
-      // (on assume que les jours sont organisés par livre dans le générateur)
       final firstBookInDay = day.passages.isNotEmpty
           ? day.passages.first.book
           : null;
@@ -248,14 +291,21 @@ class ByBookViewWidget extends StatelessWidget {
             'bookName': currentBook,
             'days': List<MapEntry<int, ReadingDay>>.from(currentBookDays),
             'totalChapters': currentBookChapters.length,
+            'completedDays': currentCompletedDays,
           });
           currentBookDays = [];
           currentBookChapters = {};
+          currentCompletedDays = 0;
         }
       }
 
       currentBook = firstBookInDay;
       currentBookDays.add(MapEntry(i, day));
+      
+      // Compter les jours complétés
+      if (day.completed) {
+        currentCompletedDays++;
+      }
 
       // Compter les chapitres uniques pour ce livre
       for (final passage in day.passages) {
@@ -273,6 +323,7 @@ class ByBookViewWidget extends StatelessWidget {
         'bookName': currentBook,
         'days': currentBookDays,
         'totalChapters': currentBookChapters.length,
+        'completedDays': currentCompletedDays,
       });
     }
 

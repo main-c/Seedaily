@@ -13,6 +13,9 @@ class ReadingDayCard extends StatelessWidget {
   final bool showCheckbox;
   final bool showDayCheckbox;
   final bool isDayComplete;
+  final bool isCurrent;
+  final bool usePillStyle;
+  final String? description;
   final Function(bool?)? onDayCheckChanged;
   final Function(Passage, bool?)? onPassageCheckChanged;
   final Set<String>? completedPassages;
@@ -24,6 +27,9 @@ class ReadingDayCard extends StatelessWidget {
     this.showCheckbox = true,
     this.showDayCheckbox = true,
     this.isDayComplete = false,
+    this.isCurrent = false,
+    this.usePillStyle = false,
+    this.description,
     this.onDayCheckChanged,
     this.onPassageCheckChanged,
     this.completedPassages,
@@ -33,9 +39,16 @@ class ReadingDayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: isCurrent
+            ? AppTheme.seedGold.withValues(alpha: 0.03)
+            : AppTheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderSubtle, width: 0.5),
+        border: Border.all(
+          color: isCurrent
+              ? AppTheme.seedGold.withValues(alpha: 0.3)
+              : AppTheme.borderSubtle,
+          width: isCurrent ? 1 : 0.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -49,7 +62,7 @@ class ReadingDayCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header : Date + Checkbox du jour
+            // Header : Date + Checkbox du jour + Badge current
             Row(
               children: [
                 if (showCheckbox && showDayCheckbox) ...[
@@ -64,12 +77,52 @@ class ReadingDayCard extends StatelessWidget {
                   const SizedBox(width: 12),
                 ],
                 Expanded(
-                  child: Text(
-                    DateFormat('EEEE d MMMM', 'fr_FR').format(day.date),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.deepNavy,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              DateFormat('EEEE d MMMM', 'fr_FR').format(day.date),
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.deepNavy,
+                                  ),
+                            ),
+                          ),
+                          if (isCurrent)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.seedGold,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'AUJOURD\'HUI',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: AppTheme.surface,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (description != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          description!,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textMuted,
+                                fontSize: 12,
+                              ),
                         ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -82,12 +135,14 @@ class ReadingDayCard extends StatelessWidget {
               runSpacing: 8,
               children: day.passages.map((passage) {
                 final isComplete =
-                    completedPassages?.contains(_passageKey(passage)) ?? false;
+                    completedPassages?.contains(_passageKey(passage)) ?? isDayComplete;
                 return PassageChip(
                   passage: passage,
                   isPreviewMode: isPreviewMode,
                   showCheckbox: showCheckbox && !showDayCheckbox,
                   isComplete: isComplete,
+                  isCurrent: isCurrent,
+                  usePillStyle: usePillStyle,
                   onCheckChanged: (value) {
                     if (!isPreviewMode && onPassageCheckChanged != null) {
                       onPassageCheckChanged!(passage, value);

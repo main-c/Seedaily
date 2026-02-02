@@ -13,7 +13,9 @@ class PlanGenerator {
     required String templateId,
     required String title,
     required GeneratorOptions options,
+    String? existingPlanId,
   }) {
+    final planId = existingPlanId ?? _uuid.v4();
     // Redirection pour compatibilité : bible-complete → canonical-plan
     var actualTemplateId = templateId;
     if (templateId == 'bible-complete' || templateId == 'chronological') {
@@ -26,6 +28,7 @@ class PlanGenerator {
     switch (actualTemplateId) {
       case 'mcheyne':
         return _generateFixedPlan(
+          planId: planId,
           templateId: actualTemplateId,
           title: title,
           options: options,
@@ -33,6 +36,7 @@ class PlanGenerator {
         );
       case 'bible-year-ligue':
         return _generateFixedPlan(
+          planId: planId,
           templateId: actualTemplateId,
           title: title,
           options: options,
@@ -40,6 +44,7 @@ class PlanGenerator {
         );
       case 'revolutionary':
         return _generateFixedPlan(
+          planId: planId,
           templateId: actualTemplateId,
           title: title,
           options: options,
@@ -47,6 +52,7 @@ class PlanGenerator {
         );
       case 'horner':
         return _generateHornerPlan(
+          planId: planId,
           templateId: actualTemplateId,
           title: title,
           options: options,
@@ -58,7 +64,7 @@ class PlanGenerator {
     final readingDays = _generateReadingDays(passages, options);
 
     return GeneratedPlan(
-      id: _uuid.v4(),
+      id: planId,
       templateId: actualTemplateId,
       title: title,
       options: options,
@@ -68,6 +74,7 @@ class PlanGenerator {
   }
 
   GeneratedPlan _generateFixedPlan({
+    required String planId,
     required String templateId,
     required String title,
     required GeneratorOptions options,
@@ -87,7 +94,7 @@ class PlanGenerator {
     }
 
     return GeneratedPlan(
-      id: _uuid.v4(),
+      id: planId,
       templateId: templateId,
       title: title,
       options: options,
@@ -97,6 +104,7 @@ class PlanGenerator {
   }
 
   GeneratedPlan _generateHornerPlan({
+    required String planId,
     required String templateId,
     required String title,
     required GeneratorOptions options,
@@ -119,7 +127,7 @@ class PlanGenerator {
     }
 
     return GeneratedPlan(
-      id: _uuid.v4(),
+      id: planId,
       templateId: templateId,
       title: title,
       options: options,
@@ -388,7 +396,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'canonical-plan',
         title: 'Plan Canonique',
-        image: 'assets/images/canonical.jpg',
+        image: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=80',
         description: 'Bible dans l\'ordre traditionnel',
         porte:
             'Lisez la Bible dans l\'ordre canonique avec sélection personnalisée des livres.',
@@ -396,7 +404,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'chronological-plan',
         title: 'Plan Chronologique',
-        image: 'assets/images/chronological_plan.png',
+        image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80',
         description: 'Bible dans l\'ordre historique',
         porte:
             'Suivez l\'histoire biblique telle qu\'elle s\'est déroulée, de la création à l\'Église primitive.',
@@ -404,7 +412,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'jewish-plan',
         title: 'Plan Juif (Tanakh)',
-        image: 'assets/images/jewish.png',
+        image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
         description: 'Torah → Neviim → Ketuvim',
         porte:
             'Lisez la Bible hébraïque selon l\'ordre traditionnel juif : Torah, Prophètes, Écrits.',
@@ -414,7 +422,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'new-testament',
         title: 'Nouveau Testament',
-        image: 'assets/images/new_testament.png',
+        image: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
         description: '27 livres de Matthieu à l\'Apocalypse',
         porte:
             'Découvrez la vie de Jésus, les premiers chrétiens et l\'enseignement des apôtres.',
@@ -422,7 +430,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'old-testament',
         title: 'Ancien Testament',
-        image: 'assets/images/old_testament.png',
+        image: 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&q=80',
         description: '39 livres de la Genèse à Malachie',
         porte:
             'L\'histoire du peuple de Dieu, des origines aux prophètes d\'Israël.',
@@ -430,7 +438,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'gospels',
         title: 'Les Évangiles',
-        image: 'assets/images/gospels.png',
+        image: 'https://images.unsplash.com/photo-1499652848871-1527a310b13a?w=800&q=80',
         description: 'Les quatre récits de la vie de Jésus',
         porte:
             'Matthieu, Marc, Luc et Jean : quatre regards sur le Christ.',
@@ -438,7 +446,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'psalms',
         title: 'Les Psaumes',
-        image: 'assets/images/psalms.png',
+        image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
         description: '150 prières et louanges d\'Israël',
         porte:
             'Le livre de prière de Jésus. Chants de louange, de supplication et de sagesse.',
@@ -446,7 +454,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'proverbs',
         title: 'Les Proverbes',
-        image: 'assets/images/proverbs.png',
+        image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
         description: '31 chapitres de sagesse pratique',
         porte:
             'La sagesse de Salomon pour la vie quotidienne. Un chapitre par jour du mois.',
@@ -454,7 +462,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'genesis-to-revelation',
         title: 'De la Genèse à l\'Apocalypse',
-        image: 'assets/images/straight.png',
+        image: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80',
         description: 'Lecture simple dans l\'ordre canonique',
         porte:
             'Le plan le plus simple : lisez la Bible du début à la fin, à votre rythme.',
@@ -464,7 +472,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'mcheyne',
         title: 'Plan M\'Cheyne',
-        image: 'assets/images/mcheyne.png',
+        image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
         description:
             '4 chapitres par jour · 365 jours · AT 1x, NT et Psaumes 2x',
         porte:
@@ -473,7 +481,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'bible-year-ligue',
         title: 'Bible en 1 an de la Ligue',
-        image: 'assets/images/ligue.png',
+        image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
         description:
             'AT + Psaume + Proverbe + NT chaque jour',
         porte:
@@ -482,7 +490,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'revolutionary',
         title: 'Plan révolutionnaire',
-        image: 'assets/images/revolutionary.png',
+        image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=800&q=80',
         description:
             '25 lectures par mois avec jours de repos',
         porte:
@@ -491,20 +499,11 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'horner',
         title: 'Plan du Professeur Horner',
-        image: 'assets/images/horner.png',
+        image: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
         description:
             '10 chapitres par jour dans 10 listes différentes',
         porte:
             'Lecture intensive qui révèle les connexions entre les livres bibliques.',
-      ),
-      ReadingPlanTemplate(
-        id: 'genesis-to-revelation',
-        title: 'De la Genèse à l\'Apocalypse',
-        image: 'assets/images/straight.png',
-        description:
-            'Lecture simple dans l\'ordre canonique',
-        porte:
-            'Le plan le plus simple : lisez la Bible du début à la fin, à votre rythme.',
       ),
     ];
   }

@@ -9,149 +9,152 @@ import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
 import '../../services/plan_generator.dart';
 import '../widgets/book_selector_section.dart';
-import '../widgets/reading_day_card.dart';
-import '../widgets/reading_stats_bar.dart';
-import '../widgets/month_calendar_widget.dart';
-import '../widgets/list_view_widget.dart';
-import '../widgets/weekly_view_widget.dart';
-import '../widgets/by_book_view_widget.dart';
 
 class CustomizePlanScreen extends StatefulWidget {
   const CustomizePlanScreen({
     super.key,
-    required this.templateId,
-  });
+    this.templateId,
+    this.planId,
+  }) : assert(templateId != null || planId != null,
+            'Either templateId or planId must be provided');
 
-  final String templateId;
+  /// Pour créer un nouveau plan à partir d'un template
+  final String? templateId;
+
+  /// Pour éditer un plan existant
+  final String? planId;
+
+  /// Mode édition si planId est fourni
+  bool get isEditMode => planId != null;
 
   @override
   State<CustomizePlanScreen> createState() => _CustomizePlanScreenState();
 }
 
-class _CustomizePlanScreenState extends State<CustomizePlanScreen> {
-  late ReadingPlanTemplate _template;
+class _CustomizePlanScreenState extends State<CustomizePlanScreen>
+    with SingleTickerProviderStateMixin {
+  final _generator = PlanGenerator();
+  late TabController _tabController;
   late TextEditingController _titleController;
-  late TextEditingController _totalDaysController;
 
-  // Options de base
-  DateTime? _startDate;
-  int _totalDays = 365;
+  /// Le plan de travail (local, pas encore sauvegardé en BD)
+  late GeneratedPlan _workingPlan;
 
-  // Jours de lecture
-  final Set<String> _readingDays = {
-    'mon',
-    'tue',
-    'wed',
-    'thu',
-    'fri',
-    'sat',
-    'sun'
-  };
-
-  // Options de contenu (NOUVELLE STRUCTURE MVP)
-  Set<String> _selectedBooks = {};
-  bool _includeApocrypha = false;
-
-  // Options d'ordre
-  OrderType _orderType = OrderType.canonical;
-
-  // Options de distribution (NOUVELLE STRUCTURE MVP)
-  OtNtOverlapMode _otNtOverlap = OtNtOverlapMode.sequential;
-  DailyPsalmMode _dailyPsalm = DailyPsalmMode.none;
-  DailyProverbMode _dailyProverb = DailyProverbMode.none;
-  bool _reverse = false;
-  BalanceType _balance = BalanceType.even;
-
-  // Options d'affichage (NOUVELLE STRUCTURE MVP)
-  OutputFormat _outputFormat = OutputFormat.calendar;
-  bool _showCheckboxes = true;
-  bool _showStatistics = true;
-  bool _removeDates = false;
-  bool _sectionColors = false;
-  bool _addReadingLinks = false;
-
-  // État de la preview
-  bool _isGenerating = false;
-  Map<String, dynamic>? _previewStats;
-  List<ReadingDay> _previewDays = [];
-  int _selectedDayIndex = 0; // Jour actuellement affiché dans "Lecture du jour"
+  /// Le template associé au plan
+  late ReadingPlanTemplate _template;
 
   final _dateFormat = DateFormat('dd MMMM yyyy', 'fr_FR');
 
   @override
   void initState() {
     super.initState();
-    final templates = context.read<PlansProvider>().templates;
-    _template = templates.firstWhere((t) => t.id == widget.templateId);
+    _tabController = TabController(length: 3, vsync: this);
 
-    final year = DateTime.now().year;
-    _titleController = TextEditingController(text: '${_template.title} $year');
-    _totalDaysController = TextEditingController(text: _totalDays.toString());
+    final provider = context.read<PlansProvider>();
 
-    // Initialiser avec des valeurs par défaut
-    _startDate = DateTime.now();
-    _initializeSelectedBooks();
-    _initializeOrderType();
+    if (widget.isEditMode) {
+      // Mode édition : charger le plan existant
+      final existingPlan = provider.getPlanById(widget.planId!);
+      if (existingPlan != null) {
+        _workingPlan = existingPlan;
+        _template = provider.templates.firstWhere(
+          (t) => t.id == existingPlan.templateId,
+          orElse: () => provider.templates.first,
+        );
+      } else {
+        // Plan introuvable - créer un plan par défaut
+        _template = provider.templates.first;
+        _workingPlan = _generateDefaultPlan(_template.id);
+      }
+    } else {
+      // Mode création : générer un plan avec options par défaut
+      _template = provider.templates.firstWhere(
+        (t) => t.id == widget.templateId,
+        orElse: () => provider.templates.first,
+      );
+      _workingPlan = _generateDefaultPlan(_template.id);
+    }
 
-    // Générer immédiatement la prévisualisation
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _generatePreview();
-    });
+    _titleController = TextEditingController(text: _workingPlan.title);
   }
 
-  void _initializeSelectedBooks() {
-    // Initialiser la sélection selon le template
-    switch (widget.templateId) {
-      case 'canonical-plan':
-      case 'chronological-plan':
-      case 'bible-complete':
-        // Par défaut : tous les livres (66)
-        _selectedBooks = Set.from(BibleData.books.map((b) => b.name));
-        break;
+  /// Génère un plan avec les options par défaut pour un template
+  GeneratedPlan _generateDefaultPlan(String templateId) {
+    final year = DateTime.now().year;
+    final defaultOptions = _getDefaultOptions(templateId);
+
+    return _generator.generate(
+      templateId: templateId,
+      title: '${_template.title} $year',
+      options: defaultOptions,
+    );
+  }
+
+  /// Retourne les options par défaut selon le template
+  GeneratorOptions _getDefaultOptions(String templateId) {
+    final selectedBooks = _getDefaultBooks(templateId);
+    final orderType = _getDefaultOrderType(templateId);
+
+    return GeneratorOptions(
+      content: ContentOptions(
+        scope: ContentScope.custom,
+        selectedBooks: selectedBooks,
+        includeApocrypha: false,
+      ),
+      order: OrderOptions(type: orderType),
+      schedule: ScheduleOptions(
+        startDate: DateTime.now(),
+        totalDays: 365,
+        readingDays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+      ),
+      distribution: DistributionOptions(),
+      display: DisplayOptions(),
+    );
+  }
+
+  List<String> _getDefaultBooks(String templateId) {
+    switch (templateId) {
       case 'jewish-plan':
-        // Par défaut : tous les livres AT (39) pour le plan juif
-        _selectedBooks = Set.from(
-          BibleData.books.where((b) => b.isOldTestament).map((b) => b.name),
-        );
-        break;
+        return BibleData.books
+            .where((b) => b.isOldTestament)
+            .map((b) => b.name)
+            .toList();
       case 'new-testament':
-        _selectedBooks =
-            Set.from(BibleData.getNewTestamentBooks().map((b) => b.name));
-        break;
+        return BibleData.getNewTestamentBooks().map((b) => b.name).toList();
       case 'old-testament':
-        _selectedBooks =
-            Set.from(BibleData.getOldTestamentBooks().map((b) => b.name));
-        break;
+        return BibleData.getOldTestamentBooks().map((b) => b.name).toList();
+      case 'gospels':
+        return ['Matthieu', 'Marc', 'Luc', 'Jean'];
+      case 'psalms':
+        return ['Psaumes'];
+      case 'proverbs':
+        return ['Proverbes'];
       default:
-        // Plans fixes : tous les livres
-        _selectedBooks = Set.from(BibleData.books.map((b) => b.name));
+        return BibleData.books.map((b) => b.name).toList();
     }
   }
 
-  void _initializeOrderType() {
-    // Initialiser l'ordre selon le template
-    switch (widget.templateId) {
-      case 'canonical-plan':
-      case 'bible-complete':
-        _orderType = OrderType.canonical;
-        break;
+  OrderType _getDefaultOrderType(String templateId) {
+    switch (templateId) {
       case 'chronological-plan':
-        _orderType = OrderType.chronological;
-        break;
+        return OrderType.chronological;
       case 'jewish-plan':
-        _orderType = OrderType.jewish;
-        break;
+        return OrderType.jewish;
       default:
-        _orderType = OrderType.canonical;
+        return OrderType.canonical;
     }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _totalDaysController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
+
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
 
   bool get _isFixedPlan {
     return [
@@ -160,197 +163,71 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen> {
       'revolutionary',
       'horner',
       'genesis-to-revelation',
-    ].contains(widget.templateId);
+    ].contains(_workingPlan.templateId);
   }
 
-  bool get _isNewTemplatePlan {
+  bool get _isCustomizablePlan {
     return [
       'canonical-plan',
       'chronological-plan',
       'jewish-plan',
-    ].contains(widget.templateId);
-  }
-
-  bool get _canCustomizeContent {
-    return !_isFixedPlan;
-  }
-
-  bool get _canCustomizeOrder {
-    return !_isFixedPlan && !_isNewTemplatePlan;
-  }
-
-  bool get _canCustomizeDuration {
-    return !_isFixedPlan;
-  }
-
-  bool get _canCustomizeDistribution {
-    return !_isFixedPlan;
+    ].contains(_workingPlan.templateId);
   }
 
   bool get _hasOldTestament {
-    return _selectedBooks.any((bookName) {
+    return _workingPlan.options.content.selectedBooks.any((bookName) {
       final book = BibleData.getBook(bookName);
       return book?.isOldTestament ?? false;
     });
   }
 
   bool get _hasNewTestament {
-    return _selectedBooks.any((bookName) {
+    return _workingPlan.options.content.selectedBooks.any((bookName) {
       final book = BibleData.getBook(bookName);
       return book?.isNewTestament ?? false;
     });
   }
 
-  bool get _showDailyPsalmProverb {
-    return !_isFixedPlan && _hasOldTestament;
-  }
+  bool get _showDailyPsalmProverb => !_isFixedPlan && _hasOldTestament;
 
-  bool get _showOtNtOverlap {
-    return !_isFixedPlan && _hasOldTestament && _hasNewTestament;
-  }
+  bool get _showOtNtOverlap => !_isFixedPlan && _hasOldTestament && _hasNewTestament;
 
-  Future<void> _generatePreview() async {
-    if (_startDate == null) return;
+  // ============================================================================
+  // RÉGÉNÉRATION DU PLAN
+  // ============================================================================
+
+  /// Régénère le plan avec de nouvelles options
+  void _regeneratePlan({
+    ContentOptions? content,
+    OrderOptions? order,
+    ScheduleOptions? schedule,
+    DistributionOptions? distribution,
+    DisplayOptions? display,
+  }) {
+    final newOptions = GeneratorOptions(
+      content: content ?? _workingPlan.options.content,
+      order: order ?? _workingPlan.options.order,
+      schedule: schedule ?? _workingPlan.options.schedule,
+      distribution: distribution ?? _workingPlan.options.distribution,
+      display: display ?? _workingPlan.options.display,
+    );
 
     setState(() {
-      _isGenerating = true;
-    });
-
-    try {
-      // Calculer les statistiques
-      final bookCount = _selectedBooks.length;
-      final totalChapters = _getTotalChapters();
-      final readingDaysCount = _calculateReadingDaysCount(
-        _totalDays,
-        _readingDays,
-        _startDate,
+      _workingPlan = _generator.generate(
+        templateId: _workingPlan.templateId,
+        title: _titleController.text,
+        options: newOptions,
+        existingPlanId: _workingPlan.id, // Garder le même ID
       );
-      final avgChaptersPerDay =
-          readingDaysCount > 0 ? totalChapters / readingDaysCount : 0.0;
-      final endDate = _calculateEndDate(_startDate, _totalDays, _readingDays);
-
-      // Générer les premiers jours RÉELS pour l'aperçu (90 jours = 3 mois)
-      final previewDays = await _generatePreviewDays(90);
-
-      if (mounted) {
-        setState(() {
-          _previewStats = {
-            'bookCount': bookCount,
-            'totalChapters': totalChapters,
-            'readingDaysCount': readingDaysCount,
-            'avgChaptersPerDay': avgChaptersPerDay.toStringAsFixed(1),
-            'endDate': endDate,
-          };
-          _previewDays = previewDays;
-          _selectedDayIndex = 0; // Reset to first day on regeneration
-          _isGenerating = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isGenerating = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la génération: $e'),
-            backgroundColor: AppTheme.error,
-          ),
-        );
-      }
-    }
+    });
   }
 
-  Future<List<ReadingDay>> _generatePreviewDays(int count) async {
-    final options = GeneratorOptions(
-      content: ContentOptions(
-        scope: ContentScope.custom,
-        selectedBooks: _selectedBooks.toList(),
-        includeApocrypha: _includeApocrypha,
-      ),
-      order: OrderOptions(type: _orderType),
-      schedule: ScheduleOptions(
-        startDate: _startDate!,
-        totalDays: _totalDays,
-        readingDays: _readingDays.toList(),
-      ),
-      distribution: DistributionOptions(
-        unit: DistributionUnit.chapters,
-        otNtOverlap: _otNtOverlap,
-        dailyPsalm: _dailyPsalm,
-        dailyProverb: _dailyProverb,
-        reverse: _reverse,
-        balance: _balance,
-      ),
-      display: DisplayOptions(
-        includeCheckbox: _showCheckboxes,
-        showStats: _showStatistics,
-        removeDates: _removeDates,
-        sectionColors: _sectionColors,
-        addReadingLinks: _addReadingLinks,
-        format: _outputFormat,
-      ),
-    );
+  // ============================================================================
+  // SAUVEGARDE
+  // ============================================================================
 
-    final generator = PlanGenerator();
-    final fullPlan = generator.generate(
-      templateId: widget.templateId,
-      title: _titleController.text,
-      options: options,
-    );
-
-    return fullPlan.days.take(count).toList();
-  }
-
-  int _getTotalChapters() {
-    int total = 0;
-    for (final bookName in _selectedBooks) {
-      final book = BibleData.getBook(bookName);
-      if (book != null) {
-        total += book.chapters;
-      }
-    }
-    return total;
-  }
-
-  int _calculateReadingDaysCount(
-      int totalDays, Set<String> readingDays, DateTime? startDate) {
-    if (startDate == null) return 0;
-    if (readingDays.isEmpty || readingDays.length == 7) {
-      return totalDays;
-    }
-
-    int count = 0;
-    DateTime current = startDate;
-    for (int i = 0; i < totalDays; i++) {
-      if (_isReadingDay(current, readingDays.toList())) {
-        count++;
-      }
-      current = current.add(const Duration(days: 1));
-    }
-    return count;
-  }
-
-  DateTime _calculateEndDate(
-      DateTime? startDate, int totalDays, Set<String> readingDays) {
-    if (startDate == null) return DateTime.now();
-    return startDate.add(Duration(days: totalDays - 1));
-  }
-
-  bool _isReadingDay(DateTime date, List<String> readingDays) {
-    if (readingDays.isEmpty || readingDays.length == 7) {
-      return true;
-    }
-
-    final dayNames = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    final weekday = date.weekday - 1;
-    final dayName = dayNames[weekday];
-
-    return readingDays.contains(dayName);
-  }
-
-  Future<void> _createPlan() async {
-    if (_startDate == null) {
+  Future<void> _savePlan() async {
+    if (_workingPlan.options.schedule.startDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez sélectionner une date de début'),
@@ -360,7 +237,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen> {
       return;
     }
 
-    if (_selectedBooks.isEmpty) {
+    if (_workingPlan.options.content.selectedBooks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez sélectionner au moins un livre biblique'),
@@ -370,50 +247,47 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen> {
       return;
     }
 
-    final options = GeneratorOptions(
-      content: ContentOptions(
-        scope: ContentScope.custom,
-        selectedBooks: _selectedBooks.toList(),
-        includeApocrypha: _includeApocrypha,
-      ),
-      order: OrderOptions(type: _orderType),
-      schedule: ScheduleOptions(
-        startDate: _startDate!,
-        totalDays: _totalDays,
-        readingDays: _readingDays.toList(),
-      ),
-      distribution: DistributionOptions(
-        unit: DistributionUnit.chapters,
-        otNtOverlap: _otNtOverlap,
-        dailyPsalm: _dailyPsalm,
-        dailyProverb: _dailyProverb,
-        reverse: _reverse,
-        balance: _balance,
-      ),
-      display: DisplayOptions(
-        includeCheckbox: _showCheckboxes,
-        showStats: _showStatistics,
-        removeDates: _removeDates,
-        sectionColors: _sectionColors,
-        addReadingLinks: _addReadingLinks,
-        format: _outputFormat,
-      ),
-    );
-
     try {
-      await context.read<PlansProvider>().createPlan(
-            templateId: widget.templateId,
-            title: _titleController.text,
-            options: options,
-          );
-      if (mounted) {
-        context.go('/');
+      final provider = context.read<PlansProvider>();
+
+      // Mettre à jour le titre avant de sauvegarder
+      final planToSave = _generator.generate(
+        templateId: _workingPlan.templateId,
+        title: _titleController.text,
+        options: _workingPlan.options,
+        existingPlanId: _workingPlan.id,
+      );
+
+      if (widget.isEditMode) {
+        // Mode édition : mettre à jour le plan existant
+        await provider.updatePlan(
+          planId: widget.planId!,
+          title: _titleController.text,
+          options: _workingPlan.options,
+        );
+        if (mounted) {
+          context.pop();
+        }
+      } else {
+        // Mode création : créer un nouveau plan
+        await provider.createPlan(
+          templateId: _workingPlan.templateId,
+          title: planToSave.title,
+          options: _workingPlan.options,
+        );
+        if (mounted) {
+          context.go('/?tab=0');
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la création du plan: $e'),
+            content: Text(
+              widget.isEditMode
+                  ? 'Erreur lors de la mise à jour du plan: $e'
+                  : 'Erreur lors de la création du plan: $e',
+            ),
             backgroundColor: AppTheme.error,
           ),
         );
@@ -421,701 +295,771 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen> {
     }
   }
 
-  void _showOptionsSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      enableDrag: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) {
-          return _buildOptionsSheet(scrollController);
-        },
-      ),
-    );
-  }
+  // ============================================================================
+  // BUILD
+  // ============================================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: Text(_titleController.text),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showOptionsSheet,
-            tooltip: 'Options',
-          ),
-        ],
+        title: Text(widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
       ),
-      body: _isGenerating
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats bar
-                  if (_previewStats != null) ...[
-                    ReadingStatsBar(
-                      totalDays: _previewStats!['readingDaysCount'] as int,
-                      bookCount: _previewStats!['bookCount'] as int,
-                      totalChapters: _previewStats!['totalChapters'] as int,
-                      avgChaptersPerDay: double.tryParse(
-                        _previewStats!['avgChaptersPerDay'] as String,
-                      ),
-                      showProgress: false, // Preview mode - no progress
+                  // En-tête avec aperçu du plan
+                  Container(
+                    color: AppTheme.backgroundLight,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'APERÇU DU PLAN',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: AppTheme.textMuted,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildTemplateHeader(),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
 
-                  // ═══════════════════════════════════════════════════
-                  // SECTION 1 : LECTURE DU JOUR
-                  // ═══════════════════════════════════════════════════
-                  if (_previewDays.isNotEmpty) ...[
-                    _buildSectionTitle('Lecture du jour'),
-                    const SizedBox(height: 12),
-                    ReadingDayCard(
-                      day: _previewDays[_selectedDayIndex],
-                      isPreviewMode: true, // Preview mode - checkboxes disabled
-                      showCheckbox: _showCheckboxes,
-                      showDayCheckbox: true, // Checkbox per day by default
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                  // Date de début
+                  _buildDateSection(),
 
-                  // ═══════════════════════════════════════════════════
-                  // SECTION 2 : VUE GLOBALE (CALENDRIER)
-                  // ═══════════════════════════════════════════════════
-                  if (_previewDays.isNotEmpty) ...[
-                    _buildSectionTitle('Vue globale'),
-                    const SizedBox(height: 12),
-                    MonthCalendarWidget(
-                      days: _previewDays,
-                      currentDayIndex: 0, // Toujours le jour 1 en preview
-                      selectedDayIndex:
-                          _selectedDayIndex, // Le jour sélectionné par l'utilisateur
-                      selectedReadingDays: _readingDays,
-                      isPreviewMode: true, // Mode aperçu avec badge
-                      onDayTap: (index) {
-                        setState(() {
-                          _selectedDayIndex = index;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 100),
-                  ],
+                  // Jours de lecture
+                  _buildReadingDaysSection(),
+
+                  // Format d'affichage
+                  _buildFormatSection(),
                 ],
               ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _createPlan,
-        icon: const Icon(Icons.check),
-        label: const Text('Créer le plan'),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SliverTabBarDelegate(
+                TabBar(
+                  controller: _tabController,
+                  labelColor: AppTheme.textPrimary,
+                  unselectedLabelColor: AppTheme.textMuted,
+                  indicatorColor: AppTheme.seedGold,
+                  indicatorWeight: 3,
+                  tabs: const [
+                    Tab(text: 'Livres'),
+                    Tab(text: 'Distribution'),
+                    Tab(text: 'Affichage'),
+                  ],
+                ),
+              ),
+            ),
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildBooksTab(),
+            _buildDistributionTab(),
+            _buildDisplayTab(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.backgroundLight,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: _savePlan,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.seedGold,
+                foregroundColor: AppTheme.deepNavy,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                widget.isEditMode ? 'Enregistrer les modifications' : 'Créer le plan',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
+
+  // ============================================================================
+  // WIDGETS - HEADER
+  // ============================================================================
+
+  Widget _buildImagePlaceholder({double height = 180}) {
+    return Container(
+      width: double.infinity,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.seedGold.withValues(alpha: 0.3),
+            AppTheme.deepNavy.withValues(alpha: 0.15),
+          ],
+        ),
+      ),
+      child: Icon(
+        Icons.menu_book_rounded,
+        size: 64,
+        color: AppTheme.seedGold.withValues(alpha: 0.6),
+      ),
+    );
+  }
+
+  Widget _buildTemplateHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image du template
+          _template.image.isNotEmpty
+              ? Image.network(
+                  _template.image,
+                  width: double.infinity,
+                  height: 180,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return _buildImagePlaceholder();
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildImagePlaceholder();
+                  },
+                )
+              : _buildImagePlaceholder(),
+
+          // Contenu
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _template.title,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.seedGold,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _template.description,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                ),
+                if (_template.porte.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _template.porte,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textMuted,
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // WIDGETS - SECTIONS
+  // ============================================================================
 
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.deepNavy,
+            color: AppTheme.textPrimary,
           ),
     );
   }
 
-  // Modal des options
-  Widget _buildOptionsSheet(ScrollController scrollController) {
-    return StatefulBuilder(
-      builder: (context, setModalState) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
+  Widget _buildDateSection() {
+    final startDate = _workingPlan.options.schedule.startDate;
+
+    return Container(
+      color: AppTheme.backgroundLight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Date de début'),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () async {
+              final now = DateTime.now();
+              final selected = await showDatePicker(
+                context: context,
+                initialDate: startDate,
+                firstDate: now,
+                lastDate: now.add(const Duration(days: 730)),
+                locale: const Locale('fr', 'FR'),
+              );
+
+              if (selected != null && mounted) {
+                _regeneratePlan(
+                  schedule: ScheduleOptions(
+                    startDate: selected,
+                    totalDays: _workingPlan.options.schedule.totalDays,
+                    readingDays: _workingPlan.options.schedule.readingDays,
+                  ),
+                );
+              }
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                border: Border.all(color: AppTheme.borderSubtle),
+                borderRadius: BorderRadius.circular(12),
               ),
-
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Options du plan',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _dateFormat.format(startDate),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w500,
                           ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Divider(),
-
-              // Options content (scrollable)
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                // Message pour les plans fixes
-                if (_isFixedPlan) ...[
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.backgroundLight,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: AppTheme.seedGold.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: AppTheme.seedGold,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Ce plan suit une structure prédéfinie. Les options de personnalisation sont limitées.',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.deepNavy,
-                                    ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-                  const SizedBox(height: 24),
+                  const Icon(Icons.calendar_today,
+                      size: 20, color: AppTheme.mistGreyBlue),
                 ],
-
-                // ═══════════════════════════════════════════════════
-                // SECTION 1 : INFORMATIONS GÉNÉRALES
-                // ═══════════════════════════════════════════════════
-                _buildSectionTitle('Informations générales'),
-                const SizedBox(height: 16),
-
-                // Titre du plan
-                TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Titre du plan',
-                    hintText: 'Mon plan de lecture',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // ═══════════════════════════════════════════════════
-                // SECTION 2 : CALENDRIER ET PLANIFICATION
-                // ═══════════════════════════════════════════════════
-                _buildSectionTitle('Calendrier et planification'),
-                const SizedBox(height: 16),
-
-                // Date de début
-                InkWell(
-                  onTap: () async {
-                    final now = DateTime.now();
-                    final selected = await showDatePicker(
-                      context: context,
-                      initialDate: _startDate ?? now,
-                      firstDate: now,
-                      lastDate: now.add(const Duration(days: 730)),
-                      locale: const Locale('fr', 'FR'),
-                    );
-
-                    if (selected != null && mounted) {
-                      setState(() {
-                        _startDate = selected;
-                      });
-                      setModalState(() {
-                        // Mise à jour du modal pour afficher la nouvelle date
-                      });
-                      _generatePreview();
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.mistGreyBlue),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Date de début',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: AppTheme.textMuted,
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _startDate != null
-                                    ? DateFormat('dd MMMM yyyy', 'fr_FR')
-                                        .format(_startDate!)
-                                    : 'Sélectionner une date',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: _startDate != null
-                                          ? AppTheme.deepNavy
-                                          : AppTheme.textMuted,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Jours de lecture
-                Text(
-                  'Jours de lecture',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    {'key': 'mon', 'label': 'Lun'},
-                    {'key': 'tue', 'label': 'Mar'},
-                    {'key': 'wed', 'label': 'Mer'},
-                    {'key': 'thu', 'label': 'Jeu'},
-                    {'key': 'fri', 'label': 'Ven'},
-                    {'key': 'sat', 'label': 'Sam'},
-                    {'key': 'sun', 'label': 'Dim'},
-                  ].map((day) {
-                    final isSelected = _readingDays.contains(day['key']);
-                    return FilterChip(
-                      label: Text(day['label']!),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _readingDays.add(day['key']!);
-                          } else {
-                            _readingDays.remove(day['key']!);
-                          }
-                        });
-                        setModalState(() {});
-                      },
-                      selectedColor: AppTheme.seedGold.withValues(alpha: 0.2),
-                      checkmarkColor: AppTheme.seedGold,
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-
-                // Durée totale (plans personnalisables uniquement)
-                if (_canCustomizeDuration) ...[
-                  TextField(
-                    controller: _totalDaysController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Durée totale',
-                      hintText: '365',
-                      border: OutlineInputBorder(),
-                      suffixText: 'jours',
-                      helperText: 'Entre 1 et 730 jours (2 ans)',
-                    ),
-                    onChanged: (value) {
-                      final days = int.tryParse(value);
-                      if (days != null && days >= 1 && days <= 730) {
-                        setState(() {
-                          _totalDays = days;
-                        });
-                        setModalState(() {});
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                const SizedBox(height: 16),
-
-                // ═══════════════════════════════════════════════════
-                // SECTION 3 : SÉLECTION DES LIVRES
-                // ═══════════════════════════════════════════════════
-                if (_isNewTemplatePlan) ...[
-                  _buildSectionTitle('Sélection des livres'),
-                  const SizedBox(height: 16),
-                  BookSelectorSection(
-                    templateId: widget.templateId,
-                    selectedBooks: _selectedBooks,
-                    includeApocrypha: _includeApocrypha,
-                    onBooksChanged: (newSelection) {
-                      setState(() {
-                        _selectedBooks = newSelection;
-                        _generatePreview();
-                      });
-                      setModalState(() {});
-                    },
-                    onApocryphaSwitched: (value) {
-                      setState(() {
-                        _includeApocrypha = value;
-                      });
-                      setModalState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                ],
-
-                // ═══════════════════════════════════════════════════
-                // SECTION 4 : OPTIONS DE DISTRIBUTION
-                // ═══════════════════════════════════════════════════
-                if (_canCustomizeDistribution) ...[
-                  _buildSectionTitle('Options de distribution'),
-                  const SizedBox(height: 16),
-
-                  // OT/NT Overlap (si AT+NT sélectionnés)
-                  if (_showOtNtOverlap)
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Alternance AT/NT'),
-                      subtitle: const Text(
-                          'Alterner entre Ancien et Nouveau Testament'),
-                      value: _otNtOverlap == OtNtOverlapMode.alternate,
-                      onChanged: (value) {
-                        setState(() {
-                          _otNtOverlap = value == true
-                              ? OtNtOverlapMode.alternate
-                              : OtNtOverlapMode.sequential;
-                        });
-                        setModalState(() {});
-                      },
-                    ),
-
-                  // Daily Psalm (si AT sélectionné)
-                  if (_showDailyPsalmProverb)
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Psaume quotidien'),
-                      subtitle: const Text('Ajouter un psaume chaque jour'),
-                      value: _dailyPsalm != DailyPsalmMode.none,
-                      onChanged: (value) {
-                        setState(() {
-                          _dailyPsalm = value == true
-                              ? DailyPsalmMode.one
-                              : DailyPsalmMode.none;
-                        });
-                        setModalState(() {});
-                      },
-                    ),
-
-                  // Daily Proverb
-                  if (_showDailyPsalmProverb)
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Proverbe quotidien'),
-                      subtitle: const Text('Ajouter un proverbe chaque jour'),
-                      value: _dailyProverb != DailyProverbMode.none,
-                      onChanged: (value) {
-                        setState(() {
-                          _dailyProverb = value == true
-                              ? DailyProverbMode.one
-                              : DailyProverbMode.none;
-                        });
-                        setModalState(() {});
-                      },
-                    ),
-
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 16),
-
-                  // Options avancées
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Lecture inversée'),
-                    subtitle: const Text('Lire les livres en ordre inverse'),
-                    value: _reverse,
-                    onChanged: (value) {
-                      setState(() {
-                        _reverse = value ?? false;
-                      });
-                      setModalState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                ],
-
-                // ═══════════════════════════════════════════════════
-                // SECTION 5 : OPTIONS D'AFFICHAGE
-                // ═══════════════════════════════════════════════════
-                _buildSectionTitle('Options d\'affichage'),
-                const SizedBox(height: 16),
-
-                // Format d'affichage
-                Text(
-                  'Format',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    {
-                      'value': OutputFormat.calendar,
-                      'label': 'Calendrier',
-                      'icon': Icons.calendar_month
-                    },
-                    {
-                      'value': OutputFormat.list,
-                      'label': 'Liste',
-                      'icon': Icons.list
-                    },
-                    {
-                      'value': OutputFormat.weekly,
-                      'label': 'Semaines',
-                      'icon': Icons.view_week
-                    },
-                    {
-                      'value': OutputFormat.byBook,
-                      'label': 'Par livre',
-                      'icon': Icons.menu_book
-                    },
-                  ].map((format) {
-                    final isSelected = _outputFormat == format['value'];
-                    return ChoiceChip(
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            format['icon'] as IconData,
-                            size: 18,
-                            color: isSelected
-                                ? AppTheme.seedGold
-                                : AppTheme.mistGreyBlue,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(format['label'] as String),
-                        ],
-                      ),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() {
-                            _outputFormat = format['value'] as OutputFormat;
-                          });
-                          setModalState(() {});
-                        }
-                      },
-                      selectedColor: AppTheme.seedGold.withValues(alpha: 0.2),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-
-                // Préférences d'affichage
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Cases à cocher'),
-                  subtitle: const Text('Suivre votre progression de lecture'),
-                  value: _showCheckboxes,
-                  onChanged: (value) {
-                    setState(() {
-                      _showCheckboxes = value ?? true;
-                    });
-                    setModalState(() {});
-                  },
-                ),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Statistiques'),
-                  subtitle: const Text('Afficher les métriques du plan'),
-                  value: _showStatistics,
-                  onChanged: (value) {
-                    setState(() {
-                      _showStatistics = value ?? true;
-                    });
-                    setModalState(() {});
-                  },
-                ),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Couleurs par section'),
-                  subtitle:
-                      const Text('Colorier selon les genres bibliques (PDF)'),
-                  value: _sectionColors,
-                  onChanged: (value) {
-                    setState(() {
-                      _sectionColors = value ?? false;
-                    });
-                    setModalState(() {});
-                  },
-                ),
-
-                const SizedBox(height: 80), // Espace pour le bouton
-              ],
-            ),
-          ),
-
-          // Bouton de validation
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.refresh),
-                label: const Text('Mettre à jour l\'aperçu'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _generatePreview();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
               ),
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
-        );
-      },
     );
   }
 
-  Widget _buildRadioOption<T>(
-    T value,
-    T groupValue,
-    String title,
-    String subtitle,
-    ValueChanged<T> onChanged,
-  ) {
-    final isSelected = value == groupValue;
-    return InkWell(
-      onTap: () => onChanged(value),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? AppTheme.seedGold : AppTheme.mistGreyBlue,
-            width: isSelected ? 2 : 1,
+  Widget _buildReadingDaysSection() {
+    final readingDays = _workingPlan.options.schedule.readingDays.toSet();
+
+    return Container(
+      color: AppTheme.backgroundLight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Jours de lecture'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              {'key': 'mon', 'label': 'L', 'fullLabel': 'LUN'},
+              {'key': 'tue', 'label': 'M', 'fullLabel': 'MAR'},
+              {'key': 'wed', 'label': 'M', 'fullLabel': 'MER'},
+              {'key': 'thu', 'label': 'J', 'fullLabel': 'JEU'},
+              {'key': 'fri', 'label': 'V', 'fullLabel': 'VEN'},
+              {'key': 'sat', 'label': 'S', 'fullLabel': 'SAM'},
+              {'key': 'sun', 'label': 'D', 'fullLabel': 'DIM'},
+            ].map((day) {
+              final isSelected = readingDays.contains(day['key']);
+              return GestureDetector(
+                onTap: () {
+                  final newDays = Set<String>.from(readingDays);
+                  if (isSelected) {
+                    newDays.remove(day['key']!);
+                  } else {
+                    newDays.add(day['key']!);
+                  }
+                  _regeneratePlan(
+                    schedule: ScheduleOptions(
+                      startDate: _workingPlan.options.schedule.startDate,
+                      totalDays: _workingPlan.options.schedule.totalDays,
+                      readingDays: newDays.toList(),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 44,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.seedGold : AppTheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: isSelected
+                        ? null
+                        : Border.all(color: AppTheme.borderSubtle),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        day['fullLabel']!,
+                        style: TextStyle(
+                          color: isSelected
+                              ? AppTheme.deepNavy
+                              : AppTheme.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        day['label']!,
+                        style: TextStyle(
+                          color: isSelected
+                              ? AppTheme.deepNavy
+                              : AppTheme.textMuted,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
           ),
-          borderRadius: BorderRadius.circular(12),
-          color: isSelected
-              ? AppTheme.seedGold.withValues(alpha: 0.1)
-              : Colors.transparent,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? AppTheme.seedGold : AppTheme.mistGreyBlue,
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormatSection() {
+    return Container(
+      color: AppTheme.backgroundLight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Format d\'affichage'),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.deepNavy.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textMuted,
-                        ),
-                  ),
-                ],
+            padding: const EdgeInsets.all(4),
+            child: Row(
+              children: [
+                _buildFormatButton(OutputFormat.list, 'Liste', Icons.list),
+                _buildFormatButton(
+                    OutputFormat.calendar, 'Calendrier', Icons.calendar_month),
+                _buildFormatButton(
+                    OutputFormat.weekly, 'Semaine', Icons.view_week),
+                _buildFormatButton(
+                    OutputFormat.byBook, 'Livre', Icons.menu_book),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormatButton(OutputFormat format, String label, IconData icon) {
+    final isSelected = _workingPlan.options.display.format == format;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          _regeneratePlan(
+            display: DisplayOptions(
+              includeCheckbox: _workingPlan.options.display.includeCheckbox,
+              showStats: _workingPlan.options.display.showStats,
+              removeDates: _workingPlan.options.display.removeDates,
+              sectionColors: _workingPlan.options.display.sectionColors,
+              addReadingLinks: _workingPlan.options.display.addReadingLinks,
+              format: format,
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.seedGold : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected ? AppTheme.deepNavy : AppTheme.textMuted,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected ? AppTheme.deepNavy : AppTheme.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Labels pour les nouveaux modes
-  String _getOtNtOverlapLabel(OtNtOverlapMode mode) {
-    switch (mode) {
-      case OtNtOverlapMode.sequential:
-        return 'Séquentiel (AT puis NT)';
-      case OtNtOverlapMode.alternate:
-        return 'Alterné (AT et NT en parallèle)';
+  // ============================================================================
+  // TABS
+  // ============================================================================
+
+  Widget _buildBooksTab() {
+    if (!_isCustomizablePlan) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'La sélection des livres n\'est pas disponible pour ce plan.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textMuted,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
+
+    return ListView(
+      padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+      children: [
+        BookSelectorSection(
+          templateId: _workingPlan.templateId,
+          selectedBooks: _workingPlan.options.content.selectedBooks.toSet(),
+          includeApocrypha: _workingPlan.options.content.includeApocrypha,
+          onBooksChanged: (newSelection) {
+            _regeneratePlan(
+              content: ContentOptions(
+                scope: ContentScope.custom,
+                selectedBooks: newSelection.toList(),
+                includeApocrypha: _workingPlan.options.content.includeApocrypha,
+              ),
+            );
+          },
+          onApocryphaSwitched: (value) {
+            _regeneratePlan(
+              content: ContentOptions(
+                scope: ContentScope.custom,
+                selectedBooks: _workingPlan.options.content.selectedBooks,
+                includeApocrypha: value,
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 
-  String _getDailyPsalmLabel(DailyPsalmMode mode) {
-    switch (mode) {
-      case DailyPsalmMode.none:
-        return 'Aucun psaume quotidien';
-      case DailyPsalmMode.one:
-        return 'Un psaume par jour';
-      case DailyPsalmMode.sequential:
-        return 'Psaumes séquentiels (1-150)';
+  Widget _buildDistributionTab() {
+    if (_isFixedPlan) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Les options de distribution ne sont pas disponibles pour ce plan.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textMuted,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
+
+    final distribution = _workingPlan.options.distribution;
+
+    return ListView(
+      padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+      children: [
+        _buildSectionTitle('Options de contenu'),
+        const SizedBox(height: 16),
+        if (_showDailyPsalmProverb)
+          _buildOptionCard(
+            icon: Icons.auto_stories,
+            title: 'Inclure les Psaumes',
+            subtitle: 'Un chapitre par jour',
+            value: distribution.dailyPsalm != DailyPsalmMode.none,
+            onChanged: (value) {
+              _regeneratePlan(
+                distribution: DistributionOptions(
+                  unit: distribution.unit,
+                  otNtOverlap: distribution.otNtOverlap,
+                  dailyPsalm: value ? DailyPsalmMode.one : DailyPsalmMode.none,
+                  dailyProverb: distribution.dailyProverb,
+                  reverse: distribution.reverse,
+                  balance: distribution.balance,
+                ),
+              );
+            },
+          ),
+        if (_showDailyPsalmProverb)
+          _buildOptionCard(
+            icon: Icons.lightbulb_outline,
+            title: 'Inclure les Proverbes',
+            subtitle: 'Lecture de sagesse quotidienne',
+            value: distribution.dailyProverb != DailyProverbMode.none,
+            onChanged: (value) {
+              _regeneratePlan(
+                distribution: DistributionOptions(
+                  unit: distribution.unit,
+                  otNtOverlap: distribution.otNtOverlap,
+                  dailyPsalm: distribution.dailyPsalm,
+                  dailyProverb:
+                      value ? DailyProverbMode.one : DailyProverbMode.none,
+                  reverse: distribution.reverse,
+                  balance: distribution.balance,
+                ),
+              );
+            },
+          ),
+        if (_showOtNtOverlap) ...[
+          const SizedBox(height: 24),
+          _buildSectionTitle('Alternance AT/NT'),
+          const SizedBox(height: 16),
+          _buildOptionCard(
+            icon: Icons.swap_horiz,
+            title: 'Alterner AT et NT',
+            subtitle: 'Lectures parallèles des deux testaments',
+            value: distribution.otNtOverlap == OtNtOverlapMode.alternate,
+            onChanged: (value) {
+              _regeneratePlan(
+                distribution: DistributionOptions(
+                  unit: distribution.unit,
+                  otNtOverlap: value
+                      ? OtNtOverlapMode.alternate
+                      : OtNtOverlapMode.sequential,
+                  dailyPsalm: distribution.dailyPsalm,
+                  dailyProverb: distribution.dailyProverb,
+                  reverse: distribution.reverse,
+                  balance: distribution.balance,
+                ),
+              );
+            },
+          ),
+        ],
+        const SizedBox(height: 24),
+        _buildSectionTitle('Options avancées'),
+        const SizedBox(height: 16),
+        _buildOptionCard(
+          icon: Icons.flip,
+          title: 'Lecture inversée',
+          subtitle: 'Lire les livres en ordre inverse',
+          value: distribution.reverse,
+          onChanged: (value) {
+            _regeneratePlan(
+              distribution: DistributionOptions(
+                unit: distribution.unit,
+                otNtOverlap: distribution.otNtOverlap,
+                dailyPsalm: distribution.dailyPsalm,
+                dailyProverb: distribution.dailyProverb,
+                reverse: value,
+                balance: distribution.balance,
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 
-  String _getDailyProverbLabel(DailyProverbMode mode) {
-    switch (mode) {
-      case DailyProverbMode.none:
-        return 'Aucun proverbe quotidien';
-      case DailyProverbMode.one:
-        return 'Un proverbe par jour (1-31)';
-      case DailyProverbMode.dayOfMonth:
-        return 'Proverbe selon le jour du mois';
-    }
+  Widget _buildDisplayTab() {
+    final display = _workingPlan.options.display;
+
+    return ListView(
+      padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+      children: [
+        _buildSectionTitle('Options d\'affichage'),
+        const SizedBox(height: 16),
+        _buildOptionCard(
+          icon: Icons.check_box_outlined,
+          title: 'Cases à cocher',
+          subtitle: 'Suivre votre progression de lecture',
+          value: display.includeCheckbox,
+          onChanged: (value) {
+            _regeneratePlan(
+              display: DisplayOptions(
+                includeCheckbox: value,
+                showStats: display.showStats,
+                removeDates: display.removeDates,
+                sectionColors: display.sectionColors,
+                addReadingLinks: display.addReadingLinks,
+                format: display.format,
+              ),
+            );
+          },
+        ),
+        _buildOptionCard(
+          icon: Icons.bar_chart,
+          title: 'Statistiques',
+          subtitle: 'Afficher les métriques du plan',
+          value: display.showStats,
+          onChanged: (value) {
+            _regeneratePlan(
+              display: DisplayOptions(
+                includeCheckbox: display.includeCheckbox,
+                showStats: value,
+                removeDates: display.removeDates,
+                sectionColors: display.sectionColors,
+                addReadingLinks: display.addReadingLinks,
+                format: display.format,
+              ),
+            );
+          },
+        ),
+        _buildOptionCard(
+          icon: Icons.palette_outlined,
+          title: 'Couleurs par section',
+          subtitle: 'Colorier selon les genres bibliques',
+          value: display.sectionColors,
+          onChanged: (value) {
+            _regeneratePlan(
+              display: DisplayOptions(
+                includeCheckbox: display.includeCheckbox,
+                showStats: display.showStats,
+                removeDates: display.removeDates,
+                sectionColors: value,
+                addReadingLinks: display.addReadingLinks,
+                format: display.format,
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOptionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: value
+              ? AppTheme.seedGold.withValues(alpha: 0.3)
+              : AppTheme.borderSubtle,
+        ),
+      ),
+      child: SwitchListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        secondary: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: value
+                ? AppTheme.seedGold.withValues(alpha: 0.1)
+                : AppTheme.backgroundLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: value ? AppTheme.seedGold : AppTheme.mistGreyBlue,
+            size: 24,
+          ),
+        ),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppTheme.textMuted,
+              ),
+        ),
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: Colors.white,
+        activeTrackColor: AppTheme.seedGold,
+        inactiveThumbColor: AppTheme.textMuted,
+        inactiveTrackColor: AppTheme.surface,
+      ),
+    );
+  }
+}
+
+// Delegate pour le TabBar sticky
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
+
+  _SliverTabBarDelegate(this.tabBar);
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: AppTheme.backgroundLight,
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return false;
   }
 }

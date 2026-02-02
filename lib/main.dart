@@ -10,12 +10,9 @@ import 'services/plan_generator.dart';
 import 'services/notification_service.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
-import 'ui/screens/home_screen.dart';
-import 'ui/screens/create_plan_screen.dart';
-import 'ui/screens/plan_template_detail_screen.dart';
+import 'ui/screens/main_shell_screen.dart';
 import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
-import 'ui/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,26 +61,20 @@ class _SeedailyAppState extends State<SeedailyApp> {
     _router = GoRouter(
       initialLocation: '/',
       routes: [
+        // Shell principal avec navigation en bas
         GoRoute(
           path: '/',
-          builder: (context, state) => const HomeScreen(),
+          builder: (context, state) {
+            final tabIndex = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return MainShellScreen(key: ValueKey('shell_$tabIndex'), initialIndex: tabIndex);
+          },
         ),
-        GoRoute(
-          path: '/create-plan',
-          builder: (context, state) => const CreatePlanScreen(),
-        ),
+        // Routes secondaires (sans la barre de navigation)
         GoRoute(
           path: '/plan/:id',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
             return PlanDetailScreen(planId: id);
-          },
-        ),
-        GoRoute(
-          path: '/templates/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return PlanTemplateDetailScreen(templateId: id);
           },
         ),
         GoRoute(
@@ -93,9 +84,13 @@ class _SeedailyAppState extends State<SeedailyApp> {
             return CustomizePlanScreen(templateId: id);
           },
         ),
+        // Route pour éditer un plan existant
         GoRoute(
-          path: '/settings',
-          builder: (context, state) => const SettingsScreen(),
+          path: '/edit-plan/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return CustomizePlanScreen(planId: id);
+          },
         ),
       ],
     );

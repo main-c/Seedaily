@@ -11,6 +11,7 @@ class ReadingStatsBar extends StatelessWidget {
   final double? avgChaptersPerDay;
   final int? completedDays;
   final bool showProgress;
+  final bool compactMode;
 
   const ReadingStatsBar({
     super.key,
@@ -20,6 +21,7 @@ class ReadingStatsBar extends StatelessWidget {
     this.avgChaptersPerDay,
     this.completedDays,
     this.showProgress = false,
+    this.compactMode = false,
   });
 
   @override
@@ -44,6 +46,12 @@ class ReadingStatsBar extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Barre de progression en premier si mode compact (comme dans l'image 1)
+          if (showProgress && completedDays != null && compactMode) ...[
+            _buildCompactProgressBar(context, progress),
+            const SizedBox(height: 16),
+          ],
+
           // Statistiques principales
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -80,55 +88,118 @@ class ReadingStatsBar extends StatelessWidget {
             ],
           ),
 
-          // Barre de progression (si showProgress)
-          if (showProgress && completedDays != null) ...[
+          // Barre de progression standard (si pas compact mode)
+          if (showProgress && completedDays != null && !compactMode) ...[
             const SizedBox(height: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Progression',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    Text(
-                      '${(progress * 100).toStringAsFixed(0)}%',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.seedGold,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: AppTheme.backgroundLight,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppTheme.seedGold,
-                    ),
-                    minHeight: 8,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$completedDays / $totalDays jours complétés',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                ),
-              ],
-            ),
+            _buildStandardProgressBar(context, progress),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildCompactProgressBar(BuildContext context, double progress) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header : "PROGRESSION TOTALE" + Badge "24% Terminé"
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'PROGRESSION TOTALE',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.textMuted,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 10,
+                    letterSpacing: 0.5,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        
+        // Badge "24% Terminé" + Détails jours
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${(progress * 100).toInt()}% Terminé',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.deepNavy,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            Text(
+              '$completedDays/$totalDays jours',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        // Barre de progression
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: AppTheme.borderSubtle,
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              AppTheme.seedGold,
+            ),
+            minHeight: 8,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStandardProgressBar(BuildContext context, double progress) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Progression',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.textMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            Text(
+              '${(progress * 100).toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.seedGold,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: AppTheme.backgroundLight,
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              AppTheme.seedGold,
+            ),
+            minHeight: 8,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '$completedDays / $totalDays jours complétés',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppTheme.textMuted,
+              ),
+        ),
+      ],
     );
   }
 

@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:seedaily/domain/models.dart';
+import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/empty_state.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onNavigateToDiscover;
+
+  const HomeScreen({
+    super.key,
+    this.onNavigateToDiscover,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _selectedFilter = 'all'; // 'all', 'discover', 'saved', 'completed'
+  String _selectedFilter = 'all'; // 'all', 'in_progress', 'completed'
 
   @override
   void initState() {
@@ -27,187 +32,224 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<GeneratedPlan> _getFilteredPlans(List<GeneratedPlan> allPlans) {
     switch (_selectedFilter) {
+      case 'in_progress':
+        return allPlans.where((plan) => plan.progress < 100).toList();
       case 'completed':
         return allPlans.where((plan) => plan.progress >= 100).toList();
-      case 'discover':
-        // Vous pouvez adapter cette logique selon vos besoins
-        return allPlans.where((plan) => plan.progress < 10).toList();
-      case 'saved':
-        // Vous pouvez ajouter une propriété 'isSaved' dans votre modèle
-        return allPlans;
       case 'all':
       default:
         return allPlans;
     }
   }
 
+  int _getTotalStreak(List<GeneratedPlan> plans) {
+    if (plans.isEmpty) return 0;
+    // Retourne le streak le plus élevé parmi tous les plans
+    return plans.map((p) => p.currentStreak).reduce((a, b) => a > b ? a : b);
+  }
+
+  void _goToDiscover() {
+    if (widget.onNavigateToDiscover != null) {
+      widget.onNavigateToDiscover!();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(
-              'Seedaily',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppTheme.seedGold,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ],
+      backgroundColor: AppTheme.backgroundLight,
+      body: SafeArea(
+        child: Consumer<PlansProvider>(
+          builder: (context, plansProvider, child) {
+            if (plansProvider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            final allPlans = plansProvider.plans;
+            final filteredPlans = _getFilteredPlans(allPlans);
+            final totalStreak = _getTotalStreak(allPlans);
+            final activePlansCount =
+                allPlans.where((p) => p.progress < 100).length;
+
+            return Column(
+              children: [
+                // Header avec avatar et streak
+                _buildHeader(context, activePlansCount, totalStreak),
+
+                // Filtres : Tous, En cours, Terminés
+                _buildFilters(context),
+
+                const SizedBox(height: 8),
+
+                // Liste des plans ou état vide
+                Expanded(
+                  child: allPlans.isEmpty
+                      ? EmptyState(
+                          icon: Icons.menu_book_outlined,
+                          title: 'Aucun plan de lecture',
+                          message: 'Créez votre premier plan pour commencer',
+                          actionLabel: 'Créer un plan',
+                          onAction: _goToDiscover,
+                        )
+                      : filteredPlans.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32),
+                                child: Text(
+                                  'Aucun plan dans cette catégorie',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: AppTheme.textMuted,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: () => plansProvider.loadPlans(),
+                              child: ListView.builder(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: filteredPlans.length,
+                                itemBuilder: (context, index) {
+                                  final plan = filteredPlans[index];
+                                  return PlanCard(
+                                    plan: plan,
+                                    onTap: () =>
+                                        context.push('/plan/${plan.id}'),
+                                    onDelete: () async {
+                                      await plansProvider.deletePlan(plan.id);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                ),
+              ],
+            );
+          },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_outlined),
-            onPressed: () {
-              // Implémenter la recherche
-            },
-            tooltip: 'Rechercher',
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+      BuildContext context, int activePlansCount, int totalStreak) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppTheme.seedGold.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppTheme.seedGold,
+                width: 2,
+              ),
+            ),
+            child: const Icon(
+              Icons.person,
+              color: AppTheme.seedGold,
+              size: 28,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.push('/settings'),
-            tooltip: 'Paramètres',
+          const SizedBox(width: 12),
+
+          // Titre et sous-titre
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mes Plans',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                Text(
+                  '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppTheme.textMuted,
+                        letterSpacing: 1.2,
+                      ),
+                ),
+              ],
+            ),
+          ),
+
+          // Badge streak
+          if (totalStreak > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.seedGold.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.seedGold.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.local_fire_department,
+                    color: AppTheme.seedGold,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$totalStreak',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Text(
+                    '🔥',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilters(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buildFilterChip(
+            label: 'Tous',
+            value: 'all',
+            isSelected: _selectedFilter == 'all',
+          ),
+          const SizedBox(width: 8),
+          _buildFilterChip(
+            label: 'En cours',
+            value: 'in_progress',
+            isSelected: _selectedFilter == 'in_progress',
+          ),
+          const SizedBox(width: 8),
+          _buildFilterChip(
+            label: 'Terminés',
+            value: 'completed',
+            isSelected: _selectedFilter == 'completed',
           ),
         ],
       ),
-      body: Consumer<PlansProvider>(
-        builder: (context, plansProvider, child) {
-          if (plansProvider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (plansProvider.plans.isEmpty) {
-            return EmptyState(
-              icon: Icons.menu_book_outlined,
-              title: 'Aucun plan de lecture',
-              message: 'Créez votre premier plan pour commencer',
-              actionLabel: 'Créer un plan',
-              onAction: () => context.push('/create-plan'),
-            );
-          }
-
-          final filteredPlans = _getFilteredPlans(plansProvider.plans);
-
-          return Column(
-            children: [
-              // Filtres horizontaux
-              Container(
-                height: 56,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildFilterChip(
-                      label: 'Mes plans',
-                      value: 'all',
-                      isSelected: _selectedFilter == 'all',
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                      label: 'Découvre les plans',
-                      value: 'discover',
-                      isSelected: _selectedFilter == 'discover',
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                      label: 'Enregistré',
-                      value: 'saved',
-                      isSelected: _selectedFilter == 'saved',
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(
-                      label: 'Terminé le',
-                      value: 'completed',
-                      isSelected: _selectedFilter == 'completed',
-                    ),
-                  ],
-                ),
-              ),
-
-              // Séparateur
-              const Divider(height: 1),
-
-              // Liste des plans
-              Expanded(
-                child: filteredPlans.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Text(
-                            'Aucun plan dans cette catégorie',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: AppTheme.textMuted,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () => plansProvider.loadPlans(),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: filteredPlans.length,
-                          itemBuilder: (context, index) {
-                            final plan = filteredPlans[index];
-                            return PlanCard(
-                              plan: plan,
-                              onTap: () => context.push('/plan/${plan.id}'),
-                              onDelete: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Supprimer le plan'),
-                                    content: const Text(
-                                      'Êtes-vous sûr de vouloir supprimer ce plan?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                        child: const Text('Annuler'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppTheme.error,
-                                        ),
-                                        child: const Text('Supprimer'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-
-                                if (confirm == true && context.mounted) {
-                                  await plansProvider.deletePlan(plan.id);
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      ),
-              ),
-            ],
-          );
-        },
-      ),
-      floatingActionButton:
-          Consumer<PlansProvider>(builder: (context, plansProvider, child) {
-        if (plansProvider.plans.isNotEmpty) {
-          return FloatingActionButton(
-            onPressed: () => context.push('/create-plan'),
-            child: const Icon(Icons.add),
-            tooltip: 'Créer un plan',
-          );
-        }
-        return const SizedBox.shrink();
-      }),
     );
   }
 
@@ -216,34 +258,30 @@ class _HomeScreenState extends State<HomeScreen> {
     required String value,
     required bool isSelected,
   }) {
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        // Si c'est "Découvre les plans", naviguer vers la création
-        if (value == 'discover') {
-          context.push('/create-plan');
-          return;
-        }
-
+    return GestureDetector(
+      onTap: () {
         setState(() {
           _selectedFilter = value;
         });
       },
-      backgroundColor: Colors.transparent,
-      selectedColor: AppTheme.deepNavy,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppTheme.textMuted,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        fontSize: 14,
-      ),
-      side: BorderSide(
-        color: isSelected ? AppTheme.deepNavy : AppTheme.borderSubtle,
-        width: 1,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.seedGold : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.seedGold : AppTheme.borderSubtle,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textPrimary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }

@@ -10,6 +10,8 @@ class PassageChip extends StatelessWidget {
   final bool isPreviewMode;
   final bool showCheckbox;
   final bool isComplete;
+  final bool isCurrent;
+  final bool usePillStyle;
   final Function(bool?)? onCheckChanged;
 
   const PassageChip({
@@ -18,13 +20,48 @@ class PassageChip extends StatelessWidget {
     this.isPreviewMode = false,
     this.showCheckbox = false,
     this.isComplete = false,
+    this.isCurrent = false,
+    this.usePillStyle = false,
     this.onCheckChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Style pill arrondi pour la vue hebdomadaire
+    if (usePillStyle) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isCurrent
+              ? AppTheme.seedGold.withValues(alpha: 0.15)
+              : isComplete
+                  ? AppTheme.textMuted.withValues(alpha: 0.1)
+                  : AppTheme.backgroundLight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isCurrent
+                ? AppTheme.seedGold
+                : AppTheme.borderSubtle,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          passage.reference,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: isCurrent
+                    ? AppTheme.seedGold
+                    : isComplete
+                        ? AppTheme.textMuted
+                        : AppTheme.deepNavy,
+                fontWeight: FontWeight.w600,
+                decoration: isComplete ? TextDecoration.lineThrough : null,
+              ),
+        ),
+      );
+    }
+
+    // Mode avec checkbox
     if (showCheckbox && !isPreviewMode) {
-      // Mode interactif : checkbox + texte
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
@@ -68,28 +105,34 @@ class PassageChip extends StatelessWidget {
           ],
         ),
       );
-    } else {
-      // Mode simple : juste le texte
-      return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundLight,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppTheme.borderSubtle,
-            width: 0.5,
-          ),
-        ),
-        child: Text(
-          passage.reference,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.deepNavy,
-              ),
-        ),
-      );
     }
+
+    // Mode simple standard
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: isComplete
+            ? AppTheme.textMuted.withValues(alpha: 0.05)
+            : AppTheme.backgroundLight,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isComplete
+              ? AppTheme.borderSubtle.withValues(alpha: 0.5)
+              : AppTheme.borderSubtle,
+          width: 0.5,
+        ),
+      ),
+      child: Text(
+        passage.reference,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: isComplete ? AppTheme.textMuted : AppTheme.deepNavy,
+              decoration: isComplete ? TextDecoration.lineThrough : null,
+              fontWeight: FontWeight.w500,
+            ),
+      ),
+    );
   }
 }

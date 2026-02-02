@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
@@ -26,17 +25,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   final _exportService = ExportService();
   int? _selectedDayIndex;
 
-  // Le format actuellement affiché (peut être différent du format par défaut du plan)
-  late OutputFormat _currentFormat;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialiser avec le format par défaut du plan
-    final plan = context.read<PlansProvider>().getPlanById(widget.planId);
-    _currentFormat = plan?.options.display.format ?? OutputFormat.list;
-  }
-
   @override
   Widget build(BuildContext context) {
     final plan = context.watch<PlansProvider>().getPlanById(widget.planId);
@@ -57,16 +45,15 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         backgroundColor: AppTheme.surface,
         foregroundColor: AppTheme.deepNavy,
         actions: [
-          // Bouton configuration → page d'édition
-          IconButton(
-            icon: const Icon(Icons.tune),
-            onPressed: () => context.push('/edit-plan/${widget.planId}'),
-            tooltip: 'Configuration',
-          ),
           IconButton(
             icon: const Icon(Icons.share_outlined),
             onPressed: () => _exportService.sharePdf(plan),
             tooltip: 'Partager',
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            onPressed: () => _exportService.exportToPdf(plan),
+            tooltip: 'Exporter en PDF',
           ),
         ],
       ),
@@ -74,7 +61,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         children: [
           _buildProgressHeader(plan),
           Expanded(
-            child: _buildCurrentView(plan),
+            child: _buildViewByFormat(plan),
           ),
         ],
       ),
@@ -83,7 +70,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   Widget _buildProgressHeader(GeneratedPlan plan) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: const BoxDecoration(
         color: AppTheme.surface,
         border: Border(
@@ -92,100 +79,40 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       ),
       child: Column(
         children: [
-          // Ligne avec progression et série
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      '${plan.progress.toStringAsFixed(0)}%',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppTheme.deepNavy,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${plan.completedDays}/${plan.totalDays} jours',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                    ),
-                  ],
-                ),
+              _buildStatCard(
+                context,
+                icon: Icons.check_circle_outline,
+                label: 'Complétés',
+                value: '${plan.completedDays}/${plan.totalDays}',
+              ),
+              _buildStatCard(
+                context,
+                icon: Icons.trending_up,
+                label: 'Progression',
+                value: '${plan.progress.toStringAsFixed(0)}%',
               ),
               if (plan.currentStreak > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppTheme.seedGold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.local_fire_department,
-                        color: AppTheme.seedGold,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${plan.currentStreak} jours',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: AppTheme.seedGold,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
+                _buildStatCard(
+                  context,
+                  icon: Icons.local_fire_department,
+                  label: 'Série',
+                  value: '${plan.currentStreak}',
                 ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Barre de progression
+          const SizedBox(height: 16),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: plan.progress / 100,
-              minHeight: 8,
+              minHeight: 6,
               backgroundColor: AppTheme.borderSubtle,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.seedGold,
               ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Sélecteur de vue compact
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildViewChip(
-                  label: 'Liste',
-                  format: OutputFormat.list,
-                  icon: Icons.list,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Par Livre',
-                  format: OutputFormat.byBook,
-                  icon: Icons.menu_book,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Semaine',
-                  format: OutputFormat.weekly,
-                  icon: Icons.calendar_view_week,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Calendrier',
-                  format: OutputFormat.calendar,
-                  icon: Icons.calendar_month,
-                ),
-              ],
             ),
           ),
         ],
@@ -193,43 +120,36 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     );
   }
 
-  Widget _buildViewChip({
-    required String label,
-    required OutputFormat format,
+  Widget _buildStatCard(
+    BuildContext context, {
     required IconData icon,
+    required String label,
+    required String value,
   }) {
-    final isSelected = _currentFormat == format;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _currentFormat = format;
-          _selectedDayIndex = null;
-        });
-      },
+    return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.seedGold : AppTheme.backgroundLight,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.seedGold : AppTheme.borderSubtle,
-          ),
+          color: AppTheme.backgroundLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppTheme.borderSubtle, width: 0.5),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? AppTheme.surface : AppTheme.textMuted,
+            Icon(icon, color: AppTheme.seedGold, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppTheme.deepNavy,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(height: 2),
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelected ? AppTheme.surface : AppTheme.deepNavy,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: AppTheme.textMuted,
                   ),
             ),
           ],
@@ -247,8 +167,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         );
   }
 
-  /// Construit la vue actuellement sélectionnée
-  Widget _buildCurrentView(GeneratedPlan plan) {
+  Widget _buildViewByFormat(GeneratedPlan plan) {
     // Trouver le jour actuel (le premier jour non complété)
     int? currentDayIndex;
     for (int i = 0; i < plan.days.length; i++) {
@@ -258,8 +177,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       }
     }
 
-    // Afficher le widget selon le format ACTUELLEMENT SÉLECTIONNÉ (pas celui du plan)
-    switch (_currentFormat) {
+    // Afficher le widget selon le format du plan
+    switch (plan.options.display.format) {
       case OutputFormat.calendar:
         return MonthCalendarWidget(
           days: plan.days,

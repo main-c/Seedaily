@@ -66,6 +66,68 @@ class PlansProvider with ChangeNotifier {
     }
   }
 
+  /// Met à jour un plan existant avec de nouvelles options
+  /// Régénère le plan avec les nouvelles options tout en préservant la progression
+  Future<void> updatePlan({
+    required String planId,
+    required String title,
+    required GeneratorOptions options,
+  }) async {
+    try {
+      final existingPlan = _plans.firstWhere((p) => p.id == planId);
+
+      // Sauvegarder la progression des jours complétés (par date)
+      final completedDates = <DateTime>{};
+      for (final day in existingPlan.days) {
+        if (day.completed) {
+          completedDates.add(DateTime(day.date.year, day.date.month, day.date.day));
+        }
+      }
+
+      // Régénérer le plan avec les nouvelles options
+      final updatedPlan = _generator.generate(
+        templateId: existingPlan.templateId,
+        title: title,
+        options: options,
+        existingPlanId: planId, // Garder le même ID
+      );
+
+      // Restaurer la progression sur les jours correspondants
+      for (final day in updatedPlan.days) {
+        final dateKey = DateTime(day.date.year, day.date.month, day.date.day);
+        if (completedDates.contains(dateKey)) {
+          day.completed = true;
+        }
+      }
+
+      // Sauvegarder le plan mis à jour
+      await _storage.savePlan(updatedPlan);
+      await loadPlans();
+    } catch (e) {
+      debugPrint('Erreur lors de la mise à jour du plan: $e');
+      rethrow;
+    }
+  }
+
+  /// Réinitialise la progression d'un plan (tous les jours à non-lus)
+  Future<void> resetPlanProgress(String planId) async {
+    try {
+      final plan = _plans.firstWhere((p) => p.id == planId);
+
+      for (final day in plan.days) {
+        if (day.completed) {
+          day.completed = false;
+          await _storage.updatePlanDay(planId, day.date, false);
+        }
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erreur lors de la réinitialisation du plan: $e');
+      rethrow;
+    }
+  }
+
   Future<void> toggleDayCompletion(String planId, DateTime date) async {
     try {
       final plan = _plans.firstWhere((p) => p.id == planId);
