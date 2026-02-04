@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
-import 'passage_chip.dart';
+import 'day_card_widget.dart';
 
 /// Widget pour l'affichage par semaine
 /// Affiche les jours de lecture groupés par semaine avec navigation
@@ -101,15 +101,30 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
 
   String _getWeekBooks(List<ReadingDay> weekDays) {
     if (weekDays.isEmpty) return '';
-    
+
     final books = <String>{};
     for (final day in weekDays) {
       for (final passage in day.passages) {
         books.add(passage.book);
       }
     }
-    
+
     return books.take(2).join(' & ');
+  }
+
+  /// Retourne l'image d'asset selon le numéro de la semaine
+  String _getWeekImage(int weekIndex) {
+    final images = [
+      'assets/images/golden_waves_bg.jpg',
+      'assets/images/mountain_bg.jpg',
+      'assets/images/lake_bg.jpg',
+      'assets/images/desert_bg.jpg',
+      'assets/images/sunset_bg.jpg',
+      'assets/images/forest_bg.jpg',
+    ];
+
+    // Boucler parmi les images disponibles
+    return images[weekIndex % images.length];
   }
 
   @override
@@ -127,44 +142,55 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
         // Header avec fond
         _buildWeekHeader(context, currentWeekDays),
 
-        // Barre de progression
-        if (!widget.isPreviewMode && widget.progress != null)
-          _buildProgressBar(context),
-
         // Navigation semaine
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: AppTheme.surface,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _currentWeekIndex > 0 ? _previousWeek : null,
-                color: _currentWeekIndex > 0
-                    ? AppTheme.deepNavy
-                    : AppTheme.textMuted.withValues(alpha: 0.3),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                'Semaine ${_currentWeekIndex + 1}',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.deepNavy,
-                    ),
-              ),
-              const SizedBox(width: 16),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _currentWeekIndex < _weeklyDays.length - 1
-                    ? _nextWeek
-                    : null,
-                color: _currentWeekIndex < _weeklyDays.length - 1
-                    ? AppTheme.deepNavy
-                    : AppTheme.textMuted.withValues(alpha: 0.3),
-              ),
-            ],
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: AppTheme.deepNavy.withValues(alpha: 0.1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: _currentWeekIndex > 0 ? _previousWeek : null,
+                  color: _currentWeekIndex > 0
+                      ? AppTheme.deepNavy
+                      : AppTheme.textMuted.withValues(alpha: 0.3),
+                ),
+                const SizedBox(width: 16),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Semaine ${_currentWeekIndex + 1}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.deepNavy,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: _currentWeekIndex < _weeklyDays.length - 1
+                      ? _nextWeek
+                      : null,
+                  color: _currentWeekIndex < _weeklyDays.length - 1
+                      ? AppTheme.deepNavy
+                      : AppTheme.textMuted.withValues(alpha: 0.3),
+                ),
+              ],
+            ),
           ),
         ),
 
@@ -177,7 +203,25 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
             children: currentWeekDays.asMap().entries.map((entry) {
               final day = entry.value;
               final globalIndex = widget.days.indexOf(day);
-              return _buildDaySection(context, day, globalIndex);
+              final isCurrent = widget.currentDayIndex == globalIndex;
+              final isFuture = widget.currentDayIndex != null &&
+                  globalIndex > widget.currentDayIndex!;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: DayCardWidget(
+                  day: day,
+                  dayIndex: globalIndex,
+                  isCurrent: isCurrent,
+                  isCompleted: day.completed,
+                  isFuture: isFuture,
+                  showCheckbox: widget.showCheckbox,
+                  isPreviewMode: widget.isPreviewMode,
+                  onTap: widget.onDayTap != null
+                      ? () => widget.onDayTap!(globalIndex)
+                      : null,
+                ),
+              );
             }).toList(),
           ),
         ),
@@ -187,234 +231,57 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
 
   Widget _buildWeekHeader(BuildContext context, List<ReadingDay> weekDays) {
     final books = _getWeekBooks(weekDays);
+    final weekImage = _getWeekImage(_currentWeekIndex);
 
-    return Container(
-      height: 180,
-      decoration: BoxDecoration(
-        // Option 1: Gradient (pas besoin d'image)
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.seedGold.withValues(alpha: 0.3),
-            AppTheme.deepNavy.withValues(alpha: 0.8),
-          ],
-        ),
-        // Option 2: Décommenter pour utiliser une image
-        // image: const DecorationImage(
-        //   image: AssetImage('assets/images/golden_waves_bg.jpg'),
-        //   fit: BoxFit.cover,
-        // ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withValues(alpha: 0.3),
-              Colors.black.withValues(alpha: 0.6),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'Semaine du ${DateFormat('d MMMM', 'fr_FR').format(weekDays.first.date)}',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppTheme.surface,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            if (books.isNotEmpty)
-              Text(
-                books,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTheme.surface.withValues(alpha: 0.9),
-                    ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressBar(BuildContext context) {
-    final progress = widget.progress ?? 0.0;
-    final streak = widget.currentStreak ?? 0;
-
-    return Container(
-      margin: const EdgeInsets.all(16),
+    return Padding(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderSubtle),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      child: Container(
+        height: 180,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          image: DecorationImage(
+            image: AssetImage(weekImage),
+            fit: BoxFit.cover,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Progression du plan',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppTheme.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              if (streak > 0)
-                Row(
-                  children: [
-                    Text(
-                      '$streak Jours de suite ',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.seedGold,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const Icon(
-                      Icons.local_fire_department,
-                      color: AppTheme.seedGold,
-                      size: 16,
-                    ),
-                  ],
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress / 100,
-                    backgroundColor: AppTheme.borderSubtle,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppTheme.seedGold,
-                    ),
-                    minHeight: 8,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '${progress.toInt()}%',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: AppTheme.seedGold,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDaySection(
-    BuildContext context,
-    ReadingDay day,
-    int globalIndex,
-  ) {
-    final isCurrent = widget.currentDayIndex == globalIndex;
-    final isCompleted = day.completed;
-
-    final dayFormat = DateFormat('EEEE', 'fr_FR');
-    final dayName = dayFormat.format(day.date);
-    final capitalizedDayName = dayName[0].toUpperCase() + dayName.substring(1);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: isCurrent
-            ? Border.all(color: AppTheme.seedGold, width: 2)
-            : Border.all(color: AppTheme.borderSubtle, width: 0.5),
-        boxShadow: isCurrent
-            ? [
-                BoxShadow(
-                  color: AppTheme.seedGold.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header avec le nom du jour
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: isCurrent
-                  ? AppTheme.seedGold.withValues(alpha: 0.05)
-                  : AppTheme.backgroundLight,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: Row(
-              children: [
-                if (isCompleted)
-                  Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.seedGold,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      size: 12,
-                      color: AppTheme.surface,
-                    ),
-                  ),
-                Text(
-                  capitalizedDayName,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.deepNavy,
-                      ),
-                ),
+        ),
+        child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(alpha: 0.3),
+                Colors.black.withValues(alpha: 0.6),
               ],
             ),
           ),
-
-          // Liste des passages en pills
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: day.passages.map((passage) {
-                return PassageChip(
-                  passage: passage,
-                  isComplete: isCompleted,
-                  isCurrent: isCurrent,
-                  usePillStyle: true,
-                );
-              }).toList(),
-            ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'Semaine du ${DateFormat('d MMMM', 'fr_FR').format(weekDays.first.date)}',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppTheme.surface,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              if (books.isNotEmpty)
+                Text(
+                  books,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.surface.withValues(alpha: 0.9),
+                      ),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

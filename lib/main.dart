@@ -13,6 +13,7 @@ import 'providers/settings_provider.dart';
 import 'ui/screens/main_shell_screen.dart';
 import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
+import 'ui/screens/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -91,6 +92,11 @@ class _SeedailyAppState extends State<SeedailyApp> {
             final id = state.pathParameters['id']!;
             return CustomizePlanScreen(planId: id);
           },
+        ),
+        // Route À propos
+        GoRoute(
+          path: '/about',
+          builder: (context, state) => const AboutScreen(),
         ),
       ],
     );

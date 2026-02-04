@@ -43,7 +43,7 @@ class AppTheme {
         foregroundColor: deepNavy,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: GoogleFonts.lexend(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: deepNavy,
@@ -67,7 +67,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: GoogleFonts.lexend(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -81,7 +81,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: GoogleFonts.lexend(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -91,7 +91,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: seedGold,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: GoogleFonts.manrope(
+          textStyle: GoogleFonts.lexend(
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
@@ -100,7 +100,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: backgroundLight,
         deleteIconColor: textMuted,
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: GoogleFonts.lexend(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: deepNavy,
@@ -134,11 +134,11 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: error, width: 2),
         ),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: GoogleFonts.lexend(
           fontSize: 15,
           color: textMuted,
         ),
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: GoogleFonts.lexend(
           fontSize: 15,
           color: textMuted,
         ),
@@ -194,77 +194,77 @@ class AppTheme {
 
   static TextTheme _buildTextTheme(TextTheme base) {
     return base.copyWith(
-      displayLarge: GoogleFonts.manrope(
+      displayLarge: GoogleFonts.lexend(
         fontSize: 57,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
-      displayMedium: GoogleFonts.manrope(
+      displayMedium: GoogleFonts.lexend(
         fontSize: 45,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
-      displaySmall: GoogleFonts.manrope(
+      displaySmall: GoogleFonts.lexend(
         fontSize: 36,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
-      headlineLarge: GoogleFonts.manrope(
+      headlineLarge: GoogleFonts.lexend(
         fontSize: 32,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      headlineMedium: GoogleFonts.manrope(
+      headlineMedium: GoogleFonts.lexend(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      headlineSmall: GoogleFonts.manrope(
+      headlineSmall: GoogleFonts.lexend(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      titleLarge: GoogleFonts.manrope(
+      titleLarge: GoogleFonts.lexend(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      titleMedium: GoogleFonts.manrope(
+      titleMedium: GoogleFonts.lexend(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      titleSmall: GoogleFonts.manrope(
+      titleSmall: GoogleFonts.lexend(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: deepNavy,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: GoogleFonts.lexend(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: GoogleFonts.lexend(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: GoogleFonts.lexend(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         color: textMuted,
       ),
-      labelLarge: GoogleFonts.manrope(
+      labelLarge: GoogleFonts.lexend(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textPrimary,
       ),
-      labelMedium: GoogleFonts.manrope(
+      labelMedium: GoogleFonts.lexend(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textMuted,
       ),
-      labelSmall: GoogleFonts.manrope(
+      labelSmall: GoogleFonts.lexend(
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: textMuted,

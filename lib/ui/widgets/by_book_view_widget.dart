@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
-import 'reading_day_card.dart';
+import 'day_card_widget.dart';
 
 /// Widget pour l'affichage par livre biblique (format By Book)
 /// Regroupe les jours de lecture par livre avec un en-tête pour chaque livre
@@ -65,33 +65,21 @@ class ByBookViewWidget extends StatelessWidget {
             ...bookDays.map((entry) {
               final dayIndex = entry.key;
               final day = entry.value;
-              final isSelected = selectedDayIndex == dayIndex;
               final isCurrent = currentDayIndex == dayIndex;
+              final isFuture =
+                  currentDayIndex != null && dayIndex > currentDayIndex!;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: GestureDetector(
+                child: DayCardWidget(
+                  day: day,
+                  dayIndex: dayIndex,
+                  isCurrent: isCurrent,
+                  isCompleted: day.completed,
+                  isFuture: isFuture,
+                  showCheckbox: showCheckbox,
+                  isPreviewMode: isPreviewMode,
                   onTap: onDayTap != null ? () => onDayTap!(dayIndex) : null,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: isSelected
-                          ? Border.all(color: AppTheme.seedGold, width: 2)
-                          : isCurrent
-                              ? Border.all(
-                                  color: AppTheme.seedGold.withValues(alpha: 0.5),
-                                  width: 1)
-                              : null,
-                    ),
-                    child: ReadingDayCard(
-                      day: day,
-                      isPreviewMode: isPreviewMode,
-                      showCheckbox: showCheckbox,
-                      showDayCheckbox: true,
-                      isCurrent: isCurrent,
-                      isDayComplete: day.completed,
-                    ),
-                  ),
                 ),
               );
             }),
@@ -115,9 +103,8 @@ class ByBookViewWidget extends StatelessWidget {
   ) {
     // Déterminer la catégorie du livre pour l'icône et la couleur
     final testament = book?.isOldTestament == true ? 'AT' : 'NT';
-    final testamentColor = book?.isOldTestament == true
-        ? AppTheme.deepNavy
-        : AppTheme.seedGold;
+    final testamentColor =
+        book?.isOldTestament == true ? AppTheme.deepNavy : AppTheme.seedGold;
 
     // Calculer la progression
     final progressPercentage = daysCount > 0 ? completedDays / daysCount : 0.0;
@@ -171,10 +158,11 @@ class ByBookViewWidget extends StatelessWidget {
                         Expanded(
                           child: Text(
                             bookName,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.deepNavy,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.deepNavy,
+                                    ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -190,11 +178,12 @@ class ByBookViewWidget extends StatelessWidget {
                           ),
                           child: Text(
                             testament,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: testamentColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: testamentColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
                           ),
                         ),
                       ],
@@ -210,10 +199,11 @@ class ByBookViewWidget extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '$totalChapters chapitre${totalChapters > 1 ? 's' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textMuted,
-                                fontSize: 12,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 12,
+                                  ),
                         ),
                         const SizedBox(width: 12),
                         const Icon(
@@ -224,10 +214,11 @@ class ByBookViewWidget extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '$daysCount jour${daysCount > 1 ? 's' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textMuted,
-                                fontSize: 12,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 12,
+                                  ),
                         ),
                       ],
                     ),
@@ -278,9 +269,8 @@ class ByBookViewWidget extends StatelessWidget {
       final day = days[i];
 
       // Trouver le premier livre dans les passages du jour
-      final firstBookInDay = day.passages.isNotEmpty
-          ? day.passages.first.book
-          : null;
+      final firstBookInDay =
+          day.passages.isNotEmpty ? day.passages.first.book : null;
 
       if (firstBookInDay == null) continue;
 
@@ -301,7 +291,7 @@ class ByBookViewWidget extends StatelessWidget {
 
       currentBook = firstBookInDay;
       currentBookDays.add(MapEntry(i, day));
-      
+
       // Compter les jours complétés
       if (day.completed) {
         currentCompletedDays++;

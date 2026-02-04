@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import 'today_card_widget.dart';
 
 /// Widget représentant un calendrier mensuel pour la vue d'ensemble du plan
 /// Affiche seulement les jours de lecture sélectionnés par l'utilisateur
@@ -97,6 +98,18 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Carte de détail du jour sélectionné (avant le calendrier pour UX)
+          if (widget.selectedDayIndex != null &&
+              widget.selectedDayIndex! < widget.days.length)
+            TodayCardWidget(
+              day: widget.days[widget.selectedDayIndex!],
+              onMarkComplete: widget.onDayComplete != null
+                  ? () => widget.onDayComplete!(widget.selectedDayIndex!)
+                  : null,
+            ),
+
+          const SizedBox(height: 12),
+
           // Header : Mois et année avec navigation
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -132,50 +145,45 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
             ),
           ),
 
-          // Compteur de jours
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: Column(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.seedGold.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
+          // Badge aperçu (uniquement en mode preview)
+          if (widget.isPreviewMode)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.seedGold.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        'aperçu',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppTheme.seedGold,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
                     ),
-                    child: Text(
-                      widget.isPreviewMode ? 'aperçu' : '${widget.days.length} jours',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.seedGold,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                  if (widget.isPreviewMode && !_canNavigateNext) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'Créez le plan pour voir tous les mois',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.textMuted,
-                            fontSize: 10,
-                          ),
-                    ),
+                    if (!_canNavigateNext) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Créez le plan pour voir tous les mois',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppTheme.textMuted,
+                              fontSize: 10,
+                            ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
 
           // Grille du calendrier
           _buildCalendarGrid(context, _displayMonth),
-
-          // Carte de détail du jour sélectionné
-          if (widget.selectedDayIndex != null &&
-              widget.selectedDayIndex! < widget.days.length)
-            _buildSelectedDayCard(context, widget.days[widget.selectedDayIndex!]),
         ],
       ),
     );
@@ -216,7 +224,6 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
             }).toList(),
           ),
           const SizedBox(height: 8),
-
           ...List.generate((daysInMonth + firstWeekday) ~/ 7 + 1, (weekIndex) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
@@ -353,168 +360,6 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                     ),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectedDayCard(BuildContext context, ReadingDay day) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        // Option 1: Utiliser un gradient (pas besoin d'image)
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2C5F7C),
-            Color(0xFF1A3A4F),
-          ],
-        ),
-        // Option 2: Décommenter pour utiliser une image de fond
-        // image: const DecorationImage(
-        //   image: AssetImage('assets/images/mountain_bg.jpg'),
-        //   fit: BoxFit.cover,
-        // ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withValues(alpha: 0.3),
-              Colors.black.withValues(alpha: 0.5),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppTheme.seedGold,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'AUJOURD\'HUI',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppTheme.deepNavy,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                      letterSpacing: 0.5,
-                    ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              DateFormat('d MMMM', 'fr_FR').format(day.date),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppTheme.surface,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              day.passages.isNotEmpty
-                  ? day.passages.first.reference
-                  : 'Aucune lecture',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppTheme.surface,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.access_time,
-                  color: AppTheme.surface,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Environ 4 minutes de lecture',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.surface,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Statut',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.surface.withValues(alpha: 0.8),
-                      ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: day.completed
-                        ? AppTheme.seedGold.withValues(alpha: 0.2)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: AppTheme.surface.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    day.completed ? 'Complété' : 'À lire',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.surface,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: widget.onDayComplete != null && widget.selectedDayIndex != null
-                    ? () => widget.onDayComplete!(widget.selectedDayIndex!)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.seedGold,
-                  foregroundColor: AppTheme.deepNavy,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      day.completed ? 'Marquer comme non lu' : 'Marquer comme lu',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppTheme.deepNavy,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      day.completed ? Icons.close : Icons.check,
-                      size: 20,
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

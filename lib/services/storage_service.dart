@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../domain/models.dart';
 
@@ -30,15 +31,38 @@ class StorageService {
     for (final key in box.keys) {
       try {
         final json = box.get(key) as Map<dynamic, dynamic>;
-        final planJson = Map<String, dynamic>.from(json);
+        final planJson = _convertDynamicMap(json);
         plans.add(GeneratedPlan.fromJson(planJson));
       } catch (e) {
+        debugPrint('Erreur lors du chargement du plan $key: $e');
         continue;
       }
     }
 
+    debugPrint('Nombre de plans chargés: ${plans.length}');
     plans.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return plans;
+  }
+
+  /// Convertit récursivement une LinkedMap<dynamic, dynamic> en Map<String, dynamic>
+  Map<String, dynamic> _convertDynamicMap(Map<dynamic, dynamic> map) {
+    final result = <String, dynamic>{};
+    for (final entry in map.entries) {
+      final key = entry.key.toString();
+      final value = entry.value;
+      result[key] = _convertValue(value);
+    }
+    return result;
+  }
+
+  /// Convertit récursivement les valeurs (Maps et Lists)
+  dynamic _convertValue(dynamic value) {
+    if (value is Map<dynamic, dynamic>) {
+      return _convertDynamicMap(value);
+    } else if (value is List<dynamic>) {
+      return value.map((v) => _convertValue(v)).toList();
+    }
+    return value;
   }
 
   Future<GeneratedPlan?> getPlan(String planId) async {
@@ -46,9 +70,10 @@ class StorageService {
       final json = _plansBox?.get(planId) as Map<dynamic, dynamic>?;
       if (json == null) return null;
 
-      final planJson = Map<String, dynamic>.from(json);
+      final planJson = _convertDynamicMap(json);
       return GeneratedPlan.fromJson(planJson);
     } catch (e) {
+      debugPrint('Erreur lors de la récupération du plan $planId: $e');
       return null;
     }
   }
@@ -72,8 +97,7 @@ class StorageService {
   }
 
   Future<void> saveNotificationTime(DateTime time) async {
-    await _settingsBox?.put(
-        'notification_time', time.toIso8601String());
+    await _settingsBox?.put('notification_time', time.toIso8601String());
   }
 
   Future<DateTime?> getNotificationTime() async {

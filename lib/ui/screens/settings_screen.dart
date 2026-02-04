@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/settings_provider.dart';
 import '../../core/theme.dart';
 
@@ -10,122 +11,196 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Paramètres'),
+        title: const Text('Réglages'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          _buildSection(
-            context,
-            title: 'Notifications',
-            children: [
-              Consumer<SettingsProvider>(
-                builder: (context, settings, child) {
-                  return SwitchListTile(
-                    title: const Text('Activer les notifications'),
-                    subtitle: const Text('Rappels quotidiens de lecture'),
-                    value: settings.notificationsEnabled,
-                    onChanged: (value) {
-                      settings.setNotificationsEnabled(value);
-                    },
-                    activeColor: AppTheme.seedGold,
+          // APPARENCE
+          _buildSectionTitle('APPARENCE'),
+          _buildSettingCard(
+            icon: Icons.brightness_4_outlined,
+            title: 'Thème',
+            subtitle: 'Système',
+            onTap: () {},
+          ),
+          const SizedBox(height: 24),
+
+          // RAPPELS
+          _buildSectionTitle('RAPPELS'),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              return _buildSettingCard(
+                icon: Icons.notifications_outlined,
+                title: 'Notifications',
+                trailing: Switch(
+                  value: settings.notificationsEnabled,
+                  onChanged: (value) {
+                    settings.setNotificationsEnabled(value);
+                  },
+                 
+                  activeThumbColor: AppTheme.surface,
+                ),
+                onTap: () {},
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              final time = settings.notificationTime;
+              final timeStr =
+                  '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+
+              return _buildSettingCard(
+                icon: Icons.access_time_outlined,
+                title: 'Heure de rappel',
+                subtitle: timeStr,
+                subtitleColor: AppTheme.seedGold,
+                onTap: () async {
+                  final selectedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(time),
                   );
-                },
-              ),
-              Consumer<SettingsProvider>(
-                builder: (context, settings, child) {
-                  if (!settings.notificationsEnabled) {
-                    return const SizedBox.shrink();
+
+                  if (selectedTime != null) {
+                    final now = DateTime.now();
+                    final dateTime = DateTime(
+                      now.year,
+                      now.month,
+                      now.day,
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    );
+                    settings.setNotificationTime(dateTime);
                   }
-
-                  return ListTile(
-                    title: const Text('Heure du rappel'),
-                    subtitle: Text(
-                      '${settings.notificationTime.hour.toString().padLeft(2, '0')}:${settings.notificationTime.minute.toString().padLeft(2, '0')}',
-                    ),
-                    leading: const Icon(Icons.access_time),
-                    onTap: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.fromDateTime(
-                          settings.notificationTime,
-                        ),
-                      );
-
-                      if (time != null) {
-                        final now = DateTime.now();
-                        final dateTime = DateTime(
-                          now.year,
-                          now.month,
-                          now.day,
-                          time.hour,
-                          time.minute,
-                        );
-                        settings.setNotificationTime(dateTime);
-                      }
-                    },
-                  );
                 },
-              ),
-            ],
+              );
+            },
           ),
-          _buildSection(
-            context,
+          const SizedBox(height: 24),
+
+          // PRÉFÉRENCES
+          // _buildSectionTitle('PRÉFÉRENCES'),
+          // _buildSettingCard(
+          //   icon: Icons.menu_book_outlined,
+          //   title: 'Version de la Bible',
+          //   subtitle: 'Louis Segond',
+          //   onTap: () {},
+          // ),
+          // const SizedBox(height: 12),
+          // _buildSettingCard(
+          //   icon: Icons.language_outlined,
+          //   title: 'Langue',
+          //   subtitle: 'Français',
+          //   onTap: () {},
+          // ),
+          // const SizedBox(height: 24),
+
+          // INFORMATIONS
+          _buildSectionTitle('INFORMATIONS'),
+          _buildSettingCard(
+            icon: Icons.info_outline,
             title: 'À propos',
-            children: [
-              ListTile(
-                title: const Text('Version'),
-                subtitle: const Text('1.0.0'),
-                leading: const Icon(Icons.info_outline),
-              ),
-              ListTile(
-                title: const Text('Seedaily'),
-                subtitle: const Text(
-                  'Application de génération de plans de lecture biblique',
-                ),
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppTheme.seedGold.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.menu_book,
-                    color: AppTheme.seedGold,
-                  ),
-                ),
-              ),
-            ],
+            subtitle: 'v2.4.0',
+            onTap: () {
+              context.push('/about');
+            },
           ),
+          const SizedBox(height: 12),
+          // _buildSettingCard(
+          //   icon: Icons.download_outline,
+          //   title: 'Exporter les données',
+          //   titleColor: AppTheme.seedGold,
+          //   onTap: () {},
+          // ),
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildSection(
-    BuildContext context, {
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textMuted,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingCard({
+    required IconData icon,
     required String title,
-    required List<Widget> children,
+    String? subtitle,
+    Color? subtitleColor,
+    Color? titleColor,
+    Widget? trailing,
+    required VoidCallback onTap,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppTheme.textMuted,
+    return Material(
+      color: AppTheme.surface,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Icône
+              Icon(
+                icon,
+                size: 24,
+                color: AppTheme.deepNavy.withOpacity(0.7),
+              ),
+              const SizedBox(width: 16),
+
+              // Titre et sous-titre
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: titleColor ?? AppTheme.deepNavy,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: subtitleColor ?? AppTheme.textMuted,
+                        ),
+                      ),
+                  ],
                 ),
+              ),
+
+              // Trailing (chevron ou switch)
+              if (trailing != null)
+                trailing
+              else
+                Icon(
+                  Icons.chevron_right,
+                  color: AppTheme.borderSubtle,
+                ),
+            ],
           ),
         ),
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: children,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

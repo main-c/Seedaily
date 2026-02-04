@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -46,81 +47,95 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (!_initialized) await init();
+    try {
+      if (!_initialized) await init();
 
-    final androidImplementation =
-        _notifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    final iosImplementation =
-        _notifications.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
+      final androidImplementation =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      final iosImplementation =
+          _notifications.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
 
-    bool granted = true;
+      bool granted = true;
 
-    if (androidImplementation != null) {
-      granted =
-          await androidImplementation.requestNotificationsPermission() ?? false;
+      if (androidImplementation != null) {
+        granted =
+            await androidImplementation.requestNotificationsPermission() ??
+                false;
+      }
+
+      if (iosImplementation != null) {
+        granted = await iosImplementation.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            false;
+      }
+
+      return granted;
+    } catch (e) {
+      debugPrint('Erreur lors de la demande de permissions: $e');
+      return false;
     }
-
-    if (iosImplementation != null) {
-      granted = await iosImplementation.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          ) ??
-          false;
-    }
-
-    return granted;
   }
 
   Future<void> scheduleDailyNotification({
     required int hour,
     required int minute,
   }) async {
-    if (!_initialized) await init();
-
-    await cancelAllNotifications();
-
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    if (!_initialized) {
+      await init();
     }
 
-    final message = _messages[DateTime.now().day % _messages.length];
+    try {
+      await cancelAllNotifications();
 
-    await _notifications.zonedSchedule(
-      0,
-      'Seedaily',
-      message,
-      scheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_reading',
-          'Lecture quotidienne',
-          channelDescription: 'Rappels quotidiens pour votre lecture biblique',
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      final message = _messages[DateTime.now().day % _messages.length];
+
+      await _notifications.zonedSchedule(
+        0,
+        'Seedaily',
+        message,
+        scheduledDate,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'daily_reading',
+            'Lecture quotidienne',
+            channelDescription:
+                'Rappels quotidiens pour votre lecture biblique',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
         ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      debugPrint('Erreur lors de la planification des notifications: $e');
+      rethrow;
+    }
   }
 
   Future<void> cancelAllNotifications() async {

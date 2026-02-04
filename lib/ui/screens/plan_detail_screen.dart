@@ -26,17 +26,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   final _exportService = ExportService();
   int? _selectedDayIndex;
 
-  // Le format actuellement affiché (peut être différent du format par défaut du plan)
-  late OutputFormat _currentFormat;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialiser avec le format par défaut du plan
-    final plan = context.read<PlansProvider>().getPlanById(widget.planId);
-    _currentFormat = plan?.options.display.format ?? OutputFormat.list;
-  }
-
   @override
   Widget build(BuildContext context) {
     final plan = context.watch<PlansProvider>().getPlanById(widget.planId);
@@ -52,9 +41,14 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(plan.title),
+        title: Text(plan.title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.deepNavy,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                )),
         elevation: 0,
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppTheme.deepNavy,
         actions: [
           // Bouton configuration → page d'édition
@@ -63,11 +57,12 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             onPressed: () => context.push('/edit-plan/${widget.planId}'),
             tooltip: 'Configuration',
           ),
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: () => _exportService.sharePdf(plan),
-            tooltip: 'Partager',
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.share_outlined),
+          //   onPressed: () => _exportService.sharePdf(plan),
+          //   tooltip: 'Partager',
+
+          // ),
         ],
       ),
       body: Column(
@@ -83,157 +78,69 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   Widget _buildProgressHeader(GeneratedPlan plan) {
     return Container(
+      margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppTheme.surface,
-        border: Border(
-          bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
-        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Ligne avec progression et série
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      '${plan.progress.toStringAsFixed(0)}%',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppTheme.deepNavy,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${plan.completedDays}/${plan.totalDays} jours',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                    ),
-                  ],
+          // Titre de la section
+          Text(
+            'Progression du plan',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
-              ),
-              if (plan.currentStreak > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppTheme.seedGold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.local_fire_department,
-                        color: AppTheme.seedGold,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${plan.currentStreak} jours',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: AppTheme.seedGold,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
           ),
           const SizedBox(height: 12),
-          // Barre de progression
+
+          // Jours lus avec pourcentage
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${plan.completedDays}/${plan.totalDays} jours',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppTheme.deepNavy,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+              ),
+              Text(
+                '${plan.progress.toStringAsFixed(0)}%',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppTheme.seedGold,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Barre de progression - agrandie pour meilleure visibilité
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: plan.progress / 100,
-              minHeight: 8,
+              minHeight: 12,
               backgroundColor: AppTheme.borderSubtle,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.seedGold,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          // Sélecteur de vue compact
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildViewChip(
-                  label: 'Liste',
-                  format: OutputFormat.list,
-                  icon: Icons.list,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Par Livre',
-                  format: OutputFormat.byBook,
-                  icon: Icons.menu_book,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Semaine',
-                  format: OutputFormat.weekly,
-                  icon: Icons.calendar_view_week,
-                ),
-                const SizedBox(width: 8),
-                _buildViewChip(
-                  label: 'Calendrier',
-                  format: OutputFormat.calendar,
-                  icon: Icons.calendar_month,
-                ),
-              ],
-            ),
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildViewChip({
-    required String label,
-    required OutputFormat format,
-    required IconData icon,
-  }) {
-    final isSelected = _currentFormat == format;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _currentFormat = format;
-          _selectedDayIndex = null;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.seedGold : AppTheme.backgroundLight,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.seedGold : AppTheme.borderSubtle,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? AppTheme.surface : AppTheme.textMuted,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelected ? AppTheme.surface : AppTheme.deepNavy,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -258,8 +165,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       }
     }
 
-    // Afficher le widget selon le format ACTUELLEMENT SÉLECTIONNÉ (pas celui du plan)
-    switch (_currentFormat) {
+    // Afficher le widget selon le format du plan
+    switch (plan.options.display.format) {
       case OutputFormat.calendar:
         return MonthCalendarWidget(
           days: plan.days,
