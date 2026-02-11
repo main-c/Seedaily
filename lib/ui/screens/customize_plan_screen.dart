@@ -162,7 +162,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       'bible-year-ligue',
       'revolutionary',
       'horner',
-      'genesis-to-revelation',
     ].contains(_workingPlan.templateId);
   }
 
@@ -190,7 +189,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
   bool get _showDailyPsalmProverb => !_isFixedPlan && _hasOldTestament;
 
-  bool get _showOtNtOverlap => !_isFixedPlan && _hasOldTestament && _hasNewTestament;
+  bool get _showOtNtOverlap =>
+      !_isFixedPlan && _hasOldTestament && _hasNewTestament;
 
   // ============================================================================
   // RÉGÉNÉRATION DU PLAN
@@ -308,7 +308,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: Text(widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
+        title: Text(
+            widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
       ),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -326,11 +327,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       children: [
                         Text(
                           'APERÇU DU PLAN',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AppTheme.textMuted,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.2,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: AppTheme.textMuted,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2,
+                                  ),
                         ),
                         const SizedBox(height: 12),
                         _buildTemplateHeader(),
@@ -404,7 +406,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 elevation: 0,
               ),
               child: Text(
-                widget.isEditMode ? 'Enregistrer les modifications' : 'Créer le plan',
+                widget.isEditMode
+                    ? 'Enregistrer les modifications'
+                    : 'Créer le plan',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

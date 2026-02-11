@@ -5,8 +5,8 @@ import 'bible_data.dart';
 // ============================================================================
 
 enum ContentScope {
-  custom,    // Sélection personnalisée (canonical, chronological, jewish)
-  preset,    // Plan fixe (M'Cheyne, Ligue, Revolutionary, Horner)
+  custom, // Sélection personnalisée (canonical, chronological, jewish)
+  preset, // Plan fixe (M'Cheyne, Ligue, Revolutionary, Horner)
 }
 
 enum OrderType {
@@ -18,7 +18,7 @@ enum OrderType {
 }
 
 enum DistributionUnit {
-  chapters,    // ✅ MVP : Uniquement chapters pour le MVP
+  chapters, // ✅ MVP : Uniquement chapters pour le MVP
   // words,    // ⏸️ Phase 2 : Commenté pour MVP
   // pericopes, // ⏸️ Phase 2 : Commenté pour MVP
 }
@@ -87,6 +87,10 @@ class ReadingPlanTemplate {
   final String image;
   final String description;
   final String porte;
+  // Métadonnées recommandées
+  final String type; // 'preset' | 'custom' | 'fixed'
+  final String difficulty; // 'léger' | 'modéré' | 'intense'
+  final int? estimatedDays;
 
   ReadingPlanTemplate({
     required this.id,
@@ -94,6 +98,9 @@ class ReadingPlanTemplate {
     required this.image,
     required this.description,
     required this.porte,
+    this.type = 'custom',
+    this.difficulty = 'modéré',
+    this.estimatedDays,
   });
 
   Map<String, dynamic> toJson() => {
@@ -102,6 +109,9 @@ class ReadingPlanTemplate {
         'image': image,
         'description': description,
         'porte': porte,
+        'type': type,
+        'difficulty': difficulty,
+        'estimatedDays': estimatedDays,
       };
 
   factory ReadingPlanTemplate.fromJson(Map<String, dynamic> json) =>
@@ -111,6 +121,9 @@ class ReadingPlanTemplate {
         image: json['image'] as String,
         description: json['description'] as String,
         porte: json['porte'] as String,
+        type: json['type'] as String? ?? 'custom',
+        difficulty: json['difficulty'] as String? ?? 'modéré',
+        estimatedDays: json['estimatedDays'] as int?,
       );
 }
 
@@ -228,15 +241,7 @@ class ScheduleOptions {
   ScheduleOptions({
     required this.startDate,
     required this.totalDays,
-    this.readingDays = const [
-      'mon',
-      'tue',
-      'wed',
-      'thu',
-      'fri',
-      'sat',
-      'sun'
-    ],
+    this.readingDays = const ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
   });
 
   Map<String, dynamic> toJson() => {
@@ -432,17 +437,16 @@ class GeneratorOptions {
 
   factory GeneratorOptions.fromJson(Map<String, dynamic> json) =>
       GeneratorOptions(
-        content: ContentOptions.fromJson(
-            json['content'] as Map<String, dynamic>),
+        content:
+            ContentOptions.fromJson(json['content'] as Map<String, dynamic>),
         order: OrderOptions.fromJson(json['order'] as Map<String, dynamic>),
-        schedule: ScheduleOptions.fromJson(
-            json['schedule'] as Map<String, dynamic>),
+        schedule:
+            ScheduleOptions.fromJson(json['schedule'] as Map<String, dynamic>),
         distribution: DistributionOptions.fromJson(
             json['distribution'] as Map<String, dynamic>),
         display: json.containsKey('display')
             ? DisplayOptions.fromJson(json['display'] as Map<String, dynamic>)
-            : _migrateOutputToDisplay(
-                json['output'] as Map<String, dynamic>),
+            : _migrateOutputToDisplay(json['output'] as Map<String, dynamic>),
       );
 
   // Migration automatique de OutputOptions → DisplayOptions
@@ -507,7 +511,8 @@ class Passage {
 
   /// Regroupe une liste de passages consécutifs du même livre
   /// Ex: [Gen 9, Gen 10, Gen 11, Ex 1] -> ["Gen 9-11", "Ex 1"]
-  static List<String> groupConsecutivePassages(List<Passage> passages, {bool useAbbreviations = false}) {
+  static List<String> groupConsecutivePassages(List<Passage> passages,
+      {bool useAbbreviations = false}) {
     if (passages.isEmpty) return [];
 
     final grouped = <String>[];
@@ -524,7 +529,8 @@ class Passage {
       while (j < passages.length && passages[j].book == currentBook) {
         final next = passages[j];
         // Si le chapitre suivant est consécutif
-        if (next.fromChapter == endChapter + 1 && next.toChapter == next.fromChapter) {
+        if (next.fromChapter == endChapter + 1 &&
+            next.toChapter == next.fromChapter) {
           endChapter = next.toChapter;
           j++;
         } else {
@@ -533,7 +539,8 @@ class Passage {
       }
 
       // Formater le groupe
-      final bookName = useAbbreviations ? abbreviateBookName(currentBook) : currentBook;
+      final bookName =
+          useAbbreviations ? abbreviateBookName(currentBook) : currentBook;
       if (startChapter == endChapter) {
         grouped.add('$bookName $startChapter');
       } else {
@@ -722,8 +729,8 @@ class GeneratedPlan {
         id: json['id'] as String,
         templateId: json['templateId'] as String,
         title: json['title'] as String,
-        options: GeneratorOptions.fromJson(
-            json['options'] as Map<String, dynamic>),
+        options:
+            GeneratorOptions.fromJson(json['options'] as Map<String, dynamic>),
         days: (json['days'] as List<dynamic>)
             .map((d) => ReadingDay.fromJson(d as Map<String, dynamic>))
             .toList(),

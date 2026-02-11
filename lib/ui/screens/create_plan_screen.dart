@@ -32,12 +32,17 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
 
     // SECTION 2 : Plans de lecture de la bible en un an (Plans fixes)
     final section2 = allTemplates
-        .where((t) =>
-            ['mcheyne', 'bible-year-ligue', 'revolutionary', 'horner']
-                .contains(t.id))
+        .where((t) => ['mcheyne', 'bible-year-ligue', 'revolutionary', 'horner']
+            .contains(t.id))
         .toList();
 
     // SECTION 3 : Plans par livres
+    // Exclure les templates déjà listés dans les sections précédentes
+    final includedIds = {
+      ...section1.map((t) => t.id),
+      ...section2.map((t) => t.id),
+    };
+
     final section3 = allTemplates
         .where((t) => [
               'new-testament',
@@ -45,8 +50,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               'gospels',
               'psalms',
               'proverbs',
-              'genesis-to-revelation'
             ].contains(t.id))
+        .where((t) => !includedIds.contains(t.id))
         .toList();
 
     return Scaffold(
