@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/theme.dart';
 import 'services/storage_service.dart';
@@ -11,12 +12,14 @@ import 'services/notification_service.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
 import 'ui/screens/main_shell_screen.dart';
+import 'ui/screens/splash_screen.dart';
 import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
 import 'ui/screens/about_screen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await initializeDateFormatting('fr_FR', null);
 
@@ -60,8 +63,13 @@ class _SeedailyAppState extends State<SeedailyApp> {
   void initState() {
     super.initState();
     _router = GoRouter(
-      initialLocation: '/',
+      initialLocation: '/splash',
       routes: [
+        // Splash : logo + Seedaily sur fond blanc
+        GoRoute(
+          path: '/splash',
+          builder: (_, __) => const SplashScreen(),
+        ),
         // Shell principal avec navigation en bas
         GoRoute(
           path: '/',
