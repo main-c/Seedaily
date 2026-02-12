@@ -189,7 +189,9 @@ class PlanGenerator {
     // On mappe les jours de lecture aux dates réelles
     final totalReadingDays = RevolutionaryPlanConfig.totalReadingDays;
 
-    for (int dayIndex = 0; dayIndex < totalReadingDays && dayIndex < schedule.totalDays; dayIndex++) {
+    for (int dayIndex = 0;
+        dayIndex < totalReadingDays && dayIndex < schedule.totalDays;
+        dayIndex++) {
       final date = schedule.startDate.add(Duration(days: dayIndex));
       final passages = generateRevolutionaryDayPassages(dayIndex);
 
@@ -274,8 +276,7 @@ class PlanGenerator {
   List<WeightedPassage> _interleaveWeighted(
       List<WeightedPassage> list1, List<WeightedPassage> list2) {
     final result = <WeightedPassage>[];
-    final maxLength =
-        list1.length > list2.length ? list1.length : list2.length;
+    final maxLength = list1.length > list2.length ? list1.length : list2.length;
 
     for (int i = 0; i < maxLength; i++) {
       if (i < list1.length) result.add(list1[i]);
@@ -364,8 +365,7 @@ class PlanGenerator {
     if (actualReadingDays == 0) return readingDays;
 
     // Calculer le poids total et le poids cible par jour
-    final totalWeight =
-        weightedPassages.fold(0, (sum, wp) => sum + wp.weight);
+    final totalWeight = weightedPassages.fold(0, (sum, wp) => sum + wp.weight);
     final targetWeightPerDay = totalWeight / actualReadingDays;
 
     // Tolérance : on accepte de dépasser de 50% du poids cible
@@ -376,7 +376,8 @@ class PlanGenerator {
     int psalmIndex = 1;
     int dayCount = 0;
 
-    while (passageIndex < weightedPassages.length && dayCount < schedule.totalDays) {
+    while (passageIndex < weightedPassages.length &&
+        dayCount < schedule.totalDays) {
       if (_isReadingDay(currentDate, schedule.readingDays)) {
         final dayPassages = <Passage>[];
         int currentDayWeight = 0;
@@ -490,9 +491,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=80',
         description:
-            'Bible complète dans l\'ordre traditionnel (Genèse → Apocalypse). Personnalisez les livres, la durée et les jours de lecture selon vos besoins.',
+            'Lecture de toute la Bible dans l’ordre traditionnel de Genèse a Apocalypse.',
         porte:
-            'Point de départ pour une lecture complète. Ajoutez ou retirez des livres, modifiez la durée (1 an, 6 mois, 2 ans...) et choisissez vos jours de lecture.',
+            '''Ce plan suit l’ordre classique des livres bibliques tel que présenté dans la plupart des Bibles chrétiennes.
+Vous pouvez modifier la durée (6 mois, 1 an, 2 ans…), sélectionner certains livres seulement, ou choisir vos jours de lecture.
+Idéal comme base flexible pour construire votre propre parcours complet.''',
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 365,
@@ -503,9 +506,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80',
         description:
-            'Bible dans l\'ordre historique de rédaction. Personnalisez les livres et la durée pour l\'adapter à votre rythme.',
+            'Lecture de la Bible selon l’ordre historique des événements et de rédaction.',
         porte:
-            'Idéal pour comprendre la progression historique. Modifiez la sélection de livres ou ajustez la durée selon votre groupe d\'étude.',
+            '''Ce plan replace les livres et passages dans leur contexte historique présumé afin de mieux comprendre la progression de l’histoire biblique.
+Parfait pour suivre le fil narratif de la révélation biblique.
+Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objectif d’étude.''',
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 365,
@@ -516,9 +521,17 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
         description:
-            'Lecture selon l\'ordre hébraïque (Torah → Neviim → Ketuvim). Adaptez la durée et les jours de lecture à votre rythme.',
+            'Lecture selon l’ordre hébraïque traditionnel : Torah, Neviim, Ketuvim.',
         porte:
-            'Pour découvrir l\'ordre juif traditionnel. Personnalisez la durée ou sélectionnez uniquement certaines sections (Torah, Prophètes, Écrits).',
+            '''Ce parcours suit l’organisation du Tanakh (Bible hébraïque) utilisée dans la tradition juive :
+
+Torah (Loi)
+
+Neviim (Prophètes)
+
+Ketuvim (Écrits)
+
+Vous pouvez lire l’ensemble ou vous concentrer sur une section spécifique. La durée et les jours de lecture sont entièrement personnalisables.''',
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 365,
@@ -531,9 +544,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
         description:
-            'Les 27 livres du Nouveau Testament. Ajoutez des livres de l\'AT, modifiez la durée ou les jours de lecture.',
+            'Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.',
         porte:
-            'Point de départ pour découvrir l\'enseignement du Christ. Personnalisez selon votre groupe : 1 mois intensif ou 6 mois progressifs.',
+            '''Découvrez la vie de Jésus, la naissance de l’Église et l’enseignement apostolique.
+Vous pouvez lire en format intensif (30 jours) ou progressif (3 à 6 mois).
+Ajoutez des livres de l’Ancien Testament si vous souhaitez enrichir votre parcours.''',
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 90,
@@ -544,9 +559,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&q=80',
         description:
-            'Les 39 livres de l\'Ancien Testament. Ajustez la durée ou sélectionnez certains livres selon votre objectif.',
+            'Les 39 livres de l’Ancien Testament, ajustables selon votre durée.',
         porte:
-            'Base pour explorer l\'histoire d\'Israël. Réduisez à 6 mois ou étendez sur 2 ans — vous avez le contrôle.',
+            '''Explorez la Loi, l’histoire d’Israël, les livres poétiques et les prophètes.
+Vous pouvez étendre la lecture sur 1 à 2 ans ou sélectionner uniquement certaines sections.
+Un plan exigeant mais fondamental pour comprendre le Nouveau Testament.''',
         type: 'custom',
         difficulty: 'intense',
         estimatedDays: 365,
@@ -557,9 +574,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1499652848871-1527a310b13a?w=800&q=80',
         description:
-            'Matthieu, Marc, Luc et Jean. Idéal pour un groupe de croissance — personnalisez la durée selon votre rythme.',
+            'Matthieu, Marc, Luc et Jean dans un parcours centré sur la vie de Jésus.',
         porte:
-            'Parfait pour découvrir Jésus ensemble. Ajoutez les Actes, modifiez la durée (2 semaines à 3 mois) selon vos besoins.',
+            '''Idéal pour découvrir ou redécouvrir la personne et l’œuvre du Christ.
+Vous pouvez compléter avec le livre des Actes ou adapter la durée (2 semaines à 3 mois).
+Parfait pour un groupe de croissance ou un nouveau croyant.''',
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 30,
@@ -569,10 +588,11 @@ class PlanGenerator {
         title: 'Les Psaumes',
         image:
             'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-        description:
-            '150 psaumes pour la prière et la méditation. Adaptez le rythme : 1 par jour, 5 par jour, ou selon vos envies.',
+        description: '150 psaumes pour nourrir la prière et la méditation.',
         porte:
-            'Lecture de prière personnalisable. Ajoutez Proverbes pour la sagesse quotidienne ou lisez-les en 1 mois intensif.',
+            '''Un parcours spirituel centré sur l’adoration, la repentance et la confiance en Dieu.
+Choisissez votre rythme : 1 psaume par jour ou plusieurs par lecture.
+Peut être combiné avec Proverbes pour un équilibre entre prière et sagesse.''',
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 150,
@@ -583,67 +603,69 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
         description:
-            '31 chapitres de sagesse pratique. Lisez-les en 1 mois ou combinez avec d\'autres livres de sagesse.',
+            '31 chapitres de sagesse pratique pour la vie quotidienne.',
         porte:
-            'Sagesse quotidienne adaptable. Ajoutez Ecclésiaste et Cantique, ou répétez le cycle plusieurs fois.',
+            '''Un plan idéal pour une lecture mensuelle (1 chapitre par jour).
+Peut être associé à Ecclésiaste ou Cantique des cantiques pour approfondir la littérature sapientielle.
+Simple, court et applicable immédiatement.''',
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 31,
       ),
 
-      // Rythmes de lecture — personnalisez selon votre disponibilité
-      ReadingPlanTemplate(
-        id: 'one-chapter-a-day',
-        title: 'Un chapitre par jour',
-        image:
-            'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=800&q=80',
-        description:
-            'Rythme doux : 1 chapitre quotidien. Sélectionnez les livres que vous voulez lire et ajustez la durée.',
-        porte:
-            'Approche progressive et personnalisable. Commencez par le NT en 260 jours ou toute la Bible en 3 ans — c\'est vous qui décidez.',
-        type: 'custom',
-        difficulty: 'léger',
-        estimatedDays: 1189,
-      ),
-      ReadingPlanTemplate(
-        id: '90-day',
-        title: 'Plan 90 jours',
-        image:
-            'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
-        description:
-            'Lecture intensive de la Bible. Modifiez la durée (60, 90 ou 120 jours) ou sélectionnez certains livres.',
-        porte:
-            'Challenge adaptable pour votre groupe. Lisez le NT en 30 jours ou toute la Bible en 90 — personnalisez l\'intensité.',
-        type: 'custom',
-        difficulty: 'intense',
-        estimatedDays: 90,
-      ),
-      ReadingPlanTemplate(
-        id: 'wisdom',
-        title: 'Sagesse',
-        image:
-            'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80',
-        description:
-            'Proverbes, Psaumes et Ecclésiaste. Ajoutez Job ou Cantique, modifiez la durée selon vos besoins.',
-        porte:
-            'Parcours thématique personnalisable. Idéal pour un groupe de croissance — adaptez les livres et la durée.',
-        type: 'custom',
-        difficulty: 'léger',
-        estimatedDays: 60,
-      ),
-      ReadingPlanTemplate(
-        id: 'prophecies',
-        title: 'Prophéties',
-        image:
-            'https://images.unsplash.com/photo-1484981184820-2e84ea0e5d7e?w=800&q=80',
-        description:
-            'Livres prophétiques : Isaïe à Malachie. Ajoutez Daniel ou l\'Apocalypse, personnalisez votre parcours.',
-        porte:
-            'Explorez les prophètes à votre rythme. Sélectionnez uniquement les petits prophètes ou incluez les grands — à vous de choisir.',
-        type: 'custom',
-        difficulty: 'modéré',
-        estimatedDays: 90,
-      ),
+      // // Rythmes de lecture — personnalisez selon votre disponibilité
+      // ReadingPlanTemplate(
+      //   id: 'one-chapter-a-day',
+      //   title: 'Un chapitre par jour',
+      //   image:
+      //       'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=800&q=80',
+      //   description:
+      //       'Rythme doux : 1 chapitre quotidien. Sélectionnez les livres que vous voulez lire et ajustez la durée.',
+      //   porte:
+      //       'Approche progressive et personnalisable. Commencez par le NT en 260 jours ou toute la Bible en 3 ans — c\'est vous qui décidez.',
+      //   type: 'custom',
+      //   difficulty: 'léger',
+      //   estimatedDays: 1189,
+      // ),
+      // ReadingPlanTemplate(
+      //   id: '90-day',
+      //   title: 'Plan 90 jours',
+      //   image:
+      //       'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
+      //   description:
+      //       'Lecture intensive de la Bible. Modifiez la durée (60, 90 ou 120 jours) ou sélectionnez certains livres.',
+      //   porte:
+      //       'Challenge adaptable pour votre groupe. Lisez le NT en 30 jours ou toute la Bible en 90 — personnalisez l\'intensité.',
+      //   type: 'custom',
+      //   difficulty: 'intense',
+      //   estimatedDays: 90,
+      // ),
+      // ReadingPlanTemplate(
+      //   id: 'wisdom',
+      //   title: 'Sagesse',
+      //   image:
+      //       'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80',
+      //   description:
+      //       'Proverbes, Psaumes et Ecclésiaste. Ajoutez Job ou Cantique, modifiez la durée selon vos besoins.',
+      //   porte:
+      //       'Parcours thématique personnalisable. Idéal pour un groupe de croissance — adaptez les livres et la durée.',
+      //   type: 'custom',
+      //   difficulty: 'léger',
+      //   estimatedDays: 60,
+      // ),
+      // ReadingPlanTemplate(
+      //   id: 'prophecies',
+      //   title: 'Prophéties',
+      //   image:
+      //       'https://images.unsplash.com/photo-1484981184820-2e84ea0e5d7e?w=800&q=80',
+      //   description:
+      //       'Livres prophétiques : Isaïe à Malachie. Ajoutez Daniel ou l\'Apocalypse, personnalisez votre parcours.',
+      //   porte:
+      //       'Explorez les prophètes à votre rythme. Sélectionnez uniquement les petits prophètes ou incluez les grands — à vous de choisir.',
+      //   type: 'custom',
+      //   difficulty: 'modéré',
+      //   estimatedDays: 90,
+      // ),
 
       // Plans fixes (challenges historiques) — structure prédéfinie, choisissez la date de début
       ReadingPlanTemplate(
@@ -652,9 +674,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
         description:
-            'Plan historique : 4 chapitres/jour sur 365 jours. Structure fixe conçue par Robert Murray M\'Cheyne.',
+            'Une lecture parallèle de l’Ancien et du Nouveau Testament.',
         porte:
-            'Challenge classique avec passages prédéfinis. Choisissez votre date de début — le parcours suit la structure originale.',
+            '''Créé par Robert Murray M’Cheyne, ce plan propose une lecture parallèle de l’Ancien et du Nouveau Testament.
+Les passages sont prédéfinis et suivent la structure originale.
+Vous choisissez simplement la date de début.''',
         type: 'fixed',
         difficulty: 'intense',
         estimatedDays: 365,
@@ -665,9 +689,10 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
         description:
-            'Plan équilibré : AT + Psaume + Proverbe + NT chaque jour. Structure fixe de la Ligue pour la Lecture de la Bible.',
+            '''Lecture quotidienne équilibrée de l'ancien testament, les Psaumes, Les Proverbes et du nouveau testament''',
         porte:
-            'Parcours quotidien varié avec passages prédéfinis. Choisissez quand commencer — idéal pour lire ensemble en Église.',
+            '''Chaque jour propose un passage de l’Ancien Testament, un Psaume, un Proverbe et un passage du Nouveau Testament.
+Plan structuré et prédéfini, idéal pour une lecture communautaire en Église.''',
         type: 'fixed',
         difficulty: 'modéré',
         estimatedDays: 365,
@@ -677,10 +702,10 @@ class PlanGenerator {
         title: 'Plan révolutionnaire',
         image:
             'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=800&q=80',
-        description:
-            'Plan mensuel : 25 lectures/mois avec jours de repos intégrés. Structure fixe pour un rythme soutenable.',
-        porte:
-            'Challenge avec pauses prévues. Les passages sont prédéfinis — choisissez votre date de début.',
+        description: '25 lectures par mois avec jours de repos intégrés..',
+        porte: '''Plan structuré pour favoriser la régularité sans surcharge.
+Les jours de pause permettent de rattraper ou méditer.
+Structure fixe : il suffit de choisir votre date de départ.''',
         type: 'fixed',
         difficulty: 'léger',
         estimatedDays: 365,
@@ -691,9 +716,11 @@ class PlanGenerator {
         image:
             'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
         description:
-            'Méthode intensive : 10 chapitres/jour dans 10 listes parallèles. Structure fixe du Professeur Grant Horner.',
+            'Méthode intensive : 10 chapitres par jour en lectures parallèles.',
         porte:
-            'Challenge exigeant pour lecteurs assidus. Les 10 listes sont prédéfinies — choisissez quand commencer.',
+            '''Conçu par le Professeur Grant Horner, ce plan divise la Bible en 10 listes distinctes lues simultanément.
+Très exigeant, il favorise l’immersion et la répétition des textes.
+Structure entièrement prédéfinie.''',
         type: 'fixed',
         difficulty: 'intense',
         estimatedDays: 365,

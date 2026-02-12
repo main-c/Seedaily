@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:seedaily/ui/screens/main_shell_screen.dart';
 
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
@@ -276,7 +277,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           options: _workingPlan.options,
         );
         if (mounted) {
-          context.go('/?tab=0');
+          context.pop();
+          mainShellKey.currentState?.navigateToIndex(0);
         }
       }
     } catch (e) {

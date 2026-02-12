@@ -7,6 +7,10 @@ import 'settings_screen.dart';
 
 /// Shell principal avec navigation en bas
 /// Contient : Accueil, Découvrir, Réglages
+///
+final GlobalKey<_MainShellScreenState> mainShellKey =
+    GlobalKey<_MainShellScreenState>();
+
 class MainShellScreen extends StatefulWidget {
   final int initialIndex;
 
@@ -45,6 +49,12 @@ class _MainShellScreenState extends State<MainShellScreen> {
   void _navigateToDiscover() {
     setState(() {
       _currentIndex = 1;
+    });
+  }
+
+  void navigateToIndex(int index) {
+    setState(() {
+      _currentIndex = index;
     });
   }
 

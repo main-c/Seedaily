@@ -66,8 +66,9 @@ class _SeedailyAppState extends State<SeedailyApp> {
         GoRoute(
           path: '/',
           builder: (context, state) {
-            final tabIndex = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return MainShellScreen(key: ValueKey('shell_$tabIndex'), initialIndex: tabIndex);
+            final tabIndex =
+                int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+            return MainShellScreen(key: mainShellKey,  initialIndex: tabIndex);
           },
         ),
         // Routes secondaires (sans la barre de navigation)
