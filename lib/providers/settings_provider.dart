@@ -78,4 +78,9 @@ class SettingsProvider with ChangeNotifier {
       rethrow;
     }
   }
+
+  /// Affiche une notification de test (bouton temporaire pour dev)
+  Future<void> showTestNotification() async {
+    await _notifications.showTestNotification();
+  }
 }

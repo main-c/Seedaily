@@ -80,6 +80,18 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
+          const SizedBox(height: 12),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              return _buildSettingCard(
+                icon: Icons.notification_add_outlined,
+                title: 'Tester une notification',
+                subtitle: 'Aperçu du rappel quotidien',
+                titleColor: AppTheme.seedGold,
+                onTap: () => settings.showTestNotification(),
+              );
+            },
+          ),
           const SizedBox(height: 24),
 
           // PRÉFÉRENCES

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -17,6 +18,10 @@ import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
 import 'ui/screens/about_screen.dart';
 
+String? pendingNotificationAction;
+bool didLaunchFromNotification = false;
+void Function(String?)? _handleNotificationAction;
+
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -27,7 +32,17 @@ void main() async {
   await storageService.init();
 
   final notificationService = NotificationService();
-  await notificationService.init();
+  await notificationService.init(
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      _handleNotificationAction?.call(response.actionId);
+    },
+  );
+
+  final launchDetails = await notificationService.getNotificationAppLaunchDetails();
+  if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
+    didLaunchFromNotification = true;
+    pendingNotificationAction = launchDetails.notificationResponse?.actionId;
+  }
 
   final planGenerator = PlanGenerator();
 
@@ -62,8 +77,12 @@ class _SeedailyAppState extends State<SeedailyApp> {
   @override
   void initState() {
     super.initState();
+
+    final initialLocation = _computeInitialLocation();
+    pendingNotificationAction = null;
+
     _router = GoRouter(
-      initialLocation: '/splash',
+      initialLocation: initialLocation,
       routes: [
         // Splash : logo + Seedaily sur fond blanc
         GoRoute(
@@ -109,10 +128,27 @@ class _SeedailyAppState extends State<SeedailyApp> {
         ),
       ],
     );
+
+    _handleNotificationAction = (actionId) {
+      if (actionId == kNotificationActionCreatePlan) {
+        _router.go('/?tab=1');
+      } else {
+        _router.go('/');
+      }
+    };
+  }
+
+  String _computeInitialLocation() {
+    if (!didLaunchFromNotification) return '/splash';
+    if (pendingNotificationAction == kNotificationActionCreatePlan) {
+      return '/?tab=1';
+    }
+    return '/';
   }
 
   @override
   void dispose() {
+    _handleNotificationAction = null;
     _router.dispose();
     super.dispose();
   }
