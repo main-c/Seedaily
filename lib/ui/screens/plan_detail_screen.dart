@@ -57,12 +57,12 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             onPressed: () => context.push('/edit-plan/${widget.planId}'),
             tooltip: 'Configuration',
           ),
-          // IconButton(
-          //   icon: const Icon(Icons.share_outlined),
-          //   onPressed: () => _exportService.sharePdf(plan),
-          //   tooltip: 'Partager',
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => _exportService.sharePdf(plan),
+            tooltip: 'Partager',
 
-          // ),
+          ),
         ],
       ),
       body: Column(

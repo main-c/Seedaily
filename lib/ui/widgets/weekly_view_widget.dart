@@ -137,95 +137,98 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
 
     final currentWeekDays = _weeklyDays[_currentWeekIndex];
 
-    return Column(
-      children: [
-        // Header avec fond
-        _buildWeekHeader(context, currentWeekDays),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        children: [
+          // Header avec fond
+          _buildWeekHeader(context, currentWeekDays),
 
-        // Navigation semaine
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Container(
-            height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: AppTheme.deepNavy.withValues(alpha: 0.1),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: _currentWeekIndex > 0 ? _previousWeek : null,
-                  color: _currentWeekIndex > 0
-                      ? AppTheme.deepNavy
-                      : AppTheme.textMuted.withValues(alpha: 0.3),
-                ),
-                const SizedBox(width: 16),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
-                    borderRadius: BorderRadius.circular(8),
+          // Navigation semaine
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.deepNavy.withValues(alpha: 0.1),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: _currentWeekIndex > 0 ? _previousWeek : null,
+                    color: _currentWeekIndex > 0
+                        ? AppTheme.deepNavy
+                        : AppTheme.textMuted.withValues(alpha: 0.3),
                   ),
-                  child: Text(
-                    'Semaine ${_currentWeekIndex + 1}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.deepNavy,
-                        ),
-                    textAlign: TextAlign.center,
+                  const SizedBox(width: 16),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Semaine ${_currentWeekIndex + 1}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.deepNavy,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: _currentWeekIndex < _weeklyDays.length - 1
-                      ? _nextWeek
-                      : null,
-                  color: _currentWeekIndex < _weeklyDays.length - 1
-                      ? AppTheme.deepNavy
-                      : AppTheme.textMuted.withValues(alpha: 0.3),
-                ),
-              ],
+                  const SizedBox(width: 16),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: _currentWeekIndex < _weeklyDays.length - 1
+                        ? _nextWeek
+                        : null,
+                    color: _currentWeekIndex < _weeklyDays.length - 1
+                        ? AppTheme.deepNavy
+                        : AppTheme.textMuted.withValues(alpha: 0.3),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
 
-        const Divider(height: 1),
+          const Divider(height: 1),
 
-        // Contenu de la semaine
-        Expanded(
-          child: ListView(
+          // Contenu de la semaine
+          Padding(
             padding: const EdgeInsets.all(16),
-            children: currentWeekDays.asMap().entries.map((entry) {
-              final day = entry.value;
-              final globalIndex = widget.days.indexOf(day);
-              final isCurrent = widget.currentDayIndex == globalIndex;
-              final isFuture = widget.currentDayIndex != null &&
-                  globalIndex > widget.currentDayIndex!;
+            child: Column(
+              children: currentWeekDays.asMap().entries.map((entry) {
+                final day = entry.value;
+                final globalIndex = widget.days.indexOf(day);
+                final isCurrent = widget.currentDayIndex == globalIndex;
+                final isFuture = widget.currentDayIndex != null &&
+                    globalIndex > widget.currentDayIndex!;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: DayCardWidget(
-                  day: day,
-                  dayIndex: globalIndex,
-                  isCurrent: isCurrent,
-                  isCompleted: day.completed,
-                  isFuture: isFuture,
-                  showCheckbox: widget.showCheckbox,
-                  isPreviewMode: widget.isPreviewMode,
-                  onTap: widget.onDayTap != null
-                      ? () => widget.onDayTap!(globalIndex)
-                      : null,
-                ),
-              );
-            }).toList(),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: DayCardWidget(
+                    day: day,
+                    dayIndex: globalIndex,
+                    isCurrent: isCurrent,
+                    isCompleted: day.completed,
+                    isFuture: isFuture,
+                    showCheckbox: widget.showCheckbox,
+                    isPreviewMode: widget.isPreviewMode,
+                    onTap: widget.onDayTap != null
+                        ? () => widget.onDayTap!(globalIndex)
+                        : null,
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

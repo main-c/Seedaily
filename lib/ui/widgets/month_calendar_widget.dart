@@ -285,6 +285,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
 
     final readingDay = widget.days[readingDayIndex];
     final passages = readingDay.passages;
+    final isCompleted = readingDay.completed;
 
     String displayText;
     if (passages.isEmpty) {
@@ -307,20 +308,24 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
         decoration: BoxDecoration(
           color: isSelectedDay
               ? AppTheme.seedGold
-              : isCurrentDay
-                  ? AppTheme.seedGold.withValues(alpha: 0.2)
-                  : isPastDay
-                      ? AppTheme.seedGold.withValues(alpha: 0.1)
-                      : AppTheme.backgroundLight,
+              : isCompleted
+                  ? AppTheme.seedGold.withValues(alpha: 0.5)
+                  : isCurrentDay
+                      ? AppTheme.seedGold.withValues(alpha: 0.2)
+                      : isPastDay
+                          ? AppTheme.seedGold.withValues(alpha: 0.1)
+                          : AppTheme.backgroundLight,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelectedDay
                 ? AppTheme.seedGold
-                : isCurrentDay
+                : isCompleted
                     ? AppTheme.seedGold.withValues(alpha: 0.5)
-                    : isPastDay
-                        ? AppTheme.seedGold.withValues(alpha: 0.2)
-                        : AppTheme.borderSubtle,
+                    : isCurrentDay
+                        ? AppTheme.seedGold.withValues(alpha: 0.5)
+                        : isPastDay
+                            ? AppTheme.seedGold.withValues(alpha: 0.2)
+                            : AppTheme.borderSubtle,
             width: isSelectedDay ? 2 : 1,
           ),
         ),
@@ -328,19 +333,32 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '$dayNumber',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelectedDay
-                        ? AppTheme.surface
-                        : isCurrentDay
-                            ? AppTheme.seedGold
-                            : isPastDay
-                                ? AppTheme.textMuted
-                                : AppTheme.seedGold,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 10,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$dayNumber',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isSelectedDay
+                            ? AppTheme.surface
+                            : isCompleted
+                                ? AppTheme.seedGold.withValues(alpha: 0.5)
+                                : isCurrentDay
+                                    ? AppTheme.seedGold
+                                    : isPastDay
+                                        ? AppTheme.textMuted
+                                        : AppTheme.seedGold,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10,
+                      ),
+                ),
+                if (isCompleted)
+                  Icon(
+                    Icons.check_circle,
+                    size: 12,
+                    color: isSelectedDay ? AppTheme.surface : AppTheme.seedGold.withValues(alpha: 0.5),
                   ),
+              ],
             ),
             const SizedBox(height: 2),
             Flexible(
