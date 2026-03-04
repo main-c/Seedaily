@@ -200,12 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.local_fire_department,
-                    color: AppTheme.seedGold,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 4),
                   Text(
                     '$totalStreak',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -213,11 +207,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppTheme.textPrimary,
                         ),
                   ),
-                  const SizedBox(width: 2),
-                  const Text(
-                    '🔥',
-                    style: TextStyle(fontSize: 14),
+                  const Icon(
+                    Icons.local_fire_department,
+                    color: AppTheme.seedGold,
+                    size: 20,
                   ),
+                  const SizedBox(width: 4),
+
+                  const SizedBox(width: 2),
+                  // const Text(
+                  //   '🔥',
+                  //   style: TextStyle(fontSize: 14),
+                  // ),
                 ],
               ),
             ),

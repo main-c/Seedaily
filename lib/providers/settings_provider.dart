@@ -48,7 +48,6 @@ class SettingsProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Erreur lors de la sauvegarde de l\'heure: $e');
-      rethrow;
     }
   }
 
@@ -75,12 +74,18 @@ class SettingsProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Erreur lors de la modification des notifications: $e');
-      rethrow;
     }
   }
 
-  /// Affiche une notification de test (bouton temporaire pour dev)
   Future<void> showTestNotification() async {
     await _notifications.showTestNotification();
+  }
+
+  Future<void> debugScheduleInMinutes(int minutes) async {
+    await _notifications.scheduleInMinutes(minutes);
+  }
+
+  Future<List<String>> debugGetPendingInfo() async {
+    return _notifications.getPendingInfo();
   }
 }

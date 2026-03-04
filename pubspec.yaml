@@ -24,6 +24,7 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
+  flutter_timezone: ^4.1.0
 
   # Export PDF
   pdf: ^3.10.8
@@ -33,10 +34,10 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.3.3
   collection: ^1.18.0
+  permission_handler: ^11.3.1
 
   # UI
   cupertino_icons: ^1.0.6
-  google_fonts: ^7.0.2
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
 
@@ -50,7 +51,18 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/plans/
     - assets/icons/
+
+  fonts:
+    - family: Lexend
+      fonts:
+        - asset: assets/fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Lexend-SemiBold.ttf
+          weight: 600
 
 
 
@@ -75,8 +87,8 @@ flutter_launcher_icons:
 
 # Splash screen : logo sur fond blanc (génération : dart run flutter_native_splash:create)
 flutter_native_splash:
-  color: "#FFFFFF"
-  image: "assets/icons/icon.png"
+  color: "#1A2232"
+  image: "assets/icons/splash_logo.png"
   android_12:
-    color: "#FFFFFF"
-    image: "assets/icons/icon.png"
+    color: "#1A2232"
+    image: "assets/icons/splash_logo.png"

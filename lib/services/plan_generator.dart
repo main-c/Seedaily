@@ -489,7 +489,7 @@ class PlanGenerator {
         id: 'canonical-plan',
         title: 'Plan Canonique',
         image:
-            'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=80',
+            'assets/images/plans/bible.jpg',
         description:
             'Lecture de toute la Bible dans l’ordre traditionnel de Genèse a Apocalypse.',
         porte:
@@ -504,7 +504,7 @@ Idéal comme base flexible pour construire votre propre parcours complet.''',
         id: 'chronological-plan',
         title: 'Plan Chronologique',
         image:
-            'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80',
+            'assets/images/plans/mountains_golden.jpg',
         description:
             'Lecture de la Bible selon l’ordre historique des événements et de rédaction.',
         porte:
@@ -519,7 +519,7 @@ Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objecti
         id: 'jewish-plan',
         title: 'Plan Juif (Tanakh)',
         image:
-            'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
+            'assets/images/plans/mountains_snow.jpg',
         description:
             'Lecture selon l’ordre hébraïque traditionnel : Torah, Neviim, Ketuvim.',
         porte:
@@ -542,7 +542,7 @@ Vous pouvez lire l’ensemble ou vous concentrer sur une section spécifique. La
         id: 'new-testament',
         title: 'Nouveau Testament',
         image:
-            'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
+            'assets/images/plans/desert.jpg',
         description:
             'Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.',
         porte:
@@ -557,7 +557,7 @@ Ajoutez des livres de l’Ancien Testament si vous souhaitez enrichir votre parc
         id: 'old-testament',
         title: 'Ancien Testament',
         image:
-            'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&q=80',
+            'assets/images/plans/path.jpg',
         description:
             'Les 39 livres de l’Ancien Testament, ajustables selon votre durée.',
         porte:
@@ -572,7 +572,7 @@ Un plan exigeant mais fondamental pour comprendre le Nouveau Testament.''',
         id: 'gospels',
         title: 'Les Évangiles',
         image:
-            'https://images.unsplash.com/photo-1499652848871-1527a310b13a?w=800&q=80',
+            'assets/images/plans/sunrise.jpg',
         description:
             'Matthieu, Marc, Luc et Jean dans un parcours centré sur la vie de Jésus.',
         porte:
@@ -587,7 +587,7 @@ Parfait pour un groupe de croissance ou un nouveau croyant.''',
         id: 'psalms',
         title: 'Les Psaumes',
         image:
-            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+            'assets/images/plans/mountains_clouds.jpg',
         description: '150 psaumes pour nourrir la prière et la méditation.',
         porte:
             '''Un parcours spirituel centré sur l’adoration, la repentance et la confiance en Dieu.
@@ -601,7 +601,7 @@ Peut être combiné avec Proverbes pour un équilibre entre prière et sagesse.'
         id: 'proverbs',
         title: 'Les Proverbes',
         image:
-            'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80',
+            'assets/images/plans/book.jpg',
         description:
             '31 chapitres de sagesse pratique pour la vie quotidienne.',
         porte:
@@ -672,7 +672,7 @@ Simple, court et applicable immédiatement.''',
         id: 'mcheyne',
         title: 'Plan M\'Cheyne',
         image:
-            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
+            'assets/images/plans/hills_mist.jpg',
         description:
             'Une lecture parallèle de l’Ancien et du Nouveau Testament.',
         porte:
@@ -687,7 +687,7 @@ Vous choisissez simplement la date de début.''',
         id: 'bible-year-ligue',
         title: 'Bible en 1 an (Ligue)',
         image:
-            'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+            'assets/images/plans/nature_sun.jpg',
         description:
             '''Lecture quotidienne équilibrée de l'ancien testament, les Psaumes, Les Proverbes et du nouveau testament''',
         porte:
@@ -701,7 +701,7 @@ Plan structuré et prédéfini, idéal pour une lecture communautaire en Église
         id: 'revolutionary',
         title: 'Plan révolutionnaire',
         image:
-            'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=800&q=80',
+            'assets/images/plans/lake_forest.jpg',
         description: '25 lectures par mois avec jours de repos intégrés..',
         porte: '''Plan structuré pour favoriser la régularité sans surcharge.
 Les jours de pause permettent de rattraper ou méditer.
@@ -714,7 +714,7 @@ Structure fixe : il suffit de choisir votre date de départ.''',
         id: 'horner',
         title: 'Plan Horner',
         image:
-            'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
+            'assets/images/plans/forest.jpg',
         description:
             'Méthode intensive : 10 chapitres par jour en lectures parallèles.',
         porte:

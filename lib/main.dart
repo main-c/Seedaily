@@ -13,7 +13,6 @@ import 'services/notification_service.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
 import 'ui/screens/main_shell_screen.dart';
-import 'ui/screens/splash_screen.dart';
 import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
 import 'ui/screens/about_screen.dart';
@@ -32,19 +31,33 @@ void main() async {
   await storageService.init();
 
   final notificationService = NotificationService();
-  await notificationService.init(
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      _handleNotificationAction?.call(response.actionId);
-    },
-  );
+  try {
+    await notificationService.init(
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        _handleNotificationAction?.call(response.actionId);
+      },
+    );
+  } catch (e) {
+    debugPrint('Notification init failed: $e');
+  }
 
-  final launchDetails = await notificationService.getNotificationAppLaunchDetails();
+  NotificationAppLaunchDetails? launchDetails;
+  try {
+    launchDetails = await notificationService.getNotificationAppLaunchDetails();
+  } catch (_) {}
+
   if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
     didLaunchFromNotification = true;
     pendingNotificationAction = launchDetails.notificationResponse?.actionId;
+    debugPrint('[NOTIF] App lancée depuis une notification'
+        ' — actionId=$pendingNotificationAction');
+  } else {
+    debugPrint('[NOTIF] App lancée normalement (pas depuis notification)');
   }
 
   final planGenerator = PlanGenerator();
+
+  FlutterNativeSplash.remove();
 
   runApp(
     SeedailyApp(
@@ -84,11 +97,6 @@ class _SeedailyAppState extends State<SeedailyApp> {
     _router = GoRouter(
       initialLocation: initialLocation,
       routes: [
-        // Splash : logo + Seedaily sur fond blanc
-        GoRoute(
-          path: '/splash',
-          builder: (_, __) => const SplashScreen(),
-        ),
         // Shell principal avec navigation en bas
         GoRoute(
           path: '/',
@@ -139,7 +147,6 @@ class _SeedailyAppState extends State<SeedailyApp> {
   }
 
   String _computeInitialLocation() {
-    if (!didLaunchFromNotification) return '/splash';
     if (pendingNotificationAction == kNotificationActionCreatePlan) {
       return '/?tab=1';
     }

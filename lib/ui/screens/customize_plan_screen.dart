@@ -306,6 +306,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -462,15 +463,11 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         children: [
           // Image du template
           _template.image.isNotEmpty
-              ? Image.network(
+              ? Image.asset(
                   _template.image,
                   width: double.infinity,
                   height: 180,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return _buildImagePlaceholder();
-                  },
                   errorBuilder: (context, error, stackTrace) {
                     return _buildImagePlaceholder();
                   },
@@ -529,8 +526,14 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     );
   }
 
+  DateTime get _endDate {
+    final s = _workingPlan.options.schedule;
+    return s.startDate.add(Duration(days: s.totalDays - 1));
+  }
+
   Widget _buildDateSection() {
     final startDate = _workingPlan.options.schedule.startDate;
+    final endDate = _endDate;
 
     return Container(
       color: AppTheme.backgroundLight,
@@ -538,53 +541,179 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Date de début'),
+          _buildSectionTitle('Période de lecture'),
           const SizedBox(height: 12),
-          InkWell(
-            onTap: () async {
-              final now = DateTime.now();
-              final selected = await showDatePicker(
-                context: context,
-                initialDate: startDate,
-                firstDate: now,
-                lastDate: now.add(const Duration(days: 730)),
-                locale: const Locale('fr', 'FR'),
-              );
-
-              if (selected != null && mounted) {
-                _regeneratePlan(
-                  schedule: ScheduleOptions(
-                    startDate: selected,
-                    totalDays: _workingPlan.options.schedule.totalDays,
-                    readingDays: _workingPlan.options.schedule.readingDays,
-                  ),
-                );
-              }
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                border: Border.all(color: AppTheme.borderSubtle),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _dateFormat.format(startDate),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.textPrimary,
+          Row(
+            children: [
+              // Date de début
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Début',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textMuted,
                             fontWeight: FontWeight.w500,
                           ),
                     ),
-                  ),
-                  const Icon(Icons.calendar_today,
-                      size: 20, color: AppTheme.mistGreyBlue),
-                ],
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: () async {
+                        final now = DateTime.now();
+                        final selected = await showDatePicker(
+                          context: context,
+                          initialDate: startDate,
+                          firstDate: now.subtract(const Duration(days: 365)),
+                          lastDate: now.add(const Duration(days: 1825)),
+                          locale: const Locale('fr', 'FR'),
+                        );
+
+                        if (selected != null && mounted) {
+                          // Si la nouvelle date de début dépasse la date de fin, ajuster
+                          final currentEnd = _endDate;
+                          final newEnd = selected.isAfter(currentEnd)
+                              ? selected.add(const Duration(days: 364))
+                              : currentEnd;
+                          final newTotalDays =
+                              newEnd.difference(selected).inDays + 1;
+                          _regeneratePlan(
+                            schedule: ScheduleOptions(
+                              startDate: selected,
+                              totalDays: newTotalDays,
+                              readingDays:
+                                  _workingPlan.options.schedule.readingDays,
+                            ),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          border: Border.all(color: AppTheme.borderSubtle),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _dateFormat.format(startDate),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.textPrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                            const Icon(Icons.calendar_today,
+                                size: 16, color: AppTheme.mistGreyBlue),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              // Flèche
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Icon(Icons.arrow_forward,
+                    size: 18, color: AppTheme.textMuted),
+              ),
+              const SizedBox(width: 10),
+              // Date de fin
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fin',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 6),
+                    InkWell(
+                      onTap: _isFixedPlan
+                          ? null
+                          : () async {
+                              final selected = await showDatePicker(
+                                context: context,
+                                initialDate: endDate,
+                                firstDate: startDate.add(const Duration(days: 1)),
+                                lastDate: startDate
+                                    .add(const Duration(days: 3650)),
+                                locale: const Locale('fr', 'FR'),
+                              );
+
+                              if (selected != null && mounted) {
+                                final newTotalDays =
+                                    selected.difference(startDate).inDays + 1;
+                                _regeneratePlan(
+                                  schedule: ScheduleOptions(
+                                    startDate: startDate,
+                                    totalDays: newTotalDays,
+                                    readingDays: _workingPlan
+                                        .options.schedule.readingDays,
+                                  ),
+                                );
+                              }
+                            },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: _isFixedPlan
+                              ? AppTheme.backgroundLight
+                              : AppTheme.surface,
+                          border: Border.all(color: AppTheme.borderSubtle),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _dateFormat.format(endDate),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: _isFixedPlan
+                                          ? AppTheme.textMuted
+                                          : AppTheme.textPrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                            Icon(
+                              _isFixedPlan
+                                  ? Icons.lock_outline
+                                  : Icons.calendar_today,
+                              size: 16,
+                              color: AppTheme.mistGreyBlue,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Résumé durée
+          Text(
+            '${_workingPlan.options.schedule.totalDays} jours au total',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textMuted,
+                ),
           ),
           const SizedBox(height: 16),
         ],

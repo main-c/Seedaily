@@ -6,7 +6,7 @@ import '../../core/theme.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const String appVersion = '1.0.0';
+  static String get appVersion => AppTheme.appVersion;
   static const String appDescription =
       'Seedaily est une application de génération de plans de lecture biblique personnalisés. '
       'Créez votre propre parcours de lecture adapté à votre rythme et vos objectifs spirituels.';

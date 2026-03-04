@@ -61,9 +61,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             icon: const Icon(Icons.share_outlined),
             onPressed: () => _exportService.sharePdf(plan),
             tooltip: 'Partager',
-
           ),
         ],
+        scrolledUnderElevation: 0,
       ),
       body: Column(
         children: [
@@ -77,6 +77,14 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   }
 
   Widget _buildProgressHeader(GeneratedPlan plan) {
+    final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
+    final expectedDays = plan.days.where((d) {
+      final dayNorm = DateTime(d.date.year, d.date.month, d.date.day);
+      return !dayNorm.isAfter(todayNorm);
+    }).length;
+    final delta = plan.completedDays - expectedDays;
+
     return Container(
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(16),
@@ -140,6 +148,61 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+
+          // Badge avance / retard / à jour
+          _buildPaceIndicator(delta, expectedDays),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaceIndicator(int delta, int expectedDays) {
+    if (expectedDays == 0) return const SizedBox.shrink();
+
+    final Color bgColor;
+    final Color textColor;
+    final IconData icon;
+    final String label;
+
+    if (delta == 0) {
+      bgColor = Colors.green.withValues(alpha: 0.12);
+      textColor = Colors.green.shade700;
+      icon = Icons.check_circle_outline;
+      label = 'À jour';
+    } else if (delta > 0) {
+      bgColor = Colors.green.withValues(alpha: 0.12);
+      textColor = Colors.green.shade700;
+      icon = Icons.trending_up;
+      label = 'En avance de $delta jour${delta > 1 ? 's' : ''}';
+    } else {
+      final behind = -delta;
+      bgColor = behind <= 3
+          ? Colors.orange.withValues(alpha: 0.12)
+          : Colors.red.withValues(alpha: 0.10);
+      textColor = behind <= 3 ? Colors.orange.shade800 : Colors.red.shade700;
+      icon = Icons.trending_down;
+      label = 'En retard de $behind jour${behind > 1 ? 's' : ''}';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
         ],
       ),
     );
@@ -156,12 +219,24 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   /// Construit la vue actuellement sélectionnée
   Widget _buildCurrentView(GeneratedPlan plan) {
-    // Trouver le jour actuel (le premier jour non complété)
+    // Trouver le jour correspondant à aujourd'hui (date calendaire)
+    final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
     int? currentDayIndex;
     for (int i = 0; i < plan.days.length; i++) {
-      if (!plan.days[i].completed) {
+      final d = plan.days[i].date;
+      if (DateTime(d.year, d.month, d.day) == todayNorm) {
         currentDayIndex = i;
         break;
+      }
+    }
+    // Fallback : premier jour non complété si aujourd'hui est hors du plan
+    if (currentDayIndex == null) {
+      for (int i = 0; i < plan.days.length; i++) {
+        if (!plan.days[i].completed) {
+          currentDayIndex = i;
+          break;
+        }
       }
     }
 

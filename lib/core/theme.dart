@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  static const String appVersion = '1.0.0';
+
   static const Color seedGold = Color(0xFFEF9D10);
   static const Color deepNavy = Color(0xFF3B4D61);
   static const Color mistGreyBlue = Color(0xFF6B7B8C);
@@ -14,6 +15,20 @@ class AppTheme {
   static const Color warning = Color(0xFFF4B449);
   static const Color error = Color(0xFFE45B5B);
   static const Color info = Color(0xFF3D7DD8);
+
+  static const String _fontFamily = 'Lexend';
+
+  static TextStyle _lexend({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+  }) =>
+      TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      );
 
   static ThemeData get lightTheme {
     final baseTheme = ThemeData(
@@ -42,8 +57,9 @@ class AppTheme {
         backgroundColor: surface,
         foregroundColor: deepNavy,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.lexend(
+        titleTextStyle: _lexend(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: deepNavy,
@@ -67,10 +83,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.lexend(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: _lexend(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -81,26 +94,20 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.lexend(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: _lexend(fontSize: 16, fontWeight: FontWeight.w500),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: seedGold,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: GoogleFonts.lexend(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: _lexend(fontSize: 15, fontWeight: FontWeight.w500),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: backgroundLight,
         deleteIconColor: textMuted,
-        labelStyle: GoogleFonts.lexend(
+        labelStyle: _lexend(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: deepNavy,
@@ -134,14 +141,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: error, width: 2),
         ),
-        labelStyle: GoogleFonts.lexend(
-          fontSize: 15,
-          color: textMuted,
-        ),
-        hintStyle: GoogleFonts.lexend(
-          fontSize: 15,
-          color: textMuted,
-        ),
+        labelStyle: _lexend(fontSize: 15, color: textMuted),
+        hintStyle: _lexend(fontSize: 15, color: textMuted),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
@@ -194,81 +195,36 @@ class AppTheme {
 
   static TextTheme _buildTextTheme(TextTheme base) {
     return base.copyWith(
-      displayLarge: GoogleFonts.lexend(
-        fontSize: 57,
-        fontWeight: FontWeight.w400,
-        color: textPrimary,
-      ),
-      displayMedium: GoogleFonts.lexend(
-        fontSize: 45,
-        fontWeight: FontWeight.w400,
-        color: textPrimary,
-      ),
-      displaySmall: GoogleFonts.lexend(
-        fontSize: 36,
-        fontWeight: FontWeight.w400,
-        color: textPrimary,
-      ),
-      headlineLarge: GoogleFonts.lexend(
-        fontSize: 32,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      headlineMedium: GoogleFonts.lexend(
-        fontSize: 28,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      headlineSmall: GoogleFonts.lexend(
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      titleLarge: GoogleFonts.lexend(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      titleMedium: GoogleFonts.lexend(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      titleSmall: GoogleFonts.lexend(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: deepNavy,
-      ),
-      bodyLarge: GoogleFonts.lexend(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: textPrimary,
-      ),
-      bodyMedium: GoogleFonts.lexend(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        color: textPrimary,
-      ),
-      bodySmall: GoogleFonts.lexend(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        color: textMuted,
-      ),
-      labelLarge: GoogleFonts.lexend(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: textPrimary,
-      ),
-      labelMedium: GoogleFonts.lexend(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: textMuted,
-      ),
-      labelSmall: GoogleFonts.lexend(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        color: textMuted,
-      ),
+      displayLarge:
+          _lexend(fontSize: 57, fontWeight: FontWeight.w400, color: textPrimary),
+      displayMedium:
+          _lexend(fontSize: 45, fontWeight: FontWeight.w400, color: textPrimary),
+      displaySmall:
+          _lexend(fontSize: 36, fontWeight: FontWeight.w400, color: textPrimary),
+      headlineLarge:
+          _lexend(fontSize: 32, fontWeight: FontWeight.w600, color: deepNavy),
+      headlineMedium:
+          _lexend(fontSize: 28, fontWeight: FontWeight.w600, color: deepNavy),
+      headlineSmall:
+          _lexend(fontSize: 24, fontWeight: FontWeight.w600, color: deepNavy),
+      titleLarge:
+          _lexend(fontSize: 22, fontWeight: FontWeight.w600, color: deepNavy),
+      titleMedium:
+          _lexend(fontSize: 16, fontWeight: FontWeight.w600, color: deepNavy),
+      titleSmall:
+          _lexend(fontSize: 14, fontWeight: FontWeight.w600, color: deepNavy),
+      bodyLarge:
+          _lexend(fontSize: 16, fontWeight: FontWeight.w400, color: textPrimary),
+      bodyMedium:
+          _lexend(fontSize: 14, fontWeight: FontWeight.w400, color: textPrimary),
+      bodySmall:
+          _lexend(fontSize: 12, fontWeight: FontWeight.w400, color: textMuted),
+      labelLarge:
+          _lexend(fontSize: 14, fontWeight: FontWeight.w500, color: textPrimary),
+      labelMedium:
+          _lexend(fontSize: 12, fontWeight: FontWeight.w500, color: textMuted),
+      labelSmall:
+          _lexend(fontSize: 11, fontWeight: FontWeight.w500, color: textMuted),
     );
   }
 

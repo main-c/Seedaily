@@ -2,25 +2,20 @@ import 'package:flutter/material.dart';
 import '../../domain/models.dart';
 import '../../core/theme.dart';
 
-/// Liste d'URLs d'images par défaut pour les plans de lecture
-/// Ces images sont hébergées sur Unsplash (gratuites pour usage commercial)
 class PlanImages {
   static const List<String> defaultImages = [
-    'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80', // Montagnes dorées
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Montagnes enneigées
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80', // Montagnes nuageuses
-    'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=800&q=80', // Lac et forêt
-    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80', // Nature soleil
-    'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80', // Forêt
-    'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&q=80', // Pins
-    'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80', // Collines brumeuses
+    'assets/images/plans/mountains_golden.jpg',
+    'assets/images/plans/mountains_snow.jpg',
+    'assets/images/plans/mountains_clouds.jpg',
+    'assets/images/plans/lake_forest.jpg',
+    'assets/images/plans/nature_sun.jpg',
+    'assets/images/plans/forest.jpg',
+    'assets/images/plans/pines.jpg',
+    'assets/images/plans/hills_mist.jpg',
   ];
 
-  /// Image spécifique pour la Bible ouverte avec lumière
-  static const String bibleImage =
-      'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=80';
+  static const String bibleImage = 'assets/images/plans/bible.jpg';
 
-  /// Retourne une image basée sur le hash de l'ID du plan
   static String getImageForPlan(String planId) {
     final hash = planId.hashCode.abs();
     return defaultImages[hash % defaultImages.length];
@@ -88,33 +83,11 @@ class PlanCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(
+                  child: Image.asset(
                     PlanImages.getImageForPlan(plan.id),
                     height: 160,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 160,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppTheme.seedGold.withValues(alpha: 0.3),
-                              AppTheme.deepNavy.withValues(alpha: 0.1),
-                            ],
-                          ),
-                        ),
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppTheme.seedGold,
-                          ),
-                        ),
-                      );
-                    },
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         height: 160,

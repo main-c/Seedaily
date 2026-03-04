@@ -255,15 +255,11 @@ class _PlanListCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: template.image.isNotEmpty
-                      ? Image.network(
+                      ? Image.asset(
                           template.image,
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return _buildImagePlaceholder();
-                          },
                           errorBuilder: (context, error, stackTrace) {
                             return _buildImagePlaceholder();
                           },

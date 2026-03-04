@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -18,7 +20,6 @@ const AndroidNotificationDetails _dailyAndroidDetails =
   channelDescription: 'Rappels quotidiens pour votre lecture biblique',
   importance: Importance.high,
   priority: Priority.high,
-  icon: '@mipmap/ic_launcher',
   actions: [
     AndroidNotificationAction(
       kNotificationActionViewPlans,
@@ -59,9 +60,11 @@ class NotificationService {
     if (_initialized) return;
 
     tz.initializeTimeZones();
+    final localTz = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(localTz));
+    debugPrint('[NOTIF] Timezone local détecté : $localTz');
 
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('ic_notification');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -79,9 +82,16 @@ class NotificationService {
 
     await _notifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onDidReceiveNotificationResponse: (response) {
+        debugPrint('[NOTIF] Notification reçue/tapée —'
+            ' id=${response.id}'
+            ' actionId=${response.actionId}'
+            ' payload=${response.payload}');
+        onDidReceiveNotificationResponse?.call(response);
+      },
     );
     _initialized = true;
+    debugPrint('[NOTIF] Service initialisé avec succès');
   }
 
   /// Récupère les infos si l'app a été lancée depuis une notification
@@ -105,6 +115,23 @@ class NotificationService {
         granted =
             await androidImplementation.requestNotificationsPermission() ??
                 false;
+
+        if (granted) {
+          // 1. Alarmes exactes (Android 12+) — ouvre "Alarmes et rappels" si non accordé
+          final canExact =
+              await androidImplementation.canScheduleExactNotifications();
+          debugPrint('[NOTIF] canScheduleExactNotifications: $canExact');
+          if (canExact != true) {
+            await androidImplementation.requestExactAlarmsPermission();
+          }
+
+          // 2. Optimisation batterie — ouvre le dialog système si non accordé
+          final batteryStatus =
+              await Permission.ignoreBatteryOptimizations.status;
+          if (!batteryStatus.isGranted) {
+            await Permission.ignoreBatteryOptimizations.request();
+          }
+        }
       }
 
       if (iosImplementation != null) {
@@ -133,20 +160,25 @@ class NotificationService {
 
     try {
       await cancelAllNotifications();
+      debugPrint('[NOTIF] Anciennes alarmes annulées');
 
-      final now = tz.TZDateTime.now(tz.local);
-      var scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      // DateTime.now() = heure locale du téléphone, pas besoin de tz ici
+      final now = DateTime.now();
+      var scheduled = DateTime(now.year, now.month, now.day, hour, minute);
+      if (scheduled.isBefore(now)) {
+        scheduled = scheduled.add(const Duration(days: 1));
+        debugPrint('[NOTIF] Heure passée → reporté au lendemain');
       }
+
+      // Conversion en TZDateTime uniquement pour l'API zonedSchedule
+      final scheduledDate = tz.TZDateTime.from(scheduled.toUtc(), tz.local);
+
+      debugPrint('[NOTIF] Planification —'
+          ' heure demandée=${hour}h${minute.toString().padLeft(2, '0')}'
+          ' now_local=$now'
+          ' scheduled=$scheduledDate'
+          ' mode=exactAllowWhileIdle'
+          ' repeat=daily');
 
       final message = _messages[DateTime.now().day % _messages.length];
 
@@ -163,17 +195,82 @@ class NotificationService {
             presentSound: true,
           ),
         ),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
       );
+
+      // Vérification : lister toutes les alarmes en attente
+      final pending = await _notifications.pendingNotificationRequests();
+      debugPrint('[NOTIF] Alarmes en attente après planification : ${pending.length}');
+      for (final p in pending) {
+        debugPrint('[NOTIF]   → id=${p.id} title="${p.title}" body="${p.body}"');
+      }
     } catch (e) {
-      debugPrint('Erreur lors de la planification des notifications: $e');
+      debugPrint('[NOTIF] ERREUR planification : $e');
       rethrow;
     }
   }
 
   Future<void> cancelAllNotifications() async {
     await _notifications.cancelAll();
+  }
+
+  /// [DEBUG] Planifie une notification dans [minutes] minutes
+  Future<void> scheduleInMinutes(int minutes) async {
+    if (!_initialized) await init();
+    // DateTime.now() = heure locale du téléphone
+    final fireAt = tz.TZDateTime.from(
+      DateTime.now().add(Duration(minutes: minutes)).toUtc(),
+      tz.local,
+    );
+    debugPrint('[NOTIF][DEBUG] Planification test dans $minutes min → $fireAt');
+    await _notifications.zonedSchedule(
+      99,
+      '[TEST] Seedaily',
+      'Notification test — planifiée $minutes min avant',
+      fireAt,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'debug',
+          'Debug',
+          channelDescription: 'Notifications de test',
+          importance: Importance.max,
+          priority: Priority.max,
+        ),
+        iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+    debugPrint('[NOTIF][DEBUG] Alarme test enregistrée');
+  }
+
+  /// [DEBUG] Retourne la liste des alarmes en attente + état des permissions
+  Future<List<String>> getPendingInfo() async {
+    if (!_initialized) await init();
+
+    final result = <String>[];
+
+    // Vérification permission alarmes exactes (Android 12+)
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) {
+      final canExact = await androidPlugin.canScheduleExactNotifications();
+      result.add('exactAlarms: ${canExact == true ? "✓ ACCORDÉE" : "✗ REFUSÉE — notifications ne se déclencheront pas !"}');
+      debugPrint('[NOTIF][DEBUG] canScheduleExactNotifications: $canExact');
+
+      if (canExact != true) {
+        // Ouvre les réglages système pour que l'user accorde la permission
+        await androidPlugin.requestExactAlarmsPermission();
+      }
+    }
+
+    final pending = await _notifications.pendingNotificationRequests();
+    result.add('${pending.length} alarme(s) en attente');
+    for (final p in pending) {
+      result.add('  id=${p.id} | "${p.title}" | ${p.body}');
+    }
+    return result;
   }
 
   /// Affiche une notification de test (même style que le rappel quotidien)
@@ -211,7 +308,6 @@ class NotificationService {
           channelDescription: 'Notifications instantanées',
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,

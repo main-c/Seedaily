@@ -115,12 +115,12 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
   /// Retourne l'image d'asset selon le numéro de la semaine
   String _getWeekImage(int weekIndex) {
     final images = [
-      'assets/images/golden_waves_bg.jpg',
-      'assets/images/mountain_bg.jpg',
-      'assets/images/lake_bg.jpg',
-      'assets/images/desert_bg.jpg',
-      'assets/images/sunset_bg.jpg',
-      'assets/images/forest_bg.jpg',
+      'assets/images/plans/hills_mist.jpg',
+      'assets/images/plans/mountains_snow.jpg',
+      'assets/images/plans/lake_forest.jpg',
+      'assets/images/plans/desert.jpg',
+      'assets/images/plans/sunrise.jpg',
+      'assets/images/palns/pines.jpg',
     ];
 
     // Boucler parmi les images disponibles
