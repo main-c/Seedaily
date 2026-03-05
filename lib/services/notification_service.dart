@@ -18,7 +18,7 @@ const AndroidNotificationDetails _dailyAndroidDetails =
   'daily_reading',
   'Lecture quotidienne',
   channelDescription: 'Rappels quotidiens pour votre lecture biblique',
-  importance: Importance.high,
+  importance: Importance.max,
   priority: Priority.high,
   actions: [
     AndroidNotificationAction(
@@ -215,106 +215,5 @@ class NotificationService {
     await _notifications.cancelAll();
   }
 
-  /// [DEBUG] Planifie une notification dans [minutes] minutes
-  Future<void> scheduleInMinutes(int minutes) async {
-    if (!_initialized) await init();
-    // DateTime.now() = heure locale du téléphone
-    final fireAt = tz.TZDateTime.from(
-      DateTime.now().add(Duration(minutes: minutes)).toUtc(),
-      tz.local,
-    );
-    debugPrint('[NOTIF][DEBUG] Planification test dans $minutes min → $fireAt');
-    await _notifications.zonedSchedule(
-      99,
-      '[TEST] Seedaily',
-      'Notification test — planifiée $minutes min avant',
-      fireAt,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'debug',
-          'Debug',
-          channelDescription: 'Notifications de test',
-          importance: Importance.max,
-          priority: Priority.max,
-        ),
-        iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    );
-    debugPrint('[NOTIF][DEBUG] Alarme test enregistrée');
-  }
 
-  /// [DEBUG] Retourne la liste des alarmes en attente + état des permissions
-  Future<List<String>> getPendingInfo() async {
-    if (!_initialized) await init();
-
-    final result = <String>[];
-
-    // Vérification permission alarmes exactes (Android 12+)
-    final androidPlugin = _notifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    if (androidPlugin != null) {
-      final canExact = await androidPlugin.canScheduleExactNotifications();
-      result.add('exactAlarms: ${canExact == true ? "✓ ACCORDÉE" : "✗ REFUSÉE — notifications ne se déclencheront pas !"}');
-      debugPrint('[NOTIF][DEBUG] canScheduleExactNotifications: $canExact');
-
-      if (canExact != true) {
-        // Ouvre les réglages système pour que l'user accorde la permission
-        await androidPlugin.requestExactAlarmsPermission();
-      }
-    }
-
-    final pending = await _notifications.pendingNotificationRequests();
-    result.add('${pending.length} alarme(s) en attente');
-    for (final p in pending) {
-      result.add('  id=${p.id} | "${p.title}" | ${p.body}');
-    }
-    return result;
-  }
-
-  /// Affiche une notification de test (même style que le rappel quotidien)
-  Future<void> showTestNotification() async {
-    if (!_initialized) await init();
-
-    final message = _messages[DateTime.now().day % _messages.length];
-
-    await _notifications.show(
-      DateTime.now().millisecond,
-      'Seedaily',
-      message,
-      NotificationDetails(
-        android: _dailyAndroidDetails,
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-    );
-  }
-
-  Future<void> showImmediateNotification(String title, String body) async {
-    if (!_initialized) await init();
-
-    await _notifications.show(
-      DateTime.now().millisecond,
-      title,
-      body,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'immediate',
-          'Notifications immédiates',
-          channelDescription: 'Notifications instantanées',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-    );
-  }
 }

@@ -7,7 +7,7 @@ class SettingsProvider with ChangeNotifier {
   final NotificationService _notifications;
 
   DateTime _notificationTime = DateTime(2025, 1, 1, 9, 0);
-  bool _notificationsEnabled = true;
+  bool _notificationsEnabled = false;
 
   SettingsProvider({
     required StorageService storage,
@@ -77,15 +77,5 @@ class SettingsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> showTestNotification() async {
-    await _notifications.showTestNotification();
-  }
 
-  Future<void> debugScheduleInMinutes(int minutes) async {
-    await _notifications.scheduleInMinutes(minutes);
-  }
-
-  Future<List<String>> debugGetPendingInfo() async {
-    return _notifications.getPendingInfo();
-  }
 }

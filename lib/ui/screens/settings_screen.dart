@@ -12,18 +12,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  List<String>? _pendingInfo;
-  bool _loadingPending = false;
-
-  Future<void> _loadPending(SettingsProvider settings) async {
-    setState(() => _loadingPending = true);
-    final info = await settings.debugGetPendingInfo();
-    setState(() {
-      _pendingInfo = info;
-      _loadingPending = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +45,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: (value) {
                     settings.setNotificationsEnabled(value);
                   },
-                 
                   activeThumbColor: AppTheme.surface,
                 ),
                 onTap: () {},
@@ -126,82 +113,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           //   onTap: () {},
           // ),
           // const SizedBox(height: 24),
-
-          // DEBUG NOTIFICATIONS
-          _buildSectionTitle('DEBUG NOTIFICATIONS'),
-          Consumer<SettingsProvider>(
-            builder: (context, settings, _) => Column(
-              children: [
-                _buildSettingCard(
-                  icon: Icons.send_outlined,
-                  title: 'Notif immédiate',
-                  subtitle: 'Tire une notification maintenant',
-                  titleColor: AppTheme.seedGold,
-                  onTap: () => settings.showTestNotification(),
-                ),
-                const SizedBox(height: 8),
-                _buildSettingCard(
-                  icon: Icons.timer_outlined,
-                  title: 'Notif dans 1 minute',
-                  subtitle: 'Teste le pipeline de scheduling complet',
-                  titleColor: AppTheme.seedGold,
-                  onTap: () async {
-                    await settings.debugScheduleInMinutes(1);
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Alarme planifiée dans 1 min'),
-                        duration: Duration(seconds: 4),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSettingCard(
-                  icon: Icons.list_alt_outlined,
-                  title: 'Alarmes en attente',
-                  subtitle: _loadingPending
-                      ? 'Chargement...'
-                      : _pendingInfo == null
-                          ? 'Appuyer pour vérifier'
-                          : _pendingInfo!.isEmpty
-                              ? 'Aucune alarme planifiée ⚠'
-                              : '${_pendingInfo!.length} alarme(s) enregistrée(s)',
-                  subtitleColor: _pendingInfo != null && _pendingInfo!.isEmpty
-                      ? Colors.red
-                      : _pendingInfo != null
-                          ? Colors.green
-                          : null,
-                  onTap: () => _loadPending(settings),
-                ),
-                if (_pendingInfo != null && _pendingInfo!.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.deepNavy.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _pendingInfo!
-                          .map((info) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
-                                child: Text(
-                                  info,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: AppTheme.textMuted,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
 
           // INFORMATIONS
           _buildSectionTitle('INFORMATIONS'),

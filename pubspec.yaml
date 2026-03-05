@@ -70,20 +70,20 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/icon.png"
+  image_path: "assets/icons/play_store_512.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/icons/icon.png"
+    image_path: "assets/icons/play_store_512.png"
     background_color: "#EF9D10"
     theme_color: "#EF9D10"
   windows:
     generate: true
-    image_path: "assets/icons/icon.png"
+    image_path: "assets/icons/play_store_512.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/icons/icon.png"
+    image_path: "assets/icons/play_store_512.png"
 
 # Splash screen : logo sur fond blanc (génération : dart run flutter_native_splash:create)
 flutter_native_splash:

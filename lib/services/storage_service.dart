@@ -115,8 +115,8 @@ class StorageService {
   }
 
   Future<bool> getNotificationsEnabled() async {
-    return _settingsBox?.get('notifications_enabled', defaultValue: true) ??
-        true;
+    return _settingsBox?.get('notifications_enabled', defaultValue: false) ??
+        false;
   }
 
   Future<void> clearAllData() async {
