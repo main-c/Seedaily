@@ -22,7 +22,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         .where((t) => [
               'canonical-plan',
               'chronological-plan',
-              'jewish-plan',
               'new-testament',
               'old-testament',
               'gospels',

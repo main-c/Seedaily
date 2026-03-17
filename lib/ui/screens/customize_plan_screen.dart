@@ -115,11 +115,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
   List<String> _getDefaultBooks(String templateId) {
     switch (templateId) {
-      case 'jewish-plan':
-        return BibleData.books
-            .where((b) => b.isOldTestament)
-            .map((b) => b.name)
-            .toList();
       case 'new-testament':
         return BibleData.getNewTestamentBooks().map((b) => b.name).toList();
       case 'old-testament':
@@ -139,8 +134,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     switch (templateId) {
       case 'chronological-plan':
         return OrderType.chronological;
-      case 'jewish-plan':
-        return OrderType.jewish;
       default:
         return OrderType.canonical;
     }
@@ -170,7 +163,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     return [
       'canonical-plan',
       'chronological-plan',
-      'jewish-plan',
     ].contains(_workingPlan.templateId);
   }
 
@@ -228,16 +220,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   // ============================================================================
 
   Future<void> _savePlan() async {
-    if (_workingPlan.options.schedule.startDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner une date de début'),
-          backgroundColor: AppTheme.error,
-        ),
-      );
-      return;
-    }
-
     if (_workingPlan.options.content.selectedBooks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

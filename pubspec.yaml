@@ -1,10 +1,10 @@
 name: seedaily
 description: Application de génération de plans de lecture biblique personnalisés
-publish_to: 'none'
-version: 1.0.0+1
+publish_to: "none"
+version: 1.1.0
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -63,9 +63,6 @@ flutter:
           weight: 500
         - asset: assets/fonts/Lexend-SemiBold.ttf
           weight: 600
-
-
-
 
 flutter_launcher_icons:
   android: "launcher_icon"

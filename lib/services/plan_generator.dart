@@ -488,8 +488,7 @@ class PlanGenerator {
       ReadingPlanTemplate(
         id: 'canonical-plan',
         title: 'Plan Canonique',
-        image:
-            'assets/images/plans/bible.jpg',
+        image: 'assets/images/plans/bible.jpg',
         description:
             'Lecture de toute la Bible dans l’ordre traditionnel de Genèse a Apocalypse.',
         porte:
@@ -503,8 +502,7 @@ Idéal comme base flexible pour construire votre propre parcours complet.''',
       ReadingPlanTemplate(
         id: 'chronological-plan',
         title: 'Plan Chronologique',
-        image:
-            'assets/images/plans/mountains_golden.jpg',
+        image: 'assets/images/plans/mountains_golden.jpg',
         description:
             'Lecture de la Bible selon l’ordre historique des événements et de rédaction.',
         porte:
@@ -518,8 +516,7 @@ Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objecti
       ReadingPlanTemplate(
         id: 'jewish-plan',
         title: 'Plan Juif (Tanakh)',
-        image:
-            'assets/images/plans/mountains_snow.jpg',
+        image: 'assets/images/plans/mountains_snow.jpg',
         description:
             'Lecture selon l’ordre hébraïque traditionnel : Torah, Neviim, Ketuvim.',
         porte:
@@ -541,14 +538,12 @@ Vous pouvez lire l’ensemble ou vous concentrer sur une section spécifique. La
       ReadingPlanTemplate(
         id: 'new-testament',
         title: 'Nouveau Testament',
-        image:
-            'assets/images/plans/desert.jpg',
+        image: 'assets/images/plans/desert.jpg',
         description:
-            'Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.',
+            'Découvrez la vie de Jésus, la naissance de l’Église et l’enseignement apostolique.',
         porte:
-            '''Découvrez la vie de Jésus, la naissance de l’Église et l’enseignement apostolique.
-Vous pouvez lire en format intensif (30 jours) ou progressif (3 à 6 mois).
-Ajoutez des livres de l’Ancien Testament si vous souhaitez enrichir votre parcours.''',
+            '''Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.
+Vous pouvez lire en format intensif (30 jours) ou progressif (3 à 6 mois).''',
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 90,
@@ -556,14 +551,12 @@ Ajoutez des livres de l’Ancien Testament si vous souhaitez enrichir votre parc
       ReadingPlanTemplate(
         id: 'old-testament',
         title: 'Ancien Testament',
-        image:
-            'assets/images/plans/path.jpg',
+        image: 'assets/images/plans/path.jpg',
         description:
-            'Les 39 livres de l’Ancien Testament, ajustables selon votre durée.',
+            'Explorez la Loi, l’histoire d’Israël, les livres poétiques et les prophètes.',
         porte:
-            '''Explorez la Loi, l’histoire d’Israël, les livres poétiques et les prophètes.
-Vous pouvez étendre la lecture sur 1 à 2 ans ou sélectionner uniquement certaines sections.
-Un plan exigeant mais fondamental pour comprendre le Nouveau Testament.''',
+            '''Les 39 livres de l’Ancien Testament, ajustables selon votre durée.
+              Vous pouvez sélectionner uniquement certaines sections.''',
         type: 'custom',
         difficulty: 'intense',
         estimatedDays: 365,
@@ -571,8 +564,7 @@ Un plan exigeant mais fondamental pour comprendre le Nouveau Testament.''',
       ReadingPlanTemplate(
         id: 'gospels',
         title: 'Les Évangiles',
-        image:
-            'assets/images/plans/sunrise.jpg',
+        image: 'assets/images/plans/sunrise.jpg',
         description:
             'Matthieu, Marc, Luc et Jean dans un parcours centré sur la vie de Jésus.',
         porte:
@@ -586,8 +578,7 @@ Parfait pour un groupe de croissance ou un nouveau croyant.''',
       ReadingPlanTemplate(
         id: 'psalms',
         title: 'Les Psaumes',
-        image:
-            'assets/images/plans/mountains_clouds.jpg',
+        image: 'assets/images/plans/mountains_clouds.jpg',
         description: '150 psaumes pour nourrir la prière et la méditation.',
         porte:
             '''Un parcours spirituel centré sur l’adoration, la repentance et la confiance en Dieu.
@@ -600,8 +591,7 @@ Peut être combiné avec Proverbes pour un équilibre entre prière et sagesse.'
       ReadingPlanTemplate(
         id: 'proverbs',
         title: 'Les Proverbes',
-        image:
-            'assets/images/plans/book.jpg',
+        image: 'assets/images/plans/book.jpg',
         description:
             '31 chapitres de sagesse pratique pour la vie quotidienne.',
         porte:
@@ -671,8 +661,7 @@ Simple, court et applicable immédiatement.''',
       ReadingPlanTemplate(
         id: 'mcheyne',
         title: 'Plan M\'Cheyne',
-        image:
-            'assets/images/plans/hills_mist.jpg',
+        image: 'assets/images/plans/hills_mist.jpg',
         description:
             'Une lecture parallèle de l’Ancien et du Nouveau Testament.',
         porte:
@@ -686,8 +675,7 @@ Vous choisissez simplement la date de début.''',
       ReadingPlanTemplate(
         id: 'bible-year-ligue',
         title: 'Bible en 1 an (Ligue)',
-        image:
-            'assets/images/plans/nature_sun.jpg',
+        image: 'assets/images/plans/nature_sun.jpg',
         description:
             '''Lecture quotidienne équilibrée de l'ancien testament, les Psaumes, Les Proverbes et du nouveau testament''',
         porte:
@@ -700,8 +688,7 @@ Plan structuré et prédéfini, idéal pour une lecture communautaire en Église
       ReadingPlanTemplate(
         id: 'revolutionary',
         title: 'Plan révolutionnaire',
-        image:
-            'assets/images/plans/lake_forest.jpg',
+        image: 'assets/images/plans/lake_forest.jpg',
         description: '25 lectures par mois avec jours de repos intégrés..',
         porte: '''Plan structuré pour favoriser la régularité sans surcharge.
 Les jours de pause permettent de rattraper ou méditer.
@@ -713,8 +700,7 @@ Structure fixe : il suffit de choisir votre date de départ.''',
       ReadingPlanTemplate(
         id: 'horner',
         title: 'Plan Horner',
-        image:
-            'assets/images/plans/forest.jpg',
+        image: 'assets/images/plans/forest.jpg',
         description:
             'Méthode intensive : 10 chapitres par jour en lectures parallèles.',
         porte:
