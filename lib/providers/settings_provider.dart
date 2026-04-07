@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 
@@ -8,6 +8,8 @@ class SettingsProvider with ChangeNotifier {
 
   DateTime _notificationTime = DateTime(2025, 1, 1, 9, 0);
   bool _notificationsEnabled = false;
+  bool _notifPromptShown = false;
+  ThemeMode _themeMode = ThemeMode.light;
 
   SettingsProvider({
     required StorageService storage,
@@ -17,6 +19,8 @@ class SettingsProvider with ChangeNotifier {
 
   DateTime get notificationTime => _notificationTime;
   bool get notificationsEnabled => _notificationsEnabled;
+  bool get notifPromptShown => _notifPromptShown;
+  ThemeMode get themeMode => _themeMode;
 
   Future<void> loadSettings() async {
     try {
@@ -26,6 +30,10 @@ class SettingsProvider with ChangeNotifier {
       }
 
       _notificationsEnabled = await _storage.getNotificationsEnabled();
+      _notifPromptShown = await _storage.getNotifPromptShown();
+
+      final savedMode = await _storage.getThemeMode();
+      _themeMode = savedMode == 'dark' ? ThemeMode.dark : ThemeMode.light;
 
       notifyListeners();
     } catch (e) {
@@ -77,5 +85,18 @@ class SettingsProvider with ChangeNotifier {
     }
   }
 
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    await _storage.saveThemeMode(mode == ThemeMode.dark ? 'dark' : 'light');
+    notifyListeners();
+  }
 
+  Future<void> markNotifPromptShown() async {
+    _notifPromptShown = true;
+    await _storage.setNotifPromptShown();
+  }
+
+  Future<void> showTestNotification() async {
+    await _notifications.showTestNotification();
+  }
 }

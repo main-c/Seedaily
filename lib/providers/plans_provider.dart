@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import '../domain/models.dart';
+import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../services/plan_generator.dart';
 
 class PlansProvider with ChangeNotifier {
   final StorageService _storage;
   final PlanGenerator _generator;
+  final NotificationService _notifications;
 
   List<GeneratedPlan> _plans = [];
   bool _isLoading = false;
@@ -13,8 +17,10 @@ class PlansProvider with ChangeNotifier {
   PlansProvider({
     required StorageService storage,
     required PlanGenerator generator,
+    required NotificationService notifications,
   })  : _storage = storage,
-        _generator = generator;
+        _generator = generator,
+        _notifications = notifications;
 
   List<GeneratedPlan> get plans => _plans;
   bool get isLoading => _isLoading;
@@ -33,6 +39,8 @@ class PlansProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+
+    await _rescheduleSmartNotifications();
   }
 
   Future<void> createPlan({
@@ -64,6 +72,8 @@ class PlansProvider with ChangeNotifier {
       debugPrint('Erreur lors de la suppression du plan: $e');
       rethrow;
     }
+
+    await _rescheduleSmartNotifications();
   }
 
   /// Met à jour un plan existant avec de nouvelles options
@@ -89,7 +99,7 @@ class PlansProvider with ChangeNotifier {
         templateId: existingPlan.templateId,
         title: title,
         options: options,
-        existingPlanId: planId, // Garder le même ID
+        existingPlanId: planId,
       );
 
       // Restaurer la progression sur les jours correspondants
@@ -143,6 +153,30 @@ class PlansProvider with ChangeNotifier {
         await _storage.updatePlanDay(planId, date, newValue);
         plan.days[dayIndex].completed = newValue;
         notifyListeners();
+
+        // Si le jour togglé est aujourd'hui, mettre à jour la notification du soir
+        final today = DateTime.now();
+        final isToday = date.year == today.year &&
+            date.month == today.month &&
+            date.day == today.day;
+
+        if (isToday) {
+          final activePlans = _plans.where((p) => p.progress < 100).toList();
+          if (activePlans.isEmpty) {
+            await _notifications.cancelEveningCatchupNotification();
+          } else {
+            final worstDelta = activePlans
+                .map((p) => p.onTrackDelta)
+                .reduce(min);
+            if (worstDelta < 0) {
+              await _notifications.scheduleEveningCatchupNotification(
+                behindDays: -worstDelta,
+              );
+            } else {
+              await _notifications.cancelEveningCatchupNotification();
+            }
+          }
+        }
       }
     } catch (e) {
       debugPrint('Erreur lors de la mise à jour du jour: $e');
@@ -155,6 +189,54 @@ class PlansProvider with ChangeNotifier {
       return _plans.firstWhere((p) => p.id == planId);
     } catch (e) {
       return null;
+    }
+  }
+
+  // ============================================================
+  // Smart notification rescheduling
+  // ============================================================
+
+  Future<void> _rescheduleSmartNotifications() async {
+    try {
+      final enabled = await _storage.getNotificationsEnabled();
+      if (!enabled) return;
+
+      final notifTime = await _storage.getNotificationTime();
+      final hour = notifTime?.hour ?? 9;
+      final minute = notifTime?.minute ?? 0;
+
+      final activePlans = _plans.where((p) => p.progress < 100).toList();
+
+      final readingDayNames = activePlans
+          .expand((p) => p.options.schedule.readingDays)
+          .toSet();
+
+      await _notifications.scheduleSmartNotifications(
+        hour: hour,
+        minute: minute,
+        activePlans: activePlans,
+        readingDayNames: readingDayNames.isEmpty
+            ? {'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'}
+            : readingDayNames,
+      );
+
+      // Evening catch-up
+      if (activePlans.isEmpty) {
+        await _notifications.cancelEveningCatchupNotification();
+      } else {
+        final worstDelta = activePlans
+            .map((p) => p.onTrackDelta)
+            .reduce(min);
+        if (worstDelta < 0) {
+          await _notifications.scheduleEveningCatchupNotification(
+            behindDays: -worstDelta,
+          );
+        } else {
+          await _notifications.cancelEveningCatchupNotification();
+        }
+      }
+    } catch (e) {
+      debugPrint('[NOTIF] Erreur reschedule smart notifications: $e');
     }
   }
 }

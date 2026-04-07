@@ -513,26 +513,6 @@ Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objecti
         difficulty: 'modéré',
         estimatedDays: 365,
       ),
-      ReadingPlanTemplate(
-        id: 'jewish-plan',
-        title: 'Plan Juif (Tanakh)',
-        image: 'assets/images/plans/mountains_snow.jpg',
-        description:
-            'Lecture selon l’ordre hébraïque traditionnel : Torah, Neviim, Ketuvim.',
-        porte:
-            '''Ce parcours suit l’organisation du Tanakh (Bible hébraïque) utilisée dans la tradition juive :
-
-Torah (Loi)
-
-Neviim (Prophètes)
-
-Ketuvim (Écrits)
-
-Vous pouvez lire l’ensemble ou vous concentrer sur une section spécifique. La durée et les jours de lecture sont entièrement personnalisables.''',
-        type: 'custom',
-        difficulty: 'modéré',
-        estimatedDays: 365,
-      ),
 
       // Plans thématiques — points de départ personnalisables
       ReadingPlanTemplate(

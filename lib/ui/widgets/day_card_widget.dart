@@ -20,6 +20,7 @@ class DayCardWidget extends StatelessWidget {
   final bool showCheckbox;
   final bool isPreviewMode;
   final bool isFuture;
+  final bool isOutOfSequence;
   final VoidCallback? onTap;
 
   const DayCardWidget({
@@ -31,6 +32,7 @@ class DayCardWidget extends StatelessWidget {
     this.showCheckbox = true,
     this.isPreviewMode = false,
     this.isFuture = false,
+    this.isOutOfSequence = false,
     this.onTap,
   });
 
@@ -106,27 +108,45 @@ class DayCardWidget extends StatelessWidget {
                           children: [
                             // Badge selon l'état
                             if (isCompleted) ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      AppTheme.seedGold.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'COMPLÉTÉ',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                        color: AppTheme.deepNavy,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 10,
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isOutOfSequence
+                                          ? Colors.orange.withValues(alpha: 0.15)
+                                          : AppTheme.seedGold.withValues(alpha: 0.5),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'COMPLÉTÉ',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: isOutOfSequence
+                                                ? Colors.orange.shade800
+                                                : AppTheme.deepNavy,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 10,
+                                          ),
+                                    ),
+                                  ),
+                                  if (isOutOfSequence) ...[
+                                    const SizedBox(width: 6),
+                                    Tooltip(
+                                      message: 'Des jours précédents ne sont pas encore lus',
+                                      child: Icon(
+                                        Icons.warning_amber_rounded,
+                                        size: 16,
+                                        color: Colors.orange.shade700,
                                       ),
-                                ),
+                                    ),
+                                  ],
+                                ],
                               ),
                               const SizedBox(height: 8),
                             ],

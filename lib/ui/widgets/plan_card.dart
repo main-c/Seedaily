@@ -43,18 +43,28 @@ class PlanCard extends StatelessWidget {
     final totalDays = plan.totalDays;
     final endDate = plan.days.isNotEmpty ? plan.days.last.date : DateTime.now();
 
-    // Déterminer le statut du plan
+    // Déterminer le statut du plan basé sur le delta jours lus vs jours attendus
+    final delta = plan.onTrackDelta;
+    final expected = plan.expectedCompletedDays;
     String statusText;
     Color statusColor;
     if (isCompleted) {
       statusText = 'Terminé';
       statusColor = AppTheme.success;
-    } else if (streak == 0 && plan.completedDays > 0) {
-      statusText = 'Reprendre';
-      statusColor = AppTheme.textMuted;
-    } else {
+    } else if (expected == 0) {
+      // Plan pas encore commencé
       statusText = '$streak j. de suite';
       statusColor = AppTheme.seedGold;
+    } else if (delta == 0) {
+      statusText = 'À jour';
+      statusColor = AppTheme.success;
+    } else if (delta > 0) {
+      statusText = '+$delta j. d\'avance';
+      statusColor = AppTheme.success;
+    } else {
+      final behind = -delta;
+      statusText = '$behind j. de retard';
+      statusColor = behind <= 3 ? Colors.orange.shade700 : AppTheme.error;
     }
 
     return Container(

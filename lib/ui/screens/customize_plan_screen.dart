@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/plan_generator.dart';
 import '../widgets/book_selector_section.dart';
 
@@ -49,8 +50,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-
     final provider = context.read<PlansProvider>();
 
     if (widget.isEditMode) {
@@ -76,6 +75,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       _workingPlan = _generateDefaultPlan(_template.id);
     }
 
+    // TabController : 1 onglet pour les plans fixes, 3 pour les autres
+    _tabController = TabController(
+      length: _isFixedPlan ? 1 : 3,
+      vsync: this,
+    );
+
     _titleController = TextEditingController(text: _workingPlan.title);
   }
 
@@ -83,10 +88,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   GeneratedPlan _generateDefaultPlan(String templateId) {
     final year = DateTime.now().year;
     final defaultOptions = _getDefaultOptions(templateId);
+    final isCustomEntry = templateId == 'canonical-plan' && !widget.isEditMode;
+    final title = isCustomEntry ? 'Mon plan $year' : '${_template.title} $year';
 
     return _generator.generate(
       templateId: templateId,
-      title: '${_template.title} $year',
+      title: title,
       options: defaultOptions,
     );
   }
@@ -159,10 +166,14 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     ].contains(_workingPlan.templateId);
   }
 
-  bool get _isCustomizablePlan {
+  /// Plans dont les livres sont verrouillés (l'utilisateur ne peut pas en ajouter d'autres)
+  bool get _isThematicPlan {
     return [
-      'canonical-plan',
-      'chronological-plan',
+      'new-testament',
+      'old-testament',
+      'gospels',
+      'psalms',
+      'proverbs',
     ].contains(_workingPlan.templateId);
   }
 
@@ -253,6 +264,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         }
       } else {
         // Mode création : créer un nouveau plan
+        final isFirstPlan = provider.plans.isEmpty;
         await provider.createPlan(
           templateId: _workingPlan.templateId,
           title: planToSave.title,
@@ -261,6 +273,38 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         if (mounted) {
           context.pop();
           mainShellKey.currentState?.navigateToIndex(0);
+
+          // Proposer d'activer les notifications au premier plan créé
+          final settings = context.read<SettingsProvider>();
+          if (isFirstPlan &&
+              !settings.notificationsEnabled &&
+              !settings.notifPromptShown) {
+            await settings.markNotifPromptShown();
+            if (mounted) {
+              showDialog<void>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Activer les rappels ?'),
+                  content: const Text(
+                    'Reçois un rappel quotidien pour ne jamais oublier ta lecture.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Plus tard'),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        settings.setNotificationsEnabled(true);
+                      },
+                      child: const Text('Activer'),
+                    ),
+                  ],
+                ),
+              );
+            }
+          }
         }
       }
     } catch (e) {
@@ -297,6 +341,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
       ),
       body: NestedScrollView(
+        physics: const ClampingScrollPhysics(),
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverToBoxAdapter(
@@ -345,11 +390,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   unselectedLabelColor: AppTheme.textMuted,
                   indicatorColor: AppTheme.seedGold,
                   indicatorWeight: 3,
-                  tabs: const [
-                    Tab(text: 'Livres'),
-                    Tab(text: 'Distribution'),
-                    Tab(text: 'Affichage'),
-                  ],
+                  tabs: _isFixedPlan
+                      ? const [Tab(text: 'Affichage')]
+                      : const [
+                          Tab(text: 'Livres'),
+                          Tab(text: 'Distribution'),
+                          Tab(text: 'Affichage'),
+                        ],
                 ),
               ),
             ),
@@ -357,11 +404,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         },
         body: TabBarView(
           controller: _tabController,
-          children: [
-            _buildBooksTab(),
-            _buildDistributionTab(),
-            _buildDisplayTab(),
-          ],
+          children: _isFixedPlan
+              ? [_buildDisplayTab()]
+              : [_buildBooksTab(), _buildDistributionTab(), _buildDisplayTab()],
         ),
       ),
       bottomNavigationBar: Container(
@@ -552,13 +597,19 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                         );
 
                         if (selected != null && mounted) {
-                          // Si la nouvelle date de début dépasse la date de fin, ajuster
-                          final currentEnd = _endDate;
-                          final newEnd = selected.isAfter(currentEnd)
-                              ? selected.add(const Duration(days: 364))
-                              : currentEnd;
-                          final newTotalDays =
-                              newEnd.difference(selected).inDays + 1;
+                          final currentTotalDays =
+                              _workingPlan.options.schedule.totalDays;
+                          // Plans fixes : on garde la durée intacte, seule la date de début change
+                          // Plans custom : on recalcule si la nouvelle date dépasse la fin actuelle
+                          final newTotalDays = _isFixedPlan
+                              ? currentTotalDays
+                              : () {
+                                  final currentEnd = _endDate;
+                                  final newEnd = selected.isAfter(currentEnd)
+                                      ? selected.add(const Duration(days: 364))
+                                      : currentEnd;
+                                  return newEnd.difference(selected).inDays + 1;
+                                }();
                           _regeneratePlan(
                             schedule: ScheduleOptions(
                               startDate: selected,
@@ -744,39 +795,25 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 },
                 child: Container(
                   width: 44,
-                  height: 56,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: isSelected ? AppTheme.seedGold : AppTheme.surface,
-                    borderRadius: BorderRadius.circular(8),
+                    shape: BoxShape.circle,
                     border: isSelected
                         ? null
                         : Border.all(color: AppTheme.borderSubtle),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        day['fullLabel']!,
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppTheme.deepNavy
-                              : AppTheme.textMuted,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  child: Center(
+                    child: Text(
+                      day['label']!,
+                      style: TextStyle(
+                        color: isSelected
+                            ? AppTheme.deepNavy
+                            : AppTheme.textMuted,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        day['label']!,
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppTheme.deepNavy
-                              : AppTheme.textMuted,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );
@@ -873,24 +910,36 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   // ============================================================================
 
   Widget _buildBooksTab() {
-    if (!_isCustomizablePlan) {
-      return Center(
+    // Plans fixes : sélection de livres non disponible
+    if (_isFixedPlan) {
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Text(
             'La sélection des livres n\'est pas disponible pour ce plan.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textMuted,
-                ),
             textAlign: TextAlign.center,
           ),
         ),
       );
     }
 
+    // Plans thématiques : livres verrouillés, affichage en lecture seule
+    if (_isThematicPlan) {
+      return _buildThematicBooksDisplay();
+    }
+
+    // Plans personnalisés : sélection de livres + bouton filtre pour l'ordre
     return ListView(
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('Sélection des livres'),
+            _buildOrderFilterButton(),
+          ],
+        ),
+        const SizedBox(height: 12),
         BookSelectorSection(
           templateId: _workingPlan.templateId,
           selectedBooks: _workingPlan.options.content.selectedBooks.toSet(),
@@ -914,6 +963,207 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             );
           },
         ),
+      ],
+    );
+  }
+
+  /// Bouton filtre compact qui ouvre le bottom sheet d'ordre de lecture
+  Widget _buildOrderFilterButton() {
+    final currentOrder = _workingPlan.options.order.type;
+    final label = switch (currentOrder) {
+      OrderType.canonical => 'Canonique',
+      OrderType.chronological => 'Chronologique',
+      OrderType.jewish => 'Hébreu',
+      _ => 'Canonique',
+    };
+
+    return GestureDetector(
+      onTap: () => _showOrderBottomSheet(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppTheme.seedGold.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppTheme.seedGold.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.tune, size: 14, color: AppTheme.seedGold),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.seedGold,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showOrderBottomSheet() {
+    final options = [
+      (OrderType.canonical, 'Canonique', 'Genèse → Apocalypse', Icons.sort),
+      (OrderType.chronological, 'Chronologique', 'Ordre historique des événements', Icons.history),
+      (OrderType.jewish, 'Hébreu (Tanakh)', 'Ordre traditionnel du Tanakh', Icons.star_outline),
+    ];
+
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final currentOrder = _workingPlan.options.order.type;
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ordre de lecture',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                ...options.map((entry) {
+                  final (type, label, desc, icon) = entry;
+                  final isSelected = currentOrder == type;
+                  return GestureDetector(
+                    onTap: () {
+                      _regeneratePlan(order: OrderOptions(type: type));
+                      Navigator.pop(ctx);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppTheme.seedGold.withValues(alpha: 0.08)
+                            : AppTheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppTheme.seedGold
+                              : AppTheme.borderSubtle,
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(icon,
+                              size: 20,
+                              color: isSelected
+                                  ? AppTheme.seedGold
+                                  : AppTheme.textMuted),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(label,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: isSelected
+                                              ? AppTheme.textPrimary
+                                              : AppTheme.textMuted,
+                                        )),
+                                Text(desc,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: AppTheme.textMuted)),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle,
+                                color: AppTheme.seedGold, size: 18),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Affichage des livres verrouillés pour les plans thématiques
+  Widget _buildThematicBooksDisplay() {
+    final books = _workingPlan.options.content.selectedBooks;
+
+    return ListView(
+      padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.seedGold.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppTheme.seedGold.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.lock_outline,
+                  color: AppTheme.seedGold, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.deepNavy,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildSectionTitle('Livres inclus'),
+        const SizedBox(height: 12),
+        ...books.map((book) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppTheme.borderSubtle),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.menu_book_outlined,
+                      size: 16, color: AppTheme.textMuted),
+                  const SizedBox(width: 10),
+                  Text(
+                    book,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
+              ),
+            )),
       ],
     );
   }

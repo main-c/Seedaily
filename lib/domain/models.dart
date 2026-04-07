@@ -700,6 +700,53 @@ class GeneratedPlan {
   double get progress =>
       totalDays > 0 ? (completedDays / totalDays) * 100 : 0.0;
 
+  /// Nombre de jours de lecture attendus depuis le début du plan jusqu'à aujourd'hui inclus.
+  int get expectedCompletedDays {
+    final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
+    return days.where((d) {
+      final dayNorm = DateTime(d.date.year, d.date.month, d.date.day);
+      return !dayNorm.isAfter(todayNorm);
+    }).length;
+  }
+
+  /// Delta : >0 = en avance, 0 = à jour, <0 = en retard.
+  int get onTrackDelta => completedDays - expectedCompletedDays;
+
+  /// Dates des jours marqués "lus" mais qui ont des jours non-lus antérieurs (hors séquence).
+  Set<DateTime> get outOfSequenceDates {
+    final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
+    final sortedPast = days
+        .where((d) {
+          final dn = DateTime(d.date.year, d.date.month, d.date.day);
+          return !dn.isAfter(todayNorm);
+        })
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    if (sortedPast.isEmpty) return {};
+
+    // Trouver la date du premier jour non-lu
+    DateTime? earliestUncompleted;
+    for (final d in sortedPast) {
+      if (!d.completed) {
+        earliestUncompleted = DateTime(d.date.year, d.date.month, d.date.day);
+        break;
+      }
+    }
+    if (earliestUncompleted == null) return {};
+
+    // Tous les jours complétés après ce premier trou sont "hors séquence"
+    return sortedPast
+        .where((d) {
+          final dn = DateTime(d.date.year, d.date.month, d.date.day);
+          return d.completed && dn.isAfter(earliestUncompleted!);
+        })
+        .map((d) => DateTime(d.date.year, d.date.month, d.date.day))
+        .toSet();
+  }
+
   int get currentStreak {
     int streak = 0;
     final today = DateTime.now();

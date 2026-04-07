@@ -119,6 +119,22 @@ class StorageService {
         false;
   }
 
+  Future<String> getThemeMode() async {
+    return _settingsBox?.get('theme_mode', defaultValue: 'light') ?? 'light';
+  }
+
+  Future<void> saveThemeMode(String mode) async {
+    await _settingsBox?.put('theme_mode', mode);
+  }
+
+  Future<bool> getNotifPromptShown() async {
+    return _settingsBox?.get('notif_prompt_shown', defaultValue: false) ?? false;
+  }
+
+  Future<void> setNotifPromptShown() async {
+    await _settingsBox?.put('notif_prompt_shown', true);
+  }
+
   Future<void> clearAllData() async {
     await _plansBox?.clear();
     await _settingsBox?.clear();

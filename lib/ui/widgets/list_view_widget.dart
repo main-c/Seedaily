@@ -71,11 +71,43 @@ class _ListViewWidgetState extends State<ListViewWidget> {
     super.dispose();
   }
 
+  /// Calcule les dates des jours marqués lus hors séquence (trous avant eux).
+  Set<DateTime> _computeOutOfSequenceDates() {
+    final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
+    final sortedPast = widget.days
+        .where((d) {
+          final dn = DateTime(d.date.year, d.date.month, d.date.day);
+          return !dn.isAfter(todayNorm);
+        })
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    DateTime? earliestUncompleted;
+    for (final d in sortedPast) {
+      if (!d.completed) {
+        earliestUncompleted = DateTime(d.date.year, d.date.month, d.date.day);
+        break;
+      }
+    }
+    if (earliestUncompleted == null) return {};
+
+    return sortedPast
+        .where((d) {
+          final dn = DateTime(d.date.year, d.date.month, d.date.day);
+          return d.completed && dn.isAfter(earliestUncompleted!);
+        })
+        .map((d) => DateTime(d.date.year, d.date.month, d.date.day))
+        .toSet();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.days.isEmpty) {
       return const Center(child: Text('Aucun jour de lecture'));
     }
+
+    final outOfSequenceDates = _computeOutOfSequenceDates();
 
     return ListView.separated(
       controller: _scrollController,
@@ -88,6 +120,8 @@ class _ListViewWidgetState extends State<ListViewWidget> {
         final isCompleted = day.completed;
         final isFuture =
             widget.currentDayIndex != null && index > widget.currentDayIndex!;
+        final dayNorm = DateTime(day.date.year, day.date.month, day.date.day);
+        final isOutOfSequence = outOfSequenceDates.contains(dayNorm);
 
         if (isCurrent) {
           return TodayCardWidget(
@@ -108,6 +142,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
           isCurrent: false,
           isCompleted: isCompleted,
           isFuture: isFuture,
+          isOutOfSequence: isOutOfSequence,
           showCheckbox: widget.showCheckbox,
           isPreviewMode: widget.isPreviewMode,
           onTap: widget.onDayTap != null ? () => widget.onDayTap!(index) : null,

@@ -231,15 +231,18 @@ class AppTheme {
   static ThemeData get darkTheme {
     const darkBackground = Color(0xFF0E141B);
     const darkSurface = Color(0xFF18212C);
+    const darkSurfaceElevated = Color(0xFF1F2C3A);
     const darkTextPrimary = Color(0xFFF7F8FA);
+    const darkTextMuted = Color(0xFF8A9BB0);
+    const darkBorder = Color(0xFF2A3547);
 
     final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: seedGold,
         onPrimary: darkBackground,
-        secondary: deepNavy,
+        secondary: mistGreyBlue,
         onSecondary: darkTextPrimary,
         tertiary: mistGreyBlue,
         surface: darkSurface,
@@ -247,7 +250,7 @@ class AppTheme {
         error: error,
         onError: darkBackground,
         surfaceContainerLowest: darkBackground,
-        outline: mistGreyBlue,
+        outline: darkBorder,
       ),
       scaffoldBackgroundColor: darkBackground,
       cardColor: darkSurface,
@@ -257,6 +260,137 @@ class AppTheme {
       textTheme: _buildTextTheme(baseTheme.textTheme).apply(
         bodyColor: darkTextPrimary,
         displayColor: darkTextPrimary,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: darkSurface,
+        foregroundColor: darkTextPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: _lexend(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: darkTextPrimary,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: darkBorder, width: 1),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: seedGold,
+          foregroundColor: darkBackground,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: _lexend(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: darkTextPrimary,
+          side: const BorderSide(color: darkBorder, width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: _lexend(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: seedGold,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          textStyle: _lexend(fontSize: 15, fontWeight: FontWeight.w500),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: darkSurfaceElevated,
+        deleteIconColor: darkTextMuted,
+        labelStyle: _lexend(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: darkTextPrimary,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: darkBorder),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkSurfaceElevated,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: darkBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: seedGold, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: error, width: 2),
+        ),
+        labelStyle: _lexend(fontSize: 15, color: darkTextMuted),
+        hintStyle: _lexend(fontSize: 15, color: darkTextMuted),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: seedGold,
+        foregroundColor: darkBackground,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: darkBorder,
+        thickness: 1,
+        space: 1,
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return seedGold;
+          return darkSurfaceElevated;
+        }),
+        checkColor: WidgetStateProperty.all(darkBackground),
+        side: const BorderSide(color: darkBorder, width: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return darkBackground;
+          return darkTextMuted;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return seedGold;
+          return darkBorder;
+        }),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: seedGold,
+        linearTrackColor: darkBorder,
       ),
     );
   }

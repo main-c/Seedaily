@@ -24,14 +24,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // APPARENCE
-          // _buildSectionTitle('APPARENCE'),
-          // _buildSettingCard(
-          //   icon: Icons.brightness_4_outlined,
-          //   title: 'Thème',
-          //   subtitle: 'Système',
-          //   onTap: () {},
-          // ),
-          // const SizedBox(height: 24),
+          _buildSectionTitle('APPARENCE'),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              final isDark = settings.themeMode == ThemeMode.dark;
+              return _buildSettingCard(
+                icon: isDark
+                    ? Icons.dark_mode_outlined
+                    : Icons.light_mode_outlined,
+                title: 'Mode sombre',
+                subtitle: isDark ? 'Activé' : 'Désactivé',
+                trailing: Switch(
+                  value: isDark,
+                  onChanged: (value) {
+                    settings.setThemeMode(
+                      value ? ThemeMode.dark : ThemeMode.light,
+                    );
+                  },
+                  activeThumbColor: AppTheme.surface,
+                ),
+                onTap: () {},
+              );
+            },
+          ),
+          const SizedBox(height: 24),
 
           // RAPPELS
           _buildSectionTitle('RAPPELS'),
@@ -84,18 +100,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
-          // const SizedBox(height: 12),
-          // Consumer<SettingsProvider>(
-          //   builder: (context, settings, child) {
-          //     return _buildSettingCard(
-          //       icon: Icons.notification_add_outlined,
-          //       title: 'Tester une notification',
-          //       subtitle: 'Aperçu du rappel quotidien',
-          //       titleColor: AppTheme.seedGold,
-          //       onTap: () => settings.showTestNotification(),
-          //     );
-          //   },
-          // ),
+          const SizedBox(height: 12),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              return _buildSettingCard(
+                icon: Icons.notification_add_outlined,
+                title: 'Tester une notification',
+                subtitle: 'Aperçu du rappel quotidien',
+                titleColor: AppTheme.seedGold,
+                onTap: () => settings.showTestNotification(),
+              );
+            },
+          ),
           const SizedBox(height: 24),
           // PRÉFÉRENCES
           // _buildSectionTitle('PRÉFÉRENCES'),
@@ -161,8 +177,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Widget? trailing,
     required VoidCallback onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppTheme.surface,
+      color: cs.surface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -175,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Icon(
                 icon,
                 size: 24,
-                color: AppTheme.deepNavy.withValues(alpha: 0.7),
+                color: cs.onSurface.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 16),
 
@@ -189,7 +206,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: titleColor ?? AppTheme.deepNavy,
+                        color: titleColor ?? cs.onSurface,
                       ),
                     ),
                     if (subtitle != null)
@@ -197,12 +214,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle,
                         style: TextStyle(
                           fontSize: 14,
-                          color: subtitleColor ?? AppTheme.textMuted,
+                          color: subtitleColor ?? cs.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                   ],
                 ),
-              ),
+              ), 
 
               // Trailing (chevron ou switch)
               if (trailing != null)
@@ -210,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               else
                 Icon(
                   Icons.chevron_right,
-                  color: AppTheme.borderSubtle,
+                  color: cs.outline,
                 ),
             ],
           ),

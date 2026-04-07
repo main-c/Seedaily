@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 
-class BookSelectorSection extends StatefulWidget {
+class BookSelectorSection extends StatelessWidget {
   final String templateId;
   final Set<String> selectedBooks;
   final bool includeApocrypha;
@@ -18,359 +18,208 @@ class BookSelectorSection extends StatefulWidget {
     required this.onApocryphaSwitched,
   });
 
-  @override
-  State<BookSelectorSection> createState() => _BookSelectorSectionState();
-}
+  // ── Helpers sélection ──────────────────────────────────────────
 
-class _BookSelectorSectionState extends State<BookSelectorSection> {
-  final List<int> _expandedPanels = [];
+  bool get _allSelected {
+    final all = [
+      ...BibleData.getOldTestamentBooks(),
+      ...BibleData.getNewTestamentBooks(),
+      if (includeApocrypha) ...BibleData.deuterocanonicalBooks,
+    ].map((b) => b.name);
+    return all.every(selectedBooks.contains);
+  }
+
+  void _toggleAll(bool value) {
+    final all = {
+      ...BibleData.getOldTestamentBooks().map((b) => b.name),
+      ...BibleData.getNewTestamentBooks().map((b) => b.name),
+      if (includeApocrypha)
+        ...BibleData.deuterocanonicalBooks.map((b) => b.name),
+    };
+    onBooksChanged(value ? all : {});
+  }
+
+  void _toggleBook(String name, bool value) {
+    final next = Set<String>.from(selectedBooks);
+    value ? next.add(name) : next.remove(name);
+    onBooksChanged(next);
+  }
+
+  // ── Build ──────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return _buildSelector();
-  }
+    final otBooks = BibleData.getOldTestamentBooks();
+    final ntBooks = BibleData.getNewTestamentBooks();
+    final deutBooks = BibleData.deuterocanonicalBooks;
 
-  Widget _buildSelector() {
-    switch (widget.templateId) {
-      case 'canonical-plan':
-      case 'bible-complete':
-        return _buildTraditionalSelector();
-      case 'chronological-plan':
-        return _buildChronologicalSelector();
-      default:
-        return _buildSimpleSelector();
-    }
-  }
-
-  // Section 1 : Sélecteur pour plan Traditional/Canonical
-  Widget _buildTraditionalSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildModernExpansionPanels(),
+        // ── Tout sélectionner ────────────────────────────────────
+        _SelectAllTile(
+          isAllSelected: _allSelected,
+          onToggle: _toggleAll,
+        ),
+        const SizedBox(height: 8),
+
+        // ── Ancien Testament ─────────────────────────────────────
+        _SectionLabel(title: 'Ancien Testament', count: otBooks.length),
+        ...otBooks.map((book) => _BookTile(
+              book: book,
+              isSelected: selectedBooks.contains(book.name),
+              onToggle: (v) => _toggleBook(book.name, v),
+            )),
+
+        // ── Deutérocanoniques (optionnels) ───────────────────────
+        if (includeApocrypha) ...[
+          const SizedBox(height: 4),
+          _SectionLabel(
+              title: 'Deutérocanoniques', count: deutBooks.length),
+          ...deutBooks.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+        ],
+
+        // ── Nouveau Testament ────────────────────────────────────
+        const SizedBox(height: 4),
+        _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
+        ...ntBooks.map((book) => _BookTile(
+              book: book,
+              isSelected: selectedBooks.contains(book.name),
+              onToggle: (v) => _toggleBook(book.name, v),
+            )),
+
+        // ── Option deutérocanoniques ─────────────────────────────
         const SizedBox(height: 16),
         CheckboxListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('Inclure les deutérocanoniques'),
           subtitle: const Text('Livres de la Septante et de la Vulgate'),
-          value: widget.includeApocrypha,
+          value: includeApocrypha,
+          activeColor: AppTheme.seedGold,
           onChanged: (value) {
-            widget.onApocryphaSwitched(value ?? false);
+            onApocryphaSwitched(value ?? false);
             if (!(value ?? false)) {
-              final newSelection = Set<String>.from(widget.selectedBooks);
-              newSelection.removeWhere((book) =>
-                  BibleData.getBook(book)?.isDeuterocanonical ?? false);
-              widget.onBooksChanged(newSelection);
+              final next = Set<String>.from(selectedBooks)
+                ..removeWhere(
+                    (b) => BibleData.getBook(b)?.isDeuterocanonical ?? false);
+              onBooksChanged(next);
             }
           },
         ),
       ],
     );
   }
+}
 
-  Widget _buildModernExpansionPanels() {
-    return Column(
+// ── Widgets internes ───────────────────────────────────────────────
+
+class _SelectAllTile extends StatelessWidget {
+  final bool isAllSelected;
+  final ValueChanged<bool> onToggle;
+
+  const _SelectAllTile({required this.isAllSelected, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Old Testament Panel
-        _buildCleanExpansionTile(
-          index: 0,
-          title: 'Ancien Testament',
-          subtitle: '39 livres',
-          isAllSelected: _areAllOldTestamentSelected(),
-          onToggleAll: _toggleOldTestament,
-          books: BibleData.getOldTestamentBooks(),
+        Text(
+          'Tout sélectionner',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
         ),
-        const SizedBox(height: 8),
-
-        // Deuterocanonical Panel (conditional)
-        if (widget.includeApocrypha) ...[
-          _buildCleanExpansionTile(
-            index: 1,
-            title: 'Deutérocanoniques',
-            subtitle: '${BibleData.deuterocanonicalBooks.length} livres',
-            isAllSelected: _areAllDeuterocanonicalSelected(),
-            onToggleAll: _toggleDeuterocanonical,
-            books: BibleData.deuterocanonicalBooks,
-          ),
-          const SizedBox(height: 8),
-        ],
-
-        // New Testament Panel
-        _buildCleanExpansionTile(
-          index: widget.includeApocrypha ? 2 : 1,
-          title: 'Nouveau Testament',
-          subtitle: '27 livres',
-          isAllSelected: _areAllNewTestamentSelected(),
-          onToggleAll: _toggleNewTestament,
-          books: BibleData.getNewTestamentBooks(),
+        Switch(
+          value: isAllSelected,
+          onChanged: onToggle,
+          activeThumbColor: AppTheme.seedGold,
+          activeTrackColor: AppTheme.seedGold.withValues(alpha: 0.4),
         ),
       ],
     );
   }
+}
 
-  Widget _buildCleanExpansionTile({
-    required int index,
-    required String title,
-    required String subtitle,
-    required bool isAllSelected,
-    required Function(bool?) onToggleAll,
-    required List<BibleBook> books,
-  }) {
-    final isExpanded = _expandedPanels.contains(index);
+class _SectionLabel extends StatelessWidget {
+  final String title;
+  final int count;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isExpanded ? AppTheme.seedGold.withValues(alpha: 0.3) : AppTheme.borderSubtle,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                if (isExpanded) {
-                  _expandedPanels.remove(index);
-                } else {
-                  _expandedPanels.add(index);
-                }
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  // Checkbox
-                  Checkbox(
-                    value: isAllSelected,
-                    onChanged: onToggleAll,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    activeColor: AppTheme.seedGold,
-                  ),
-                  const SizedBox(width: 12),
+  const _SectionLabel({required this.title, required this.count});
 
-                  // Title and subtitle
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.deepNavy,
-                              ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textMuted,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Expand icon
-                  Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: AppTheme.seedGold,
-                    size: 24,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Expanded content
-          if (isExpanded) ...[
-            const Divider(height: 1),
-            _buildBooksList(books),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBooksList(List<BibleBook> books) {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: books.map((book) {
-          final isSelected = widget.selectedBooks.contains(book.name);
-          return InkWell(
-            onTap: () => _toggleBook(book.name, !isSelected),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  // Checkbox
-                  Checkbox(
-                    value: isSelected,
-                    onChanged: (value) => _toggleBook(book.name, value),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    activeColor: AppTheme.seedGold,
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Book info
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          book.name,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.deepNavy,
-                              ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${book.chapters} ${book.chapters > 1 ? 'chapitres' : 'chapitre'}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textMuted,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppTheme.textMuted,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
             ),
-          );
-        }).toList(),
       ),
     );
   }
+}
 
-  // Section 2 : Sélecteur pour plan Chronological
-  Widget _buildChronologicalSelector() {
-    return Column(
-      children: [
-        _buildCleanExpansionTile(
-          index: 0,
-          title: 'Ancien Testament',
-          subtitle: '39 livres - Ordre chronologique',
-          isAllSelected: _areAllOldTestamentSelected(),
-          onToggleAll: _toggleOldTestament,
-          books: _getChronologicalOldTestamentBooks(),
+class _BookTile extends StatelessWidget {
+  final BibleBook book;
+  final bool isSelected;
+  final ValueChanged<bool> onToggle;
+
+  const _BookTile({
+    required this.book,
+    required this.isSelected,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onToggle(!isSelected),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            Checkbox(
+              value: isSelected,
+              onChanged: (v) => onToggle(v ?? false),
+              activeColor: AppTheme.seedGold,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                book.name,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isSelected
+                          ? AppTheme.textPrimary
+                          : AppTheme.textMuted,
+                      fontWeight: isSelected
+                          ? FontWeight.w500
+                          : FontWeight.normal,
+                    ),
+              ),
+            ),
+            Text(
+              '${book.chapters} ch.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textMuted,
+                    fontSize: 11,
+                  ),
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
-        const SizedBox(height: 8),
-        _buildCleanExpansionTile(
-          index: 1,
-          title: 'Nouveau Testament',
-          subtitle: '27 livres - Ordre chronologique',
-          isAllSelected: _areAllNewTestamentSelected(),
-          onToggleAll: _toggleNewTestament,
-          books: _getChronologicalNewTestamentBooks(),
-        ),
-      ],
+      ),
     );
-  }
-
-
-  Widget _buildSimpleSelector() {
-    // Pour les templates anciens (new-testament, old-testament, etc.)
-    return Text(
-      'Sélection personnalisée disponible uniquement pour les nouveaux plans.',
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppTheme.textMuted,
-          ),
-    );
-  }
-
-  // Méthodes de toggle
-  void _toggleBook(String bookName, bool? value) {
-    final newSelection = Set<String>.from(widget.selectedBooks);
-    if (value == true) {
-      newSelection.add(bookName);
-    } else {
-      newSelection.remove(bookName);
-    }
-    widget.onBooksChanged(newSelection);
-  }
-
-  void _toggleOldTestament(bool? value) {
-    final newSelection = Set<String>.from(widget.selectedBooks);
-    if (value == true) {
-      newSelection.addAll(
-        BibleData.getOldTestamentBooks().map((b) => b.name),
-      );
-    } else {
-      newSelection.removeWhere((book) {
-        final b = BibleData.getBook(book);
-        return b?.isOldTestament ?? false;
-      });
-    }
-    widget.onBooksChanged(newSelection);
-  }
-
-  void _toggleNewTestament(bool? value) {
-    final newSelection = Set<String>.from(widget.selectedBooks);
-    if (value == true) {
-      newSelection.addAll(
-        BibleData.getNewTestamentBooks().map((b) => b.name),
-      );
-    } else {
-      newSelection.removeWhere((book) {
-        final b = BibleData.getBook(book);
-        return b?.isNewTestament ?? false;
-      });
-    }
-    widget.onBooksChanged(newSelection);
-  }
-
-  void _toggleDeuterocanonical(bool? value) {
-    final newSelection = Set<String>.from(widget.selectedBooks);
-    if (value == true) {
-      newSelection.addAll(
-        BibleData.deuterocanonicalBooks.map((b) => b.name),
-      );
-    } else {
-      newSelection.removeWhere(
-          (book) => BibleData.getBook(book)?.isDeuterocanonical ?? false);
-    }
-    widget.onBooksChanged(newSelection);
-  }
-
-  // Méthodes de vérification
-  bool _areAllOldTestamentSelected() {
-    final allOt = BibleData.getOldTestamentBooks().map((b) => b.name).toSet();
-    return allOt.every((book) => widget.selectedBooks.contains(book));
-  }
-
-  bool _areAllNewTestamentSelected() {
-    final allNt = BibleData.getNewTestamentBooks().map((b) => b.name).toSet();
-    return allNt.every((book) => widget.selectedBooks.contains(book));
-  }
-
-  bool _areAllDeuterocanonicalSelected() {
-    final allDeut = BibleData.deuterocanonicalBooks.map((b) => b.name).toSet();
-    return allDeut.every((book) => widget.selectedBooks.contains(book));
-  }
-
-  // Méthodes pour obtenir les livres triés par ordre chronologique
-  List<BibleBook> _getChronologicalOldTestamentBooks() {
-    final otBooks = BibleData.getOldTestamentBooks();
-    otBooks
-        .sort((a, b) => a.chronologicalOrder.compareTo(b.chronologicalOrder));
-    return otBooks;
-  }
-
-  List<BibleBook> _getChronologicalNewTestamentBooks() {
-    final ntBooks = BibleData.getNewTestamentBooks();
-    ntBooks
-        .sort((a, b) => a.chronologicalOrder.compareTo(b.chronologicalOrder));
-    return ntBooks;
   }
 }

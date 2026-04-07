@@ -5,53 +5,31 @@ import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
 
-class CreatePlanScreen extends StatefulWidget {
+class CreatePlanScreen extends StatelessWidget {
   const CreatePlanScreen({super.key});
 
-  @override
-  State<CreatePlanScreen> createState() => _CreatePlanScreenState();
-}
+  static const _fixedIds = [
+    'mcheyne',
+    'bible-year-ligue',
+    'revolutionary',
+    'horner'
+  ];
+  static const _thematicIds = [
+    'new-testament',
+    'old-testament',
+    'gospels',
+    'psalms',
+    'proverbs'
+  ];
 
-class _CreatePlanScreenState extends State<CreatePlanScreen> {
   @override
   Widget build(BuildContext context) {
     final allTemplates = context.read<PlansProvider>().templates;
 
-    // SECTION 1 : Bible intégrale (Plans personnalisables)
-    final section1 = allTemplates
-        .where((t) => [
-              'canonical-plan',
-              'chronological-plan',
-              'new-testament',
-              'old-testament',
-              'gospels',
-              'psalms',
-            ].contains(t.id))
-        .toList();
-
-    // SECTION 2 : Plans de lecture de la bible en un an (Plans fixes)
-    final section2 = allTemplates
-        .where((t) => ['mcheyne', 'bible-year-ligue', 'revolutionary', 'horner']
-            .contains(t.id))
-        .toList();
-
-    // SECTION 3 : Plans par livres
-    // Exclure les templates déjà listés dans les sections précédentes
-    final includedIds = {
-      ...section1.map((t) => t.id),
-      ...section2.map((t) => t.id),
-    };
-
-    final section3 = allTemplates
-        .where((t) => [
-              'new-testament',
-              'old-testament',
-              'gospels',
-              'psalms',
-              'proverbs',
-            ].contains(t.id))
-        .where((t) => !includedIds.contains(t.id))
-        .toList();
+    final fixedPlans =
+        allTemplates.where((t) => _fixedIds.contains(t.id)).toList();
+    final thematicPlans =
+        allTemplates.where((t) => _thematicIds.contains(t.id)).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -59,86 +37,58 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Découvrir',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textPrimary,
-                              ),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+              child: Text(
+                'Découvrir',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search_outlined),
-                    onPressed: () {
-                      // TODO: Implémenter la recherche
-                    },
-                  ),
-                ],
               ),
             ),
-
-            // Contenu des plans avec sections
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Text(
+                'Choisissez un plan ou créez le vôtre',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textMuted,
+                    ),
+              ),
+            ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(bottom: 32),
                 children: [
-                  // Section 1: Bible intégrale
-                  if (section1.isNotEmpty) ...[
-                    _SectionHeader(
-                      title: 'Bible intégrale',
-                      onSeeAll: () {
-                        // TODO: Navigation
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    ...section1.map((template) => _PlanListCard(
-                          template: template,
-                          onTap: () =>
-                              context.push('/customize-plan/${template.id}'),
-                        )),
-                    const SizedBox(height: 24),
-                  ],
+                  // ── Bouton "Créer un plan personnalisé" ──────────────────
+                  _buildCustomButton(context),
 
-                  // Section 2: Plans en un an
-                  if (section2.isNotEmpty) ...[
-                    _SectionHeader(
-                      title: 'Plans de lecture en un an',
-                      onSeeAll: () {
-                        // TODO: Navigation
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    ...section2.map((template) => _PlanListCard(
-                          template: template,
-                          onTap: () =>
-                              context.push('/customize-plan/${template.id}'),
-                        )),
-                    const SizedBox(height: 24),
-                  ],
+                  const SizedBox(height: 32),
 
-                  // Section 3: Plans par livres
-                  if (section3.isNotEmpty) ...[
-                    _SectionHeader(
-                      title: 'Plans par livres',
-                      onSeeAll: () {
-                        // TODO: Navigation
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    ...section3.map((template) => _PlanListCard(
-                          template: template,
-                          onTap: () =>
-                              context.push('/customize-plan/${template.id}'),
-                        )),
-                    const SizedBox(height: 24),
-                  ],
+                  // ── Section : Plans structurés ───────────────────────────
+                  _SectionHeader(
+                    title: 'Plans structurés',
+                    subtitle:
+                        'Structure fixe — choisissez simplement votre date de début',
+                  ),
+                  const SizedBox(height: 10),
+                  ...fixedPlans.map((t) => _PlanCard(
+                        template: t,
+                        onTap: () => context.push('/customize-plan/${t.id}'),
+                      )),
+
+                  const SizedBox(height: 32),
+
+                  // ── Section : Plans thématiques ──────────────────────────
+                  _SectionHeader(
+                    title: 'Plans thématiques',
+                    subtitle: 'Livres ciblés — ajustez la durée et le rythme',
+                  ),
+                  const SizedBox(height: 10),
+                  ...thematicPlans.map((t) => _PlanCard(
+                        template: t,
+                        onTap: () => context.push('/customize-plan/${t.id}'),
+                      )),
                 ],
               ),
             ),
@@ -147,148 +97,176 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       ),
     );
   }
+
+  Widget _buildCustomButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/customize-plan/canonical-plan'),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppTheme.deepNavy, Color(0xFF2C5F7C)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.deepNavy.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.seedGold.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.tune, color: AppTheme.seedGold, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Créer un plan personnalisé',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Choisissez les livres, l\'ordre et le rythme',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-// Widget pour l'en-tête de section avec "Voir tout"
 class _SectionHeader extends StatelessWidget {
   final String title;
-  final VoidCallback? onSeeAll;
+  final String subtitle;
 
-  const _SectionHeader({
-    required this.title,
-    this.onSeeAll,
-  });
+  const _SectionHeader({required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 18,
-                    color: AppTheme.textPrimary,
-                  ),
-            ),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
           ),
-          if (onSeeAll != null)
-            GestureDetector(
-              onTap: onSeeAll,
-              child: const Icon(
-                Icons.chevron_right,
-                color: AppTheme.seedGold,
-                size: 28,
-              ),
-            ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textMuted,
+                  fontSize: 12,
+                ),
+          ),
         ],
       ),
     );
   }
 }
 
-// Widget pour une carte de plan avec image
-class _PlanListCard extends StatelessWidget {
+class _PlanCard extends StatelessWidget {
   final ReadingPlanTemplate template;
   final VoidCallback onTap;
 
-  const _PlanListCard({
-    required this.template,
-    required this.onTap,
-  });
+  const _PlanCard({required this.template, required this.onTap});
 
-  /// Widget placeholder avec icône (fallback si image non disponible)
-  Widget _buildImagePlaceholder() {
+  Widget _placeholder() {
     return Container(
-      width: 80,
-      height: 80,
+      width: 72,
+      height: 72,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
           colors: [
             AppTheme.seedGold.withValues(alpha: 0.3),
             AppTheme.deepNavy.withValues(alpha: 0.15),
           ],
         ),
       ),
-      child: Icon(
-        Icons.menu_book_rounded,
-        size: 36,
-        color: AppTheme.seedGold.withValues(alpha: 0.6),
-      ),
+      child: Icon(Icons.menu_book_rounded,
+          size: 32, color: AppTheme.seedGold.withValues(alpha: 0.6)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Image du plan (URL avec fallback icône)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: template.image.isNotEmpty
                       ? Image.asset(
                           template.image,
-                          width: 80,
-                          height: 80,
+                          width: 72,
+                          height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildImagePlaceholder();
-                          },
+                          errorBuilder: (_, __, ___) => _placeholder(),
                         )
-                      : _buildImagePlaceholder(),
+                      : _placeholder(),
                 ),
-
-                const SizedBox(width: 16),
-
-                // Informations du plan
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Titre du plan
                       Text(
                         template.title,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.textPrimary,
-                                  height: 1.3,
-                                ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
                       ),
-                      const SizedBox(height: 4),
-
-                      // Description
+                      const SizedBox(height: 3),
                       Text(
                         template.description,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -301,13 +279,8 @@ class _PlanListCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // Chevron pour indiquer qu'on peut cliquer
-                const Icon(
-                  Icons.chevron_right,
-                  color: AppTheme.textMuted,
-                  size: 24,
-                ),
+                const Icon(Icons.chevron_right,
+                    color: AppTheme.textMuted, size: 20),
               ],
             ),
           ),

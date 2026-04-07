@@ -168,6 +168,7 @@ class _SeedailyAppState extends State<SeedailyApp> {
           create: (_) => PlansProvider(
             storage: widget.storageService,
             generator: widget.planGenerator,
+            notifications: widget.notificationService,
           )..loadPlans(),
         ),
         ChangeNotifierProvider(
@@ -177,12 +178,13 @@ class _SeedailyAppState extends State<SeedailyApp> {
           )..loadSettings(),
         ),
       ],
-      child: MaterialApp.router(
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, child) => MaterialApp.router(
         title: 'Seedaily',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.light,
+        themeMode: settings.themeMode,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -193,6 +195,7 @@ class _SeedailyAppState extends State<SeedailyApp> {
         ],
         locale: const Locale('fr', 'FR'),
         routerConfig: _router,
+      ),
       ),
     );
   }
