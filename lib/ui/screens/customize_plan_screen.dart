@@ -340,7 +340,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         title: Text(
             widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
       ),
-      body: NestedScrollView(
+      body: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+        child: NestedScrollView(
         physics: const ClampingScrollPhysics(),
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
@@ -930,6 +932,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
     // Plans personnalisés : sélection de livres + bouton filtre pour l'ordre
     return ListView(
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
         Row(
@@ -1005,7 +1008,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   }
 
   void _showOrderBottomSheet() {
-    final options = [
+    final orderOptions = [
       (OrderType.canonical, 'Canonique', 'Genèse → Apocalypse', Icons.sort),
       (OrderType.chronological, 'Chronologique', 'Ordre historique des événements', Icons.history),
       (OrderType.jewish, 'Hébreu (Tanakh)', 'Ordre traditionnel du Tanakh', Icons.star_outline),
@@ -1019,6 +1022,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           final currentOrder = _workingPlan.options.order.type;
+          final isReversed = _workingPlan.options.distribution.reverse;
+
           return Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             child: Column(
@@ -1033,13 +1038,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       ),
                 ),
                 const SizedBox(height: 16),
-                ...options.map((entry) {
+                ...orderOptions.map((entry) {
                   final (type, label, desc, icon) = entry;
                   final isSelected = currentOrder == type;
                   return GestureDetector(
                     onTap: () {
                       _regeneratePlan(order: OrderOptions(type: type));
-                      Navigator.pop(ctx);
+                      setSheetState(() {});
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -1096,6 +1101,80 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                     ),
                   );
                 }),
+                const SizedBox(height: 8),
+                const Divider(),
+                const SizedBox(height: 8),
+                // Option inverser l'ordre
+                GestureDetector(
+                  onTap: () {
+                    final d = _workingPlan.options.distribution;
+                    _regeneratePlan(
+                      distribution: DistributionOptions(
+                        unit: d.unit,
+                        otNtOverlap: d.otNtOverlap,
+                        dailyPsalm: d.dailyPsalm,
+                        dailyProverb: d.dailyProverb,
+                        reverse: !isReversed,
+                        balance: d.balance,
+                      ),
+                    );
+                    setSheetState(() {});
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isReversed
+                          ? AppTheme.deepNavy.withValues(alpha: 0.06)
+                          : AppTheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isReversed
+                            ? AppTheme.deepNavy.withValues(alpha: 0.3)
+                            : AppTheme.borderSubtle,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.swap_vert,
+                            size: 20,
+                            color: isReversed
+                                ? AppTheme.deepNavy
+                                : AppTheme.textMuted),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Ordre inversé',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: isReversed
+                                          ? AppTheme.textPrimary
+                                          : AppTheme.textMuted,
+                                    ),
+                              ),
+                              Text(
+                                'Lire les livres en sens inverse',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(color: AppTheme.textMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isReversed)
+                          const Icon(Icons.check_circle,
+                              color: AppTheme.deepNavy, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           );
@@ -1109,6 +1188,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final books = _workingPlan.options.content.selectedBooks;
 
     return ListView(
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
         Container(
@@ -1187,6 +1267,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final distribution = _workingPlan.options.distribution;
 
     return ListView(
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
         _buildSectionTitle('Options de contenu'),
@@ -1255,27 +1336,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             },
           ),
         ],
-        const SizedBox(height: 24),
-        _buildSectionTitle('Options avancées'),
-        const SizedBox(height: 16),
-        _buildOptionCard(
-          icon: Icons.flip,
-          title: 'Lecture inversée',
-          subtitle: 'Lire les livres en ordre inverse',
-          value: distribution.reverse,
-          onChanged: (value) {
-            _regeneratePlan(
-              distribution: DistributionOptions(
-                unit: distribution.unit,
-                otNtOverlap: distribution.otNtOverlap,
-                dailyPsalm: distribution.dailyPsalm,
-                dailyProverb: distribution.dailyProverb,
-                reverse: value,
-                balance: distribution.balance,
-              ),
-            );
-          },
-        ),
       ],
     );
   }
@@ -1284,6 +1344,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final display = _workingPlan.options.display;
 
     return ListView(
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
         _buildSectionTitle('Options d\'affichage'),
