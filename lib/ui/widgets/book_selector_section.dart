@@ -125,23 +125,32 @@ class _SelectAllTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isAllSelected
+              ? AppTheme.seedGold.withValues(alpha: 0.3)
+              : AppTheme.borderSubtle,
+        ),
+      ),
+      child: SwitchListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        title: Text(
           'Tout sélectionner',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
                 color: AppTheme.textPrimary,
-                fontWeight: FontWeight.w500,
               ),
         ),
-        Switch(
-          value: isAllSelected,
-          onChanged: onToggle,
-          activeThumbColor: AppTheme.seedGold,
-          activeTrackColor: AppTheme.seedGold.withValues(alpha: 0.4),
-        ),
-      ],
+        value: isAllSelected,
+        onChanged: onToggle,
+        activeThumbColor: Colors.white,
+        activeTrackColor: AppTheme.seedGold,
+        inactiveThumbColor: AppTheme.textMuted,
+        inactiveTrackColor: AppTheme.surface,
+      ),
     );
   }
 }
