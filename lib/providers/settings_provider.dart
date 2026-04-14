@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/analytics_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 
@@ -33,7 +34,11 @@ class SettingsProvider with ChangeNotifier {
       _notifPromptShown = await _storage.getNotifPromptShown();
 
       final savedMode = await _storage.getThemeMode();
-      _themeMode = savedMode == 'dark' ? ThemeMode.dark : ThemeMode.light;
+      _themeMode = switch (savedMode) {
+        'dark' => ThemeMode.dark,
+        'system' => ThemeMode.system,
+        _ => ThemeMode.light,
+      };
 
       notifyListeners();
     } catch (e) {
@@ -63,6 +68,7 @@ class SettingsProvider with ChangeNotifier {
     try {
       _notificationsEnabled = enabled;
       await _storage.saveNotificationsEnabled(enabled);
+      AnalyticsService.instance.logNotificationsToggled(enabled: enabled);
 
       if (enabled) {
         final granted = await _notifications.requestPermissions();
@@ -87,7 +93,13 @@ class SettingsProvider with ChangeNotifier {
 
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
-    await _storage.saveThemeMode(mode == ThemeMode.dark ? 'dark' : 'light');
+    final value = switch (mode) {
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+      _ => 'light',
+    };
+    await _storage.saveThemeMode(value);
+    AnalyticsService.instance.logThemeChanged(mode: value);
     notifyListeners();
   }
 

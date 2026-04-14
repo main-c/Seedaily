@@ -33,9 +33,9 @@ class ReadingStatsBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderSubtle, width: 0.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -62,14 +62,14 @@ class ReadingStatsBar extends StatelessWidget {
                 value: '$totalDays',
                 label: 'jours',
               ),
-              _buildDivider(),
+              _buildDivider(context),
               _buildStatItem(
                 context,
                 icon: Icons.menu_book,
                 value: '$bookCount',
                 label: 'livres',
               ),
-              _buildDivider(),
+              _buildDivider(context),
               _buildStatItem(
                 context,
                 icon: Icons.article,
@@ -77,7 +77,7 @@ class ReadingStatsBar extends StatelessWidget {
                 label: 'chapitres',
               ),
               if (avgChaptersPerDay != null) ...[
-                _buildDivider(),
+                _buildDivider(context),
                 _buildStatItem(
                   context,
                   icon: Icons.trending_up,
@@ -109,7 +109,7 @@ class ReadingStatsBar extends StatelessWidget {
             Text(
               'PROGRESSION TOTALE',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                     fontSize: 10,
                     letterSpacing: 0.5,
@@ -126,14 +126,14 @@ class ReadingStatsBar extends StatelessWidget {
             Text(
               '${(progress * 100).toInt()}% Terminé',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.deepNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
             ),
             Text(
               '$completedDays/$totalDays jours',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w500,
                   ),
             ),
@@ -146,7 +146,7 @@ class ReadingStatsBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: AppTheme.borderSubtle,
+            backgroundColor: Theme.of(context).colorScheme.outline,
             valueColor: const AlwaysStoppedAnimation<Color>(
               AppTheme.seedGold,
             ),
@@ -167,7 +167,7 @@ class ReadingStatsBar extends StatelessWidget {
             Text(
               'Progression',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -185,7 +185,7 @@ class ReadingStatsBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: AppTheme.backgroundLight,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
             valueColor: const AlwaysStoppedAnimation<Color>(
               AppTheme.seedGold,
             ),
@@ -196,7 +196,7 @@ class ReadingStatsBar extends StatelessWidget {
         Text(
           '$completedDays / $totalDays jours complétés',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
         ),
       ],
@@ -221,24 +221,24 @@ class ReadingStatsBar extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.deepNavy,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
         ),
       ],
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return Container(
       width: 1,
       height: 40,
-      color: AppTheme.borderSubtle,
+      color: Theme.of(context).colorScheme.outline,
     );
   }
 }

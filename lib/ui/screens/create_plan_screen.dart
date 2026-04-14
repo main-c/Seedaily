@@ -32,7 +32,6 @@ class CreatePlanScreen extends StatelessWidget {
         allTemplates.where((t) => _thematicIds.contains(t.id)).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +42,7 @@ class CreatePlanScreen extends StatelessWidget {
                 'Découvrir',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ),
@@ -52,7 +51,7 @@ class CreatePlanScreen extends StatelessWidget {
               child: Text(
                 'Choisissez un plan ou créez le vôtre',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textMuted,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
               ),
             ),
@@ -99,21 +98,17 @@ class CreatePlanScreen extends StatelessWidget {
   }
 
   Widget _buildCustomButton(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => context.push('/customize-plan/canonical-plan'),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppTheme.deepNavy, Color(0xFF2C5F7C)],
-          ),
+          color: cs.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.deepNavy.withValues(alpha: 0.3),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -121,37 +116,54 @@ class CreatePlanScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Bande gauche or
             Container(
               padding: const EdgeInsets.all(12),
+              width: 6,
+              height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.seedGold.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+                // color: AppTheme.seedGold,
+                borderRadius:  BorderRadius.circular(12)
               ),
-              child: const Icon(Icons.tune, color: AppTheme.seedGold, size: 26),
             ),
             const SizedBox(width: 16),
+            // Icône
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.seedGold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.tune, color: AppTheme.seedGold, size: 24),
+            ),
+            const SizedBox(width: 14),
+            // Texte
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Créer un plan personnalisé',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
-                    'Choisissez les livres, l\'ordre et le rythme',
+                    'Vous Choisirez vous memes les livres, la durée, le rythme de lecture',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: cs.onSurface.withValues(alpha: 0.6),
                         ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Icon(Icons.arrow_forward_ios,
+                  color: cs.onSurface.withValues(alpha: 0.4), size: 14),
+            ),
           ],
         ),
       ),
@@ -176,14 +188,14 @@ class _SectionHeader extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
           ),
           const SizedBox(height: 2),
           Text(
             subtitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textMuted,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
           ),
@@ -222,7 +234,7 @@ class _PlanCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -263,14 +275,14 @@ class _PlanCard extends StatelessWidget {
                         template.title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         template.description,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontSize: 12,
                             ),
                         maxLines: 2,
@@ -279,8 +291,8 @@ class _PlanCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right,
-                    color: AppTheme.textMuted, size: 20),
+                 Icon(Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), size: 20),
               ],
             ),
           ),

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
@@ -22,49 +25,63 @@ bool didLaunchFromNotification = false;
 void Function(String?)? _handleNotificationAction;
 
 void main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await runZonedGuarded(
+    () async {
+      final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await initializeDateFormatting('fr_FR', null);
+      await initializeDateFormatting('fr_FR', null);
+      await Firebase.initializeApp();
 
-  final storageService = StorageService();
-  await storageService.init();
+      // Envoie les erreurs Flutter (widgets, rendu) à Crashlytics
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  final notificationService = NotificationService();
-  try {
-    await notificationService.init(
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        _handleNotificationAction?.call(response.actionId);
-      },
-    );
-  } catch (e) {
-    debugPrint('Notification init failed: $e');
-  }
+      final storageService = StorageService();
+      await storageService.init();
 
-  NotificationAppLaunchDetails? launchDetails;
-  try {
-    launchDetails = await notificationService.getNotificationAppLaunchDetails();
-  } catch (_) {}
+      final notificationService = NotificationService();
+      try {
+        await notificationService.init(
+          onDidReceiveNotificationResponse: (NotificationResponse response) {
+            _handleNotificationAction?.call(response.actionId);
+          },
+        );
+      } catch (e) {
+        debugPrint('Notification init failed: $e');
+      }
 
-  if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
-    didLaunchFromNotification = true;
-    pendingNotificationAction = launchDetails.notificationResponse?.actionId;
-    debugPrint('[NOTIF] App lancée depuis une notification'
-        ' — actionId=$pendingNotificationAction');
-  } else {
-    debugPrint('[NOTIF] App lancée normalement (pas depuis notification)');
-  }
+      NotificationAppLaunchDetails? launchDetails;
+      try {
+        launchDetails =
+            await notificationService.getNotificationAppLaunchDetails();
+      } catch (_) {}
 
-  final planGenerator = PlanGenerator();
+      if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
+        didLaunchFromNotification = true;
+        pendingNotificationAction =
+            launchDetails.notificationResponse?.actionId;
+        debugPrint('[NOTIF] App lancée depuis une notification'
+            ' — actionId=$pendingNotificationAction');
+      } else {
+        debugPrint('[NOTIF] App lancée normalement (pas depuis notification)');
+      }
 
-  FlutterNativeSplash.remove();
+      final planGenerator = PlanGenerator();
 
-  runApp(
-    SeedailyApp(
-      storageService: storageService,
-      notificationService: notificationService,
-      planGenerator: planGenerator,
-    ),
+      FlutterNativeSplash.remove();
+
+      runApp(
+        SeedailyApp(
+          storageService: storageService,
+          notificationService: notificationService,
+          planGenerator: planGenerator,
+        ),
+      );
+    },
+    // Envoie les erreurs Dart non gérées à Crashlytics
+    (error, stack) =>
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
   );
 }
 

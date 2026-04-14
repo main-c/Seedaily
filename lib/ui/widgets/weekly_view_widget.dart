@@ -120,7 +120,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
       'assets/images/plans/lake_forest.jpg',
       'assets/images/plans/desert.jpg',
       'assets/images/plans/sunrise.jpg',
-      'assets/images/palns/pines.jpg',
+      'assets/images/plans/pines.jpg',
     ];
 
     // Boucler parmi les images disponibles
@@ -151,7 +151,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
               height: 48,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: AppTheme.deepNavy.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -160,8 +160,8 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
                     icon: const Icon(Icons.chevron_left),
                     onPressed: _currentWeekIndex > 0 ? _previousWeek : null,
                     color: _currentWeekIndex > 0
-                        ? AppTheme.deepNavy
-                        : AppTheme.textMuted.withValues(alpha: 0.3),
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                   ),
                   const SizedBox(width: 16),
                   Container(
@@ -169,14 +169,14 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       'Semaine ${_currentWeekIndex + 1}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.deepNavy,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                       textAlign: TextAlign.center,
                     ),
@@ -188,8 +188,8 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
                         ? _nextWeek
                         : null,
                     color: _currentWeekIndex < _weeklyDays.length - 1
-                        ? AppTheme.deepNavy
-                        : AppTheme.textMuted.withValues(alpha: 0.3),
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                   ),
                 ],
               ),
@@ -270,7 +270,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
               Text(
                 'Semaine du ${DateFormat('d MMMM', 'fr_FR').format(weekDays.first.date)}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppTheme.surface,
+                      color: Theme.of(context).colorScheme.surface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -279,7 +279,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
                 Text(
                   books,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppTheme.surface.withValues(alpha: 0.9),
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
                       ),
                 ),
             ],

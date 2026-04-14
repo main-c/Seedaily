@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import '../domain/models.dart';
+import '../services/analytics_service.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../services/plan_generator.dart';
@@ -57,6 +58,11 @@ class PlansProvider with ChangeNotifier {
 
       await _storage.savePlan(plan);
       await loadPlans();
+
+      AnalyticsService.instance.logPlanCreated(
+        templateId: templateId,
+        durationDays: plan.totalDays,
+      );
     } catch (e) {
       debugPrint('Erreur lors de la création du plan: $e');
       rethrow;
@@ -65,6 +71,9 @@ class PlansProvider with ChangeNotifier {
 
   Future<void> deletePlan(String planId) async {
     try {
+      final plan = _plans.firstWhere((p) => p.id == planId);
+      AnalyticsService.instance.logPlanDeleted(templateId: plan.templateId);
+
       await _storage.deletePlan(planId);
       _plans.removeWhere((p) => p.id == planId);
       notifyListeners();
@@ -153,6 +162,20 @@ class PlansProvider with ChangeNotifier {
         await _storage.updatePlanDay(planId, date, newValue);
         plan.days[dayIndex].completed = newValue;
         notifyListeners();
+
+        if (newValue) {
+          AnalyticsService.instance.logDayCompleted(
+            streakLength: plan.currentStreak,
+            progress: plan.progress,
+          );
+          if (plan.progress >= 100) {
+            AnalyticsService.instance.logPlanCompleted(
+              templateId: plan.templateId,
+            );
+          }
+        } else {
+          AnalyticsService.instance.logDayUnchecked();
+        }
 
         // Si le jour togglé est aujourd'hui, mettre à jour la notification du soir
         final today = DateTime.now();

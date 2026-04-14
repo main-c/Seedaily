@@ -62,13 +62,13 @@ class DayCardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isGhost
-            ? AppTheme.surface.withValues(alpha: 0.4)
-            : AppTheme.surface,
+            ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.4)
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isGhost
-              ? AppTheme.borderSubtle.withValues(alpha: 0.3)
-              : AppTheme.borderSubtle,
+              ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)
+              : Theme.of(context).colorScheme.outline,
           width: 1,
         ),
         boxShadow: isGhost
@@ -129,7 +129,7 @@ class DayCardWidget extends StatelessWidget {
                                           ?.copyWith(
                                             color: isOutOfSequence
                                                 ? Colors.orange.shade800
-                                                : AppTheme.deepNavy,
+                                                : Theme.of(context).colorScheme.onSurface,
                                             fontWeight: FontWeight.w500,
                                             fontSize: 10,
                                           ),
@@ -157,7 +157,7 @@ class DayCardWidget extends StatelessWidget {
                                   .textTheme
                                   .titleMedium
                                   ?.copyWith(
-                                    color: AppTheme.deepNavy,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -168,7 +168,7 @@ class DayCardWidget extends StatelessWidget {
                       if (isFuture && !isCompleted)
                         Icon(
                           Icons.lock_outline,
-                          color: AppTheme.textMuted.withValues(alpha: 0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.5),
                           size: 20,
                         ),
                     ],
@@ -194,7 +194,7 @@ class DayCardWidget extends StatelessWidget {
       child: Text(
         passageRef,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppTheme.deepNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w500,
               decoration: isCompleted ? TextDecoration.lineThrough : null,
             ),

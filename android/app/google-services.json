@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "876748243439",
+    "project_id": "seedaily-a720c",
+    "storage_bucket": "seedaily-a720c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876748243439:android:2ac5bfdd9c5db24683f61a",
+        "android_client_info": {
+          "package_name": "com.seedaily.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_UwkLj8el2z3HHbLy419NfrW6hTUt5as"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

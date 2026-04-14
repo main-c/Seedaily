@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       value ? ThemeMode.dark : ThemeMode.light,
                     );
                   },
-                  activeThumbColor: AppTheme.surface,
+                  activeThumbColor: Theme.of(context).colorScheme.surface,
                 ),
                 onTap: () {},
               );
@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onChanged: (value) {
                     settings.setNotificationsEnabled(value);
                   },
-                  activeThumbColor: AppTheme.surface,
+                  activeThumbColor: Theme.of(context).colorScheme.surface,
                 ),
                 onTap: () {},
               );
@@ -101,17 +101,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const SizedBox(height: 12),
-          Consumer<SettingsProvider>(
-            builder: (context, settings, child) {
-              return _buildSettingCard(
-                icon: Icons.notification_add_outlined,
-                title: 'Tester une notification',
-                subtitle: 'Aperçu du rappel quotidien',
-                titleColor: AppTheme.seedGold,
-                onTap: () => settings.showTestNotification(),
-              );
-            },
-          ),
+          // Consumer<SettingsProvider>(
+          //   builder: (context, settings, child) {
+          //     return _buildSettingCard(
+          //       icon: Icons.notification_add_outlined,
+          //       title: 'Tester une notification',
+          //       subtitle: 'Aperçu du rappel quotidien',
+          //       titleColor: AppTheme.seedGold,
+          //       onTap: () => settings.showTestNotification(),
+          //     );
+          //   },
+          // ),
           const SizedBox(height: 24),
           // PRÉFÉRENCES
           // _buildSectionTitle('PRÉFÉRENCES'),
@@ -158,10 +158,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(
+        style:  TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: AppTheme.textMuted,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           letterSpacing: 0.5,
         ),
       ),

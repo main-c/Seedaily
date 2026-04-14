@@ -121,7 +121,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   onPressed: _canNavigatePrevious ? _previousMonth : null,
                   color: _canNavigatePrevious
                       ? AppTheme.seedGold
-                      : AppTheme.textMuted.withValues(alpha: 0.3),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                 ),
                 Expanded(
                   child: Center(
@@ -129,7 +129,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                       DateFormat('MMMM yyyy', 'fr_FR').format(_displayMonth),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.deepNavy,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
                   ),
@@ -139,7 +139,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   onPressed: _canNavigateNext ? _nextMonth : null,
                   color: _canNavigateNext
                       ? AppTheme.seedGold
-                      : AppTheme.textMuted.withValues(alpha: 0.3),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                 ),
               ],
             ),
@@ -172,7 +172,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                       Text(
                         'Créez le plan pour voir tous les mois',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontSize: 10,
                             ),
                       ),
@@ -215,7 +215,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   child: Text(
                     day,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppTheme.textMuted,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w600,
                         ),
                   ),
@@ -275,7 +275,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
           child: Text(
             '$dayNumber',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textMuted.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.2),
                   fontWeight: FontWeight.w300,
                 ),
           ),
@@ -314,7 +314,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                       ? AppTheme.seedGold.withValues(alpha: 0.2)
                       : isPastDay
                           ? AppTheme.seedGold.withValues(alpha: 0.1)
-                          : AppTheme.backgroundLight,
+                          : Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelectedDay
@@ -325,7 +325,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                         ? AppTheme.seedGold.withValues(alpha: 0.5)
                         : isPastDay
                             ? AppTheme.seedGold.withValues(alpha: 0.2)
-                            : AppTheme.borderSubtle,
+                            : Theme.of(context).colorScheme.outline,
             width: isSelectedDay ? 2 : 1,
           ),
         ),
@@ -340,13 +340,13 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   '$dayNumber',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: isSelectedDay
-                            ? AppTheme.surface
+                            ? Theme.of(context).colorScheme.surface
                             : isCompleted
                                 ? AppTheme.seedGold.withValues(alpha: 0.5)
                                 : isCurrentDay
                                     ? AppTheme.seedGold
                                     : isPastDay
-                                        ? AppTheme.textMuted
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
                                         : AppTheme.seedGold,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
@@ -356,7 +356,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   Icon(
                     Icons.check_circle,
                     size: 12,
-                    color: isSelectedDay ? AppTheme.surface : AppTheme.seedGold.withValues(alpha: 0.5),
+                    color: isSelectedDay ? Theme.of(context).colorScheme.surface : AppTheme.seedGold.withValues(alpha: 0.5),
                   ),
               ],
             ),
@@ -366,12 +366,12 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                 displayText,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: isSelectedDay
-                          ? AppTheme.surface
+                          ? Theme.of(context).colorScheme.surface
                           : isCurrentDay
-                              ? AppTheme.deepNavy
+                              ? Theme.of(context).colorScheme.onSurface
                               : isPastDay
-                                  ? AppTheme.textMuted
-                                  : AppTheme.deepNavy,
+                                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
+                                  : Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                       fontSize: 9,
                       height: 1.2,

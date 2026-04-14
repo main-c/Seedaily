@@ -57,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Consumer<PlansProvider>(
           builder: (context, plansProvider, child) {
@@ -103,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       .textTheme
                                       .bodyMedium
                                       ?.copyWith(
-                                        color: AppTheme.textMuted,
+                                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                       ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -172,13 +171,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Mes Plans',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
                 Text(
                   '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.textMuted,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         letterSpacing: 1.2,
                       ),
                 ),
@@ -204,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     '$totalStreak',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                   ),
                   const Icon(
@@ -271,14 +270,14 @@ class _HomeScreenState extends State<HomeScreen> {
           color: isSelected ? AppTheme.seedGold : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.seedGold : AppTheme.borderSubtle,
+            color: isSelected ? AppTheme.seedGold : Theme.of(context).colorScheme.outline,
             width: 1.5,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textPrimary,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             fontSize: 14,
           ),

@@ -120,7 +120,7 @@ class StorageService {
   }
 
   Future<String> getThemeMode() async {
-    return _settingsBox?.get('theme_mode', defaultValue: 'light') ?? 'light';
+    return _settingsBox?.get('theme_mode', defaultValue: 'system') ?? 'system';
   }
 
   Future<void> saveThemeMode(String mode) async {

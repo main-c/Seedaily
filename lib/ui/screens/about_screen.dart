@@ -33,7 +33,7 @@ class AboutScreen extends StatelessWidget {
             child: Text(
               appDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
                   ),
             ),
@@ -119,7 +119,7 @@ class AboutScreen extends StatelessWidget {
               'Développé par Yannik KADJIE.\n'
               'Image  : Unsplash.\n',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
                   ),
             ),
@@ -131,7 +131,7 @@ class AboutScreen extends StatelessWidget {
             child: Text(
               '© ${DateTime.now().year} Seedaily. Tous droits réservés.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
             ),
           ),
@@ -179,7 +179,7 @@ class AboutScreen extends StatelessWidget {
           'Seedaily',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.deepNavy,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         const SizedBox(height: 8),
@@ -225,7 +225,7 @@ class AboutScreen extends StatelessWidget {
         Text(
           title.toUpperCase(),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),
@@ -263,7 +263,7 @@ class AboutScreen extends StatelessWidget {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.deepNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
           ),
@@ -290,21 +290,21 @@ class AboutScreen extends StatelessWidget {
               Icon(
                 icon,
                 size: 22,
-                color: AppTheme.deepNavy.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.deepNavy,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
               ),
               Icon(
                 Icons.open_in_new,
                 size: 18,
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ],
           ),

@@ -224,6 +224,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         existingPlanId: _workingPlan.id, // Garder le même ID
       );
     });
+    // debugPrint('[_regeneratePlan] orderType=${_workingPlan.options.order.type} selectedBooks=${_workingPlan.options.content.selectedBooks}');
   }
 
   // ============================================================================
@@ -330,7 +331,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -350,7 +351,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 children: [
                   // En-tête avec aperçu du plan
                   Container(
-                    color: AppTheme.backgroundLight,
+                    color: Theme.of(context).colorScheme.surfaceContainerLowest,
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +360,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                           'APERÇU DU PLAN',
                           style:
                               Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 1.2,
                                   ),
@@ -386,8 +387,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               delegate: _SliverTabBarDelegate(
                 TabBar(
                   controller: _tabController,
-                  labelColor: AppTheme.textPrimary,
-                  unselectedLabelColor: AppTheme.textMuted,
+                  labelColor: Theme.of(context).colorScheme.onSurface,
+                  unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   indicatorColor: AppTheme.seedGold,
                   indicatorWeight: 3,
                   tabs: _isFixedPlan
@@ -412,7 +413,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundLight,
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -429,7 +430,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               onPressed: _savePlan,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.seedGold,
-                foregroundColor: AppTheme.deepNavy,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -466,7 +467,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           end: Alignment.bottomRight,
           colors: [
             AppTheme.seedGold.withValues(alpha: 0.3),
-            AppTheme.deepNavy.withValues(alpha: 0.15),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
           ],
         ),
       ),
@@ -481,7 +482,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   Widget _buildTemplateHeader() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
@@ -522,7 +523,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       ? 'Choisissez vos livres, l\'ordre et la durée'
                       : _template.description,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppTheme.textMuted,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
                 if (_template.porte.isNotEmpty &&
@@ -531,7 +532,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   Text(
                     _template.porte,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textMuted,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontStyle: FontStyle.italic,
                         ),
                   ),
@@ -553,7 +554,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
     );
   }
@@ -568,7 +569,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final endDate = _endDate;
 
     return Container(
-      color: AppTheme.backgroundLight,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,7 +586,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                     Text(
                       'Début',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -629,8 +630,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface,
-                          border: Border.all(color: AppTheme.borderSubtle),
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border.all(color: Theme.of(context).colorScheme.outline),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -642,13 +643,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
-                                      color: AppTheme.textPrimary,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
                               ),
                             ),
-                            const Icon(Icons.calendar_today,
-                                size: 16, color: AppTheme.mistGreyBlue),
+                             Icon(Icons.calendar_today,
+                                size: 16, color: Theme.of(context).colorScheme.tertiary),
                           ],
                         ),
                       ),
@@ -661,7 +662,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Icon(Icons.arrow_forward,
-                    size: 18, color: AppTheme.textMuted),
+                    size: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(width: 10),
               // Date de fin
@@ -672,7 +673,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                     Text(
                       'Fin',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textMuted,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -708,9 +709,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: _isFixedPlan
-                              ? AppTheme.backgroundLight
-                              : AppTheme.surface,
-                          border: Border.all(color: AppTheme.borderSubtle),
+                              ? Theme.of(context).colorScheme.surfaceContainerLowest
+                              : Theme.of(context).colorScheme.surface,
+                          border: Border.all(color: Theme.of(context).colorScheme.outline),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -723,8 +724,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                     .bodyMedium
                                     ?.copyWith(
                                       color: _isFixedPlan
-                                          ? AppTheme.textMuted
-                                          : AppTheme.textPrimary,
+                                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
+                                          : Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
                               ),
@@ -734,7 +735,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                   ? Icons.lock_outline
                                   : Icons.calendar_today,
                               size: 16,
-                              color: AppTheme.mistGreyBlue,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ],
                         ),
@@ -750,7 +751,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           Text(
             '${_workingPlan.options.schedule.totalDays} jours au total',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textMuted,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
           ),
           const SizedBox(height: 16),
@@ -763,7 +764,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final readingDays = _workingPlan.options.schedule.readingDays.toSet();
 
     return Container(
-      color: AppTheme.backgroundLight,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -802,19 +803,19 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.seedGold : AppTheme.surface,
+                    color: isSelected ? AppTheme.seedGold : Theme.of(context).colorScheme.surface,
                     shape: BoxShape.circle,
                     border: isSelected
                         ? null
-                        : Border.all(color: AppTheme.borderSubtle),
+                        : Border.all(color: Theme.of(context).colorScheme.outline),
                   ),
                   child: Center(
                     child: Text(
                       day['label']!,
                       style: TextStyle(
                         color: isSelected
-                            ? AppTheme.deepNavy
-                            : AppTheme.textMuted,
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -832,7 +833,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
   Widget _buildFormatSection() {
     return Container(
-      color: AppTheme.backgroundLight,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -841,7 +842,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.deepNavy.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(4),
@@ -891,7 +892,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               Icon(
                 icon,
                 size: 20,
-                color: isSelected ? AppTheme.deepNavy : AppTheme.textMuted,
+                color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(height: 4),
               Text(
@@ -899,7 +900,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.deepNavy : AppTheme.textMuted,
+                  color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1034,7 +1035,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   'Ordre de lecture',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
                 const SizedBox(height: 16),
@@ -1053,12 +1054,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.seedGold.withValues(alpha: 0.08)
-                            : AppTheme.surface,
+                            : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? AppTheme.seedGold
-                              : AppTheme.borderSubtle,
+                              : Theme.of(context).colorScheme.outline,
                           width: isSelected ? 1.5 : 1,
                         ),
                       ),
@@ -1068,7 +1069,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                               size: 20,
                               color: isSelected
                                   ? AppTheme.seedGold
-                                  : AppTheme.textMuted),
+                                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -1081,15 +1082,15 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                         ?.copyWith(
                                           fontWeight: FontWeight.w600,
                                           color: isSelected
-                                              ? AppTheme.textPrimary
-                                              : AppTheme.textMuted,
+                                              ? Theme.of(context).colorScheme.onSurface
+                                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                         )),
                                 Text(desc,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
                                         ?.copyWith(
-                                            color: AppTheme.textMuted)),
+                                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                               ],
                             ),
                           ),
@@ -1111,11 +1112,33 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
   /// Affichage des livres verrouillés pour les plans thématiques
   Widget _buildThematicBooksDisplay() {
-    final books = _workingPlan.options.content.selectedBooks;
+    final orderType = _workingPlan.options.order.type;
+    final books = [..._workingPlan.options.content.selectedBooks]..sort((a, b) {
+        final bookA = BibleData.getBook(a);
+        final bookB = BibleData.getBook(b);
+        if (bookA == null || bookB == null) return 0;
+        return switch (orderType) {
+          OrderType.chronological =>
+            bookA.chronologicalOrder.compareTo(bookB.chronologicalOrder),
+          OrderType.jewish => (bookA.jewishOrder ?? 999)
+              .compareTo(bookB.jewishOrder ?? 999),
+          _ => bookA.canonicalOrder.compareTo(bookB.canonicalOrder),
+        };
+      });
+
+    // debugPrint('[ThematicDisplay] orderType=$orderType books=$books');
 
     return ListView(
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('Livres inclus'),
+            _buildOrderFilterButton(),
+          ],
+        ),
+        const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
@@ -1134,7 +1157,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 child: Text(
                   'Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.deepNavy,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
                 ),
@@ -1142,27 +1165,25 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             ],
           ),
         ),
-        const SizedBox(height: 20),
-        _buildSectionTitle('Livres inclus'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         ...books.map((book) => Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppTheme.surface,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppTheme.borderSubtle),
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.menu_book_outlined,
-                      size: 16, color: AppTheme.textMuted),
+                   Icon(Icons.menu_book_outlined,
+                      size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 10),
                   Text(
                     book,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                   ),
@@ -1181,7 +1202,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           child: Text(
             'Les options de distribution ne sont pas disponibles pour ce plan.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textMuted,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
             textAlign: TextAlign.center,
           ),
@@ -1361,12 +1382,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value
               ? AppTheme.seedGold.withValues(alpha: 0.3)
-              : AppTheme.borderSubtle,
+              : Theme.of(context).colorScheme.outline,
         ),
       ),
       child: SwitchListTile(
@@ -1376,12 +1397,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           decoration: BoxDecoration(
             color: value
                 ? AppTheme.seedGold.withValues(alpha: 0.1)
-                : AppTheme.backgroundLight,
+                : Theme.of(context).colorScheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: value ? AppTheme.seedGold : AppTheme.mistGreyBlue,
+            color: value ? AppTheme.seedGold : Theme.of(context).colorScheme.tertiary,
             size: 24,
           ),
         ),
@@ -1389,21 +1410,21 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           title,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         subtitle: Text(
           subtitle,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
         ),
         value: value,
         onChanged: onChanged,
         activeThumbColor: Colors.white,
         activeTrackColor: AppTheme.seedGold,
-        inactiveThumbColor: AppTheme.textMuted,
-        inactiveTrackColor: AppTheme.surface,
+        inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+        inactiveTrackColor: Theme.of(context).colorScheme.surface,
       ),
     );
   }
@@ -1425,7 +1446,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppTheme.backgroundLight,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       child: tabBar,
     );
   }

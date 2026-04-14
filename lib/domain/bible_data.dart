@@ -115,7 +115,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 8,
         chronologicalOrder: 9,
-        jewishOrder: 25,
+        jewishOrder: 27,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -166,7 +166,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 13,
         chronologicalOrder: 11,
-        jewishOrder: 35,
+        jewishOrder: 36,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -176,7 +176,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 14,
         chronologicalOrder: 15,
-        jewishOrder: 36,
+        jewishOrder: 37,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -186,7 +186,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 15,
         chronologicalOrder: 35,
-        jewishOrder: 37,
+        jewishOrder: 38,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -196,7 +196,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 16,
         chronologicalOrder: 37,
-        jewishOrder: 38,
+        jewishOrder: 39,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -206,7 +206,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 17,
         chronologicalOrder: 36,
-        jewishOrder: 33,
+        jewishOrder: 34,
         genre: 'history',
         hebrewGroup: 'Ketuvim'),
     // Ketuvim - Livres poétiques et de sagesse
@@ -217,7 +217,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 18,
         chronologicalOrder: 2,
-        jewishOrder: 28,
+        jewishOrder: 30,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -227,7 +227,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 19,
         chronologicalOrder: 13,
-        jewishOrder: 26,
+        jewishOrder: 28,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -237,7 +237,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 20,
         chronologicalOrder: 16,
-        jewishOrder: 27,
+        jewishOrder: 29,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -247,7 +247,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 21,
         chronologicalOrder: 17,
-        jewishOrder: 31,
+        jewishOrder: 32,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -257,7 +257,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 22,
         chronologicalOrder: 19,
-        jewishOrder: 30,
+        jewishOrder: 31,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     // Neviim Aharonim (Derniers Prophètes) - Grands prophètes
@@ -288,7 +288,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 25,
         chronologicalOrder: 31,
-        jewishOrder: 32,
+        jewishOrder: 33,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     BibleBook(
@@ -308,7 +308,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 27,
         chronologicalOrder: 33,
-        jewishOrder: 34,
+        jewishOrder: 35,
         genre: 'wisdom',
         hebrewGroup: 'Ketuvim'),
     // Neviim Aharonim - Les Douze (Petits Prophètes)
@@ -419,7 +419,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 38,
         chronologicalOrder: 38,
-        jewishOrder: 39,
+        jewishOrder: 25,
         genre: 'minor_prophets',
         hebrewGroup: 'Neviim'),
     BibleBook(
@@ -429,7 +429,7 @@ class BibleData {
         isNewTestament: false,
         canonicalOrder: 39,
         chronologicalOrder: 39,
-        jewishOrder: 29,
+        jewishOrder: 26,
         genre: 'minor_prophets',
         hebrewGroup: 'Neviim'),
 

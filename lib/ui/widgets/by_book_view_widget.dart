@@ -172,7 +172,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
   ) {
     final testament = book?.isOldTestament == true ? 'AT' : 'NT';
     final testamentColor =
-        book?.isOldTestament == true ? AppTheme.deepNavy : AppTheme.seedGold;
+        book?.isOldTestament == true ? Theme.of(context).colorScheme.onSurface : AppTheme.seedGold;
     final progressPercentage =
         daysCount > 0 ? completedDays / daysCount : 0.0;
 
@@ -204,10 +204,10 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                   color: testamentColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child:  Center(
                   child: Icon(
                     Icons.menu_book_rounded,
-                    color: AppTheme.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     size: 28,
                   ),
                 ),
@@ -227,7 +227,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                                 .titleMedium
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: AppTheme.deepNavy,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -257,26 +257,26 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.library_books,
-                            size: 14, color: AppTheme.textMuted),
+                         Icon(Icons.library_books,
+                            size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '$totalChapters chapitre${totalChapters > 1 ? 's' : ''}',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: 12,
                                   ),
                         ),
                         const SizedBox(width: 12),
-                        const Icon(Icons.calendar_today,
-                            size: 14, color: AppTheme.textMuted),
+                         Icon(Icons.calendar_today,
+                            size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '$daysCount jour${daysCount > 1 ? 's' : ''}',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: 12,
                                   ),
                         ),
@@ -295,7 +295,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: progressPercentage,
-                    backgroundColor: AppTheme.borderSubtle,
+                    backgroundColor: Theme.of(context).colorScheme.outline,
                     valueColor:
                         AlwaysStoppedAnimation<Color>(testamentColor),
                     minHeight: 6,

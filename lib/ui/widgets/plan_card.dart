@@ -70,7 +70,7 @@ class PlanCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -107,7 +107,7 @@ class PlanCard extends StatelessWidget {
                             end: Alignment.bottomRight,
                             colors: [
                               AppTheme.seedGold.withValues(alpha: 0.3),
-                              AppTheme.deepNavy.withValues(alpha: 0.1),
+                              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                             ],
                           ),
                         ),
@@ -205,7 +205,7 @@ class PlanCard extends StatelessWidget {
                                   .titleMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -265,13 +265,13 @@ class PlanCard extends StatelessWidget {
                       Text(
                         'Progression',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                       ),
                       Text(
                         '${progress.toStringAsFixed(0)}%',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                       ),
                     ],
@@ -285,7 +285,7 @@ class PlanCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress / 100,
                       minHeight: 8,
-                      backgroundColor: AppTheme.borderSubtle,
+                      backgroundColor: Theme.of(context).colorScheme.outline,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         isCompleted ? AppTheme.success : AppTheme.seedGold,
                       ),
@@ -304,7 +304,7 @@ class PlanCard extends StatelessWidget {
                             Icon(
                               Icons.calendar_today_outlined,
                               size: 14,
-                              color: AppTheme.textMuted,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -313,13 +313,13 @@ class PlanCard extends StatelessWidget {
                                   .textTheme
                                   .labelSmall
                                   ?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                   ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               '•',
-                              style: TextStyle(color: AppTheme.textMuted),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -328,7 +328,7 @@ class PlanCard extends StatelessWidget {
                                   .textTheme
                                   .labelSmall
                                   ?.copyWith(
-                                    color: AppTheme.textMuted,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                   ),
                             ),
                           ],
@@ -391,9 +391,9 @@ class PlanCard extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
           child: Column(
@@ -405,7 +405,7 @@ class PlanCard extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.borderSubtle,
+                  color: Theme.of(context).colorScheme.outline,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

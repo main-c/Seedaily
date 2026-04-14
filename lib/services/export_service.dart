@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../domain/models.dart';
+import 'analytics_service.dart';
 
 const String _appName = 'Seedaily';
 const String _appTagline = 'Générez vos plans de lecture biblique';
@@ -108,10 +109,12 @@ class ExportService {
   Future<bool> sharePdf(GeneratedPlan plan) async {
     final logo = await _loadLogo();
     final pdf = await _buildPdf(plan, logo);
-    return Printing.sharePdf(
+    final result = await Printing.sharePdf(
       bytes: await pdf.save(),
       filename: '${plan.title}.pdf',
     );
+    if (result) AnalyticsService.instance.logPlanExported();
+    return result;
   }
 
   // ─── Logo ──────────────────────────────────────────────────────────────────

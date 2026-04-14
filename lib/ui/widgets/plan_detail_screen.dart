@@ -42,8 +42,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       appBar: AppBar(
         title: Text(plan.title),
         elevation: 0,
-        backgroundColor: AppTheme.surface,
-        foregroundColor: AppTheme.deepNavy,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),
@@ -71,10 +71,10 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   Widget _buildProgressHeader(GeneratedPlan plan) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: AppTheme.borderSubtle, width: 1),
+          bottom: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
         ),
       ),
       child: Column(
@@ -109,7 +109,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             child: LinearProgressIndicator(
               value: plan.progress / 100,
               minHeight: 6,
-              backgroundColor: AppTheme.borderSubtle,
+              backgroundColor: Theme.of(context).colorScheme.outline,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.seedGold,
               ),
@@ -130,9 +130,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundLight,
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.borderSubtle, width: 0.5),
+          border: Border.all(color: Theme.of(context).colorScheme.outline, width: 0.5),
         ),
         child: Column(
           children: [
@@ -141,7 +141,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             Text(
               value,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppTheme.deepNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -149,7 +149,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
             ),
           ],

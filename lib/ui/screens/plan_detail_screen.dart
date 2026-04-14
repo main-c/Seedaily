@@ -43,13 +43,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       appBar: AppBar(
         title: Text(plan.title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppTheme.deepNavy,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 )),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: AppTheme.deepNavy,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
           // Bouton configuration → page d'édition
           IconButton(
@@ -89,7 +89,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -106,7 +106,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           Text(
             'Progression du plan',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppTheme.textMuted,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
                 ),
@@ -120,7 +120,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               Text(
                 '${plan.completedDays}/${plan.totalDays} jours',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.deepNavy,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
                     ),
@@ -142,7 +142,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             child: LinearProgressIndicator(
               value: plan.progress / 100,
               minHeight: 12,
-              backgroundColor: AppTheme.borderSubtle,
+              backgroundColor: Theme.of(context).colorScheme.outline,
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppTheme.seedGold,
               ),

@@ -127,12 +127,12 @@ class _SelectAllTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isAllSelected
               ? AppTheme.seedGold.withValues(alpha: 0.3)
-              : AppTheme.borderSubtle,
+              : Theme.of(context).colorScheme.outline,
         ),
       ),
       child: SwitchListTile(
@@ -141,15 +141,15 @@ class _SelectAllTile extends StatelessWidget {
           'Tout sélectionner',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         value: isAllSelected,
         onChanged: onToggle,
         activeThumbColor: Colors.white,
         activeTrackColor: AppTheme.seedGold,
-        inactiveThumbColor: AppTheme.textMuted,
-        inactiveTrackColor: AppTheme.surface,
+        inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+        inactiveTrackColor: Theme.of(context).colorScheme.surface,
       ),
     );
   }
@@ -168,7 +168,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppTheme.textMuted,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
@@ -210,8 +210,8 @@ class _BookTile extends StatelessWidget {
                 book.name,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isSelected
-                          ? AppTheme.textPrimary
-                          : AppTheme.textMuted,
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontWeight: isSelected
                           ? FontWeight.w500
                           : FontWeight.normal,
@@ -221,7 +221,7 @@ class _BookTile extends StatelessWidget {
             Text(
               '${book.chapters} ch.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textMuted,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 11,
                   ),
             ),
