@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.2.0';
 
   static const Color seedGold = Color(0xFFEF9D10);
   static const Color deepNavy = Color(0xFF3B4D61);
