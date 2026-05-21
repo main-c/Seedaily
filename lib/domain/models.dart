@@ -750,10 +750,15 @@ class GeneratedPlan {
   int get currentStreak {
     int streak = 0;
     final today = DateTime.now();
+    final todayNorm = DateTime(today.year, today.month, today.day);
     final sortedDays = days.toList()..sort((a, b) => b.date.compareTo(a.date));
 
     for (final day in sortedDays) {
-      if (day.date.isAfter(today)) continue;
+      final dayNorm = DateTime(day.date.year, day.date.month, day.date.day);
+      // Ignorer les jours futurs
+      if (dayNorm.isAfter(todayNorm)) continue;
+      // Si aujourd'hui n'est pas encore lu, on le saute pour chercher le streak depuis hier
+      if (dayNorm == todayNorm && !day.completed) continue;
       if (day.completed) {
         streak++;
       } else {

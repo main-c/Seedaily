@@ -26,8 +26,32 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PlansProvider>().loadPlans();
+      final provider = context.read<PlansProvider>();
+      provider.loadPlans();
+      provider.addListener(_onProviderChange);
     });
+  }
+
+  @override
+  void dispose() {
+    context.read<PlansProvider>().removeListener(_onProviderChange);
+    super.dispose();
+  }
+
+  void _onProviderChange() {
+    final provider = context.read<PlansProvider>();
+    final milestone = provider.pendingMilestone;
+    if (milestone != null && mounted) {
+      provider.clearPendingMilestone();
+      _showMilestoneDialog(milestone);
+    }
+  }
+
+  void _showMilestoneDialog(int milestone) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _MilestoneDialog(streakDays: milestone),
+    );
   }
 
   List<GeneratedPlan> _getFilteredPlans(List<GeneratedPlan> allPlans) {
@@ -69,13 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
             final allPlans = plansProvider.plans;
             final filteredPlans = _getFilteredPlans(allPlans);
             final totalStreak = _getTotalStreak(allPlans);
+            final bestStreak = plansProvider.bestStreak;
             final activePlansCount =
                 allPlans.where((p) => p.progress < 100).length;
 
             return Column(
               children: [
                 // Header avec avatar et streak
-                _buildHeader(context, activePlansCount, totalStreak),
+                _buildHeader(context, activePlansCount, totalStreak, bestStreak),
 
                 // Filtres : Tous, En cours, Terminés
                 _buildFilters(context),
@@ -136,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(
-      BuildContext context, int activePlansCount, int totalStreak) {
+  Widget _buildHeader(BuildContext context, int activePlansCount,
+      int totalStreak, int bestStreak) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
@@ -149,16 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: AppTheme.seedGold.withValues(alpha: 0.2),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppTheme.seedGold,
-                width: 2,
-              ),
+              border: Border.all(color: AppTheme.seedGold, width: 2),
             ),
-            child: const Icon(
-              Icons.person,
-              color: AppTheme.seedGold,
-              size: 28,
-            ),
+            child: const Icon(Icons.person, color: AppTheme.seedGold, size: 28),
           ),
           const SizedBox(width: 12),
 
@@ -177,7 +195,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6),
                         letterSpacing: 1.2,
                       ),
                 ),
@@ -185,39 +206,49 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Badge streak
+          // Badge streak gamifié
           if (totalStreak > 0)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppTheme.seedGold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppTheme.seedGold.withValues(alpha: 0.3),
-                ),
+                    color: AppTheme.seedGold.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '$totalStreak',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                  ),
-                  const Icon(
-                    Icons.local_fire_department,
-                    color: AppTheme.seedGold,
-                    size: 20,
-                  ),
+                  const Icon(Icons.local_fire_department,
+                      color: AppTheme.seedGold, size: 18),
                   const SizedBox(width: 4),
-
-                  const SizedBox(width: 2),
-                  // const Text(
-                  //   '🔥',
-                  //   style: TextStyle(fontSize: 14),
-                  // ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$totalStreak j.',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                      if (bestStreak > totalStreak)
+                        Text(
+                          'Rec. $bestStreak',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.5),
+                                fontSize: 10,
+                              ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -281,6 +312,77 @@ class _HomeScreenState extends State<HomeScreen> {
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             fontSize: 14,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MilestoneDialog extends StatelessWidget {
+  final int streakDays;
+  const _MilestoneDialog({required this.streakDays});
+
+  String get _emoji {
+    if (streakDays >= 365) return '🏆';
+    if (streakDays >= 100) return '💎';
+    if (streakDays >= 60) return '🌟';
+    if (streakDays >= 30) return '🔥';
+    if (streakDays >= 14) return '⚡';
+    return '🎯';
+  }
+
+  String get _message {
+    if (streakDays >= 365) return 'Une année complète de fidélité. Exceptionnel!';
+    if (streakDays >= 100) return 'Cent jours de lecture. Vous êtes un exemple!';
+    if (streakDays >= 60) return 'Deux mois sans interruption. Remarquable!';
+    if (streakDays >= 30) return 'Un mois complet de lecture. Bravo!';
+    if (streakDays >= 14) return 'Deux semaines consécutives. Continuez!';
+    return 'Une semaine complète. Bel élan!';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_emoji, style: const TextStyle(fontSize: 56)),
+            const SizedBox(height: 16),
+            Text(
+              '$streakDays jours de streak!',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.seedGold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.7),
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.seedGold,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Continuer'),
+              ),
+            ),
+          ],
         ),
       ),
     );

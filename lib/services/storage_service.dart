@@ -135,6 +135,25 @@ class StorageService {
     await _settingsBox?.put('notif_prompt_shown', true);
   }
 
+  Future<int> getBestStreak() async {
+    return _settingsBox?.get('best_streak', defaultValue: 0) ?? 0;
+  }
+
+  Future<void> saveBestStreak(int streak) async {
+    await _settingsBox?.put('best_streak', streak);
+  }
+
+  Future<Set<int>> getSeenMilestones() async {
+    final raw = _settingsBox?.get('seen_milestones') as List<dynamic>?;
+    return raw?.map((e) => e as int).toSet() ?? {};
+  }
+
+  Future<void> addSeenMilestone(int milestone) async {
+    final current = await getSeenMilestones();
+    current.add(milestone);
+    await _settingsBox?.put('seen_milestones', current.toList());
+  }
+
   Future<void> clearAllData() async {
     await _plansBox?.clear();
     await _settingsBox?.clear();

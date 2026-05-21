@@ -84,3 +84,65 @@ Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 **Règle `context` :** `Theme.of(context)` n'est disponible que dans `build(BuildContext context)`. Pour les méthodes helper d'un `StatelessWidget`, passer `BuildContext context` en paramètre.
 
 **Localization:** French-only (`Locale('fr', 'FR')` hardcoded). All user-facing strings are in French.
+
+## Fonctionnalités v1.2.0
+
+### Plans disponibles
+
+**4 plans structurés** (structure fixe, seule la date de début est modifiable)
+- `mcheyne` — M'Cheyne : lecture parallèle AT + NT, 365 jours, intensif
+- `bible-year-ligue` — Ligue : AT + Psaume + Proverbe + NT chaque jour, 365 jours
+- `revolutionary` — Révolutionnaire : 25 jours/mois avec jours de repos, 365 jours
+- `horner` — Horner : lecture en boucle infinie sur 10 listes, durée personnalisable
+
+**5 plans thématiques** (livres figés, durée et rythme modifiables)
+- `new-testament` — Nouveau Testament (27 livres, ~90 jours)
+- `old-testament` — Ancien Testament (39 livres, ~365 jours)
+- `gospels` — Évangiles (Mt, Mc, Lc, Jn, ~30 jours)
+- `psalms` — Psaumes (150 chapitres, ~150 jours)
+- `proverbs` — Proverbes (31 chapitres, ~31 jours)
+
+**2 plans entièrement personnalisables**
+- `canonical-plan` — ordre canonique traditionnel
+- `chronological-plan` — ordre chronologique/historique
+
+### Personnalisation d'un plan
+
+- Sélection des livres individuels (filtres AT / NT / Apocryphes)
+- Ordre : canonique, chronologique, juif, inversé
+- Psaumes quotidiens : aucun / un par jour / séquentiel
+- Proverbes quotidiens : aucun / un par jour / selon le jour du mois
+- Chevauchement AT/NT : séquentiel ou alterné
+- Distribution : équilibrée, progressive, dégressive
+- Date de début, durée totale, jours de lecture (Lun–Dim)
+
+### Vues de lecture (plan detail)
+
+- **Liste** — défilement vertical de tous les jours
+- **Calendrier** — grille mensuelle avec navigation mois par mois
+- **Hebdomadaire** — jours groupés par semaine avec image de fond
+- **Par livre** — regroupement par livre biblique
+
+### Suivi de progression
+
+- Cases à cocher par jour
+- Pourcentage de complétion + barre de progression
+- Streak courant (jours consécutifs)
+- Statut : en avance / dans les temps / en retard / terminé
+- Filtres accueil : Tous / En cours / Terminés
+
+### Paramètres
+
+- Thème : clair / sombre / système
+- Notifications quotidiennes : activer/désactiver + heure personnalisable
+
+### Export & partage
+
+- Export PDF avec code couleur par genre biblique (Loi=marron, Histoire=bleu, Sagesse=violet, Prophètes=orange, NT=vert)
+- Options : statistiques incluses, cases à cocher incluses
+- Partage via le système natif
+
+### Gestion des plans
+
+- Créer, modifier (régénère en préservant les jours complétés), supprimer
+- Réinitialiser la progression

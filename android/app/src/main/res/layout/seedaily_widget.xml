@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <!-- Ligne 1 : Streak (icône + chiffre) + badge Lu -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Flame icon set programmatically to avoid VectorDrawable inflation issues -->
+        <ImageView
+            android:id="@+id/widget_flame_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:id="@+id/widget_streak_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="0"
+            android:textColor="#EF9D10"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginBottom="1dp"
+            android:text="jours"
+            android:textColor="#EF9D10"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="bottom" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/widget_badge_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/widget_badge_bg"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:text="Lu"
+            android:textColor="#1A2232"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Ligne 2 : Message d'encouragement (alpha via textColor) -->
+    <TextView
+        android:id="@+id/widget_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Prêt pour ta lecture du jour ?"
+        android:textColor="#A6FFFFFF"
+        android:textSize="11sp" />
+
+    <!-- Séparateur -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#33FFFFFF" />
+
+    <!-- Ligne 3 : Titre de section -->
+    <TextView
+        android:id="@+id/widget_section_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Pour aujourd'hui"
+        android:textColor="#EF9D10"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <!-- Ligne 4 : Passage du jour -->
+    <TextView
+        android:id="@+id/widget_passage"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Ouvre Seedaily pour commencer"
+        android:textColor="#73FFFFFF"
+        android:textSize="12sp"
+        android:gravity="center_vertical"
+        android:visibility="gone" />
+
+    <!-- Ligne 5 : Tracker hebdomadaire L M M J V S D -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <TextView android:id="@+id/day_0"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="L" />
+        <TextView android:id="@+id/day_1"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="M" />
+        <TextView android:id="@+id/day_2"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="M" />
+        <TextView android:id="@+id/day_3"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="J" />
+        <TextView android:id="@+id/day_4"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="V" />
+        <TextView android:id="@+id/day_5"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="S" />
+        <TextView android:id="@+id/day_6"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:gravity="center"
+            android:textColor="#59FFFFFF" android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="D" />
+
+    </LinearLayout>
+
+</LinearLayout>

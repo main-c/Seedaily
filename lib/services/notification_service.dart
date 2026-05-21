@@ -17,30 +17,42 @@ const String kNotificationActionCreatePlan = 'create_plan';
 const int _kEveningNotifId = 20;
 const int _kTestNotifId = 99;
 
-/// Détails Android communs pour les notifications quotidiennes (avec boutons d'action)
-const AndroidNotificationDetails _dailyAndroidDetails =
-    AndroidNotificationDetails(
-  'daily_reading',
-  'Lecture quotidienne',
-  channelDescription: 'Rappels quotidiens pour votre lecture biblique',
-  importance: Importance.max,
-  priority: Priority.high,
-  actions: [
-    AndroidNotificationAction(
-      kNotificationActionViewPlans,
-      'Voir mes plans',
-      showsUserInterface: true,
-      cancelNotification: true,
-    ),
-    AndroidNotificationAction(
-      kNotificationActionCreatePlan,
-      'Créer un plan',
-      showsUserInterface: true,
-      cancelNotification: true,
-      titleColor: AppTheme.seedGold,
-    ),
-  ],
-);
+const List<AndroidNotificationAction> _dailyActions = [
+  AndroidNotificationAction(
+    kNotificationActionViewPlans,
+    'Voir mes plans',
+    showsUserInterface: true,
+    cancelNotification: true,
+  ),
+  AndroidNotificationAction(
+    kNotificationActionCreatePlan,
+    'Créer un plan',
+    showsUserInterface: true,
+    cancelNotification: true,
+    titleColor: AppTheme.seedGold,
+  ),
+];
+
+AndroidNotificationDetails _buildAndroidDetails({
+  required String encouragement,
+  String? passage,
+}) {
+  // Expanded view shows both passage and encouragement
+  final bigText = (passage != null && passage.isNotEmpty)
+      ? '$passage\n$encouragement'
+      : encouragement;
+
+  return AndroidNotificationDetails(
+    'daily_reading',
+    'Lecture quotidienne',
+    channelDescription: 'Rappels quotidiens pour votre lecture biblique',
+    importance: Importance.max,
+    priority: Priority.high,
+    largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'),
+    styleInformation: BigTextStyleInformation(bigText),
+    actions: _dailyActions,
+  );
+}
 
 const DarwinNotificationDetails _dailyIosDetails = DarwinNotificationDetails(
   presentAlert: true,
@@ -59,42 +71,42 @@ class NotificationService {
   // ============================================================
 
   static const List<String> _messagesGeneric = [
-    '10 minutes aujourd\'hui peuvent nourrir toute ta journée',
-    'Un nouveau chapitre t\'attend aujourd\'hui',
-    'Prêt pour ta lecture du jour?',
-    'La Parole te nourrit chaque jour',
-    'Continue ton parcours, tu progresses bien',
-    'Un moment avec Dieu aujourd\'hui?',
-    'Ta lecture quotidienne est prête',
-    'Garde le cap, tu es sur la bonne voie',
+    '10 minutes aujourd\'hui peuvent nourrir toute ta journée 🌱',
+    'Un nouveau chapitre t\'attend aujourd\'hui 📖',
+    'Prêt pour ta lecture du jour ? 🙏',
+    'La Parole te nourrit chaque jour ✨',
+    'Continue ton parcours, tu progresses bien 💪',
+    'Un moment avec Dieu aujourd\'hui ? 🕊️',
+    'Ta lecture quotidienne est prête 📖',
+    'Garde le cap, tu es sur la bonne voie 🌟',
   ];
 
   static const List<String> _messagesUrgent = [
-    'Tu as {n} jours de retard. Ouvre ton plan maintenant!',
-    '⚠️ {n} jours non lus t\'attendent. Commence par un seul chapitre!',
-    'Le retard s\'accumule ({n} jours). Un petit effort aujourd\'hui?',
-    'Tu es à {n} jours du rythme. La Parole t\'attend!',
+    'Tu as {n} jours de retard. Commence par un seul chapitre ! ⚡',
+    '⚠️ {n} jours non lus t\'attendent. Un petit pas aujourd\'hui ?',
+    'Le retard s\'accumule ({n} jours). Un effort aujourd\'hui ? 💪',
+    'Tu es à {n} jours du rythme. La Parole t\'attend ! ⚠️',
   ];
 
   static const List<String> _messagesGentleCatchup = [
-    'Encore un effort et tu rattrapes ton plan!',
-    'Un chapitre aujourd\'hui et tu es presque à jour.',
-    'La régularité vient avec la pratique. Tu peux le faire!',
-    'Presque rattrapé — continue sur ta lancée!',
+    'Encore un effort et tu rattrapes ton plan ! 🎯',
+    'Un chapitre aujourd\'hui et tu es presque à jour 📖',
+    'La régularité vient avec la pratique. Tu peux le faire ! 💪',
+    'Presque rattrapé — continue sur ta lancée ! 🔥',
   ];
 
   static const List<String> _messagesOnTrack = [
-    'Tu es dans le rythme. La Parole t\'attend!',
-    'Parfait, tu es à jour. Continue comme ça!',
-    'Un nouveau chapitre t\'attend aujourd\'hui.',
-    'Tu es fidèle à ton plan. Bravo!',
+    'Tu es dans le rythme. La Parole t\'attend ! ✨',
+    'Parfait, tu es à jour. Continue comme ça ! 🌟',
+    'Un nouveau chapitre t\'attend aujourd\'hui 📖',
+    'Tu es fidèle à ton plan. Bravo ! 🙌',
   ];
 
   static const List<String> _messagesPraise = [
-    'Impressionnant! Tu es en avance de {n} jour(s).',
-    'Tu es {n} jour(s) en avance sur ton plan. Continue!',
-    'En avance de {n} jour(s)! Tu es une inspiration.',
-    'Quel rythme! {n} jour(s) d\'avance. Garde le cap!',
+    'Impressionnant ! Tu es en avance de {n} jour(s) 🏆',
+    'Tu es {n} jour(s) en avance sur ton plan. Continue ! 🌟',
+    'En avance de {n} jour(s) ! Tu es une inspiration ✨',
+    'Quel rythme ! {n} jour(s) d\'avance. Garde le cap ! 🔥',
   ];
 
   // ============================================================
@@ -234,6 +246,7 @@ class NotificationService {
   /// Planifie les rappels du matin de façon intelligente.
   /// - Respecte les jours de lecture choisis par l'utilisateur
   /// - Adapte le message selon la progression (retard / à jour / avance)
+  /// - Inclut le passage du jour et le streak dans la notification si disponibles
   /// - Annule uniquement les IDs 0-6 (morning slots) sans toucher à l'ID 20 (soir)
   Future<void> scheduleSmartNotifications({
     required int hour,
@@ -242,6 +255,8 @@ class NotificationService {
     Set<String> readingDayNames = const {
       'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
     },
+    Map<String, String> passagesByDay = const {},
+    int currentStreak = 0,
   }) async {
     if (!_initialized) await init();
 
@@ -266,24 +281,34 @@ class NotificationService {
           ? {'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'}
           : readingDayNames;
 
-      final message = _selectMessage(activePlans);
+      final contextMessage = _selectMessage(activePlans);
+      final streakPart =
+          currentStreak > 1 ? ' · 🔥$currentStreak jours' : '';
+      final title = 'Lecture du Jour$streakPart';
 
       for (final dayName in effectiveDays) {
         final entry = dayMap[dayName];
         if (entry == null) continue;
 
-        final scheduled =
-            _nextWeekdayDateTime(entry.weekday, hour, minute);
-        final scheduledTz =
-            tz.TZDateTime.from(scheduled.toUtc(), tz.local);
+        final passage = passagesByDay[dayName];
+        // Body shown in collapsed notification: passage if available, else encouragement
+        final body = (passage != null && passage.isNotEmpty)
+            ? passage
+            : contextMessage;
+
+        final scheduled = _nextWeekdayDateTime(entry.weekday, hour, minute);
+        final scheduledTz = tz.TZDateTime.from(scheduled.toUtc(), tz.local);
 
         await _notifications.zonedSchedule(
           entry.id,
-          'Seedaily',
-          message,
+          title,
+          body,
           scheduledTz,
-          const NotificationDetails(
-            android: _dailyAndroidDetails,
+          NotificationDetails(
+            android: _buildAndroidDetails(
+              encouragement: contextMessage,
+              passage: passage,
+            ),
             iOS: _dailyIosDetails,
           ),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -334,8 +359,8 @@ class NotificationService {
         'Seedaily',
         body,
         scheduledTz,
-        const NotificationDetails(
-          android: _dailyAndroidDetails,
+        NotificationDetails(
+          android: _buildAndroidDetails(encouragement: body),
           iOS: _dailyIosDetails,
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -358,19 +383,26 @@ class NotificationService {
   // Test & utilitaires
   // ============================================================
 
-  /// Affiche immédiatement une notification de test.
-  Future<void> showTestNotification() async {
+  /// Affiche immédiatement une notification de test avec passage simulé.
+  Future<void> showTestNotification({String? passage}) async {
     if (!_initialized) await init();
+    const testMsg = 'Prêt pour ta lecture du jour ?';
+    const testPassage = 'Gen 1 · Matt 1 · Ps 1';
+    final effectivePassage = passage ?? testPassage;
+    final body = effectivePassage;
     await _notifications.show(
       _kTestNotifId,
-      'Seedaily — Test',
-      '📖 Rappel de lecture : un chapitre t\'attend aujourd\'hui!',
-      const NotificationDetails(
-        android: _dailyAndroidDetails,
+      'Lecture du Jour',
+      body,
+      NotificationDetails(
+        android: _buildAndroidDetails(
+          encouragement: testMsg,
+          passage: effectivePassage,
+        ),
         iOS: _dailyIosDetails,
       ),
     );
-    debugPrint('[NOTIF] Test notification envoyée');
+    debugPrint('[NOTIF] Test notification envoyée avec passage=$effectivePassage');
   }
 
   Future<void> cancelAllNotifications() async {

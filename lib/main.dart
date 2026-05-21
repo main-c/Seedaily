@@ -13,6 +13,7 @@ import 'core/theme.dart';
 import 'services/storage_service.dart';
 import 'services/plan_generator.dart';
 import 'services/notification_service.dart';
+import 'services/widget_service.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
 import 'ui/screens/main_shell_screen.dart';
@@ -68,6 +69,7 @@ void main() async {
       }
 
       final planGenerator = PlanGenerator();
+      await WidgetService.init();
 
       FlutterNativeSplash.remove();
 
