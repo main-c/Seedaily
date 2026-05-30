@@ -27,7 +27,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionTitle('APPARENCE'),
           Consumer<SettingsProvider>(
             builder: (context, settings, child) {
-              final isDark = settings.themeMode == ThemeMode.dark;
+              final brightness = MediaQuery.of(context).platformBrightness;
+              final isDark = settings.themeMode == ThemeMode.dark ||
+                  (settings.themeMode == ThemeMode.system &&
+                      brightness == Brightness.dark);
               return _buildSettingCard(
                 icon: isDark
                     ? Icons.dark_mode_outlined

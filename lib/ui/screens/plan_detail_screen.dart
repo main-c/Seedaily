@@ -59,8 +59,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.share_outlined),
-            onPressed: () => _exportService.sharePdf(plan),
-            tooltip: 'Partager',
+            onPressed: () => _showExportBottomSheet(context, plan),
+            tooltip: 'Exporter',
           ),
         ],
         scrolledUnderElevation: 0,
@@ -300,5 +300,179 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           onDayTap: (index) => _toggleDayCompletion(plan, index),
         );
     }
+  }
+
+  void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {
+    bool sectionColors = true;
+    bool includeCheckbox = true;
+    bool isExporting = false;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Titre ────────────────────────────────────────────────
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.seedGold.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.picture_as_pdf_outlined,
+                          color: AppTheme.seedGold, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Exporter en PDF',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                )),
+                        Text('Calendrier A4 paysage',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                )),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+                Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
+                const SizedBox(height: 8),
+
+                // ── Options ───────────────────────────────────────────────
+                Text('Options',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        )),
+                const SizedBox(height: 12),
+
+                _ExportOptionTile(
+                  icon: Icons.palette_outlined,
+                  title: 'Couleurs par genre biblique',
+                  subtitle: 'Loi · Historiques · Sagesse · Prophètes · NT',
+                  value: sectionColors,
+                  onChanged: (v) => setSheetState(() => sectionColors = v),
+                ),
+                const SizedBox(height: 8),
+                _ExportOptionTile(
+                  icon: Icons.check_box_outlined,
+                  title: 'Cases à cocher',
+                  subtitle: 'Pour suivre la lecture sur papier',
+                  value: includeCheckbox,
+                  onChanged: (v) => setSheetState(() => includeCheckbox = v),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── Bouton export ─────────────────────────────────────────
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: isExporting
+                        ? null
+                        : () async {
+                            setSheetState(() => isExporting = true);
+                            Navigator.pop(ctx);
+                            await _exportService.sharePdf(
+                              plan,
+                              sectionColors: sectionColors,
+                              includeCheckbox: includeCheckbox,
+                            );
+                          },
+                    icon: isExporting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.share_outlined),
+                    label: Text(isExporting ? 'Génération…' : 'Générer et partager'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.seedGold,
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ExportOptionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _ExportOptionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: value
+              ? AppTheme.seedGold.withValues(alpha: 0.4)
+              : cs.outline,
+        ),
+      ),
+      child: SwitchListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        secondary: Icon(icon,
+            color: value ? AppTheme.seedGold : cs.onSurface.withValues(alpha: 0.5),
+            size: 22),
+        title: Text(title,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                )),
+        subtitle: Text(subtitle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.5),
+                )),
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: Colors.white,
+        activeTrackColor: AppTheme.seedGold,
+        inactiveThumbColor: cs.onSurface.withValues(alpha: 0.4),
+        inactiveTrackColor: cs.surface,
+      ),
+    );
   }
 }

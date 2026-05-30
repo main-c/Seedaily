@@ -10,7 +10,7 @@ class SettingsProvider with ChangeNotifier {
   DateTime _notificationTime = DateTime(2025, 1, 1, 9, 0);
   bool _notificationsEnabled = false;
   bool _notifPromptShown = false;
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode _themeMode = ThemeMode.system;
 
   SettingsProvider({
     required StorageService storage,

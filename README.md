@@ -44,11 +44,26 @@ Tout se passe **localement** — aucun compte, aucune donnée envoyée, aucune c
 
 ## Fonctionnalités
 
-- **Plans reconnus** — M'Cheyne (365j), Ligue pour la lecture de la Bible, Revolutionary (300j), Horner (5 pistes rotatives)
-- **Plan personnalisé** — choisis tes livres, la durée, la distribution par chapitres ou versets
-- **Suivi quotidien** — 4 vues : calendrier, liste, semaine, par livre
+### Plans disponibles
+- **4 plans structurés** — M'Cheyne (365j), Ligue pour la lecture de la Bible (365j), Revolutionary (300j), Horner (10 listes en rotation continue)
+- **5 plans thématiques** — Nouveau Testament, Ancien Testament, Évangiles, Psaumes, Proverbes
+- **2 plans personnalisés** — ordre canonique ou chronologique, livres au choix
+
+### Personnalisation
+- Sélection individuelle des livres (AT / NT / Deutérocanoniques)
+- Réorganisation visuelle selon l'ordre choisi (canonique, chronologique, hébreu)
+- Durée par **date de fin** ou par **nombre de chapitres par jour** (calcul automatique)
+- Raccourcis de période : 15 j · 1 mois · 45 j · 3 mois · 6 mois · 1 an
+- Psaumes et Proverbes quotidiens, alternance AT/NT, lecture inversée
+
+### Suivi & navigation
+- **4 vues** — calendrier mensuel, liste, semaine (avec photo), par livre
+- Progression en % · streak · statut (en avance / dans les temps / en retard)
+- Recherche rapide parmi les plans disponibles
+
+### Autres
 - **Rappels** — notification locale à l'heure de ton choix
-- **Export PDF** — partage ou imprime ton plan de lecture
+- **Export PDF** — calendrier A4 paysage avec options : couleurs par genre biblique, cases à cocher pour lecture sur papier
 - **100 % hors ligne** — aucun compte, aucun serveur
 
 ---

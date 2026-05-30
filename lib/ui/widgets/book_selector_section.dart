@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
+import '../../domain/models.dart';
 
 class BookSelectorSection extends StatelessWidget {
   final String templateId;
@@ -8,6 +9,7 @@ class BookSelectorSection extends StatelessWidget {
   final bool includeApocrypha;
   final ValueChanged<Set<String>> onBooksChanged;
   final ValueChanged<bool> onApocryphaSwitched;
+  final OrderType orderType;
 
   const BookSelectorSection({
     super.key,
@@ -16,6 +18,7 @@ class BookSelectorSection extends StatelessWidget {
     required this.includeApocrypha,
     required this.onBooksChanged,
     required this.onApocryphaSwitched,
+    this.orderType = OrderType.canonical,
   });
 
   // ── Helpers sélection ──────────────────────────────────────────
@@ -63,34 +66,8 @@ class BookSelectorSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // ── Ancien Testament ─────────────────────────────────────
-        _SectionLabel(title: 'Ancien Testament', count: otBooks.length),
-        ...otBooks.map((book) => _BookTile(
-              book: book,
-              isSelected: selectedBooks.contains(book.name),
-              onToggle: (v) => _toggleBook(book.name, v),
-            )),
-
-        // ── Deutérocanoniques (optionnels) ───────────────────────
-        if (includeApocrypha) ...[
-          const SizedBox(height: 4),
-          _SectionLabel(
-              title: 'Deutérocanoniques', count: deutBooks.length),
-          ...deutBooks.map((book) => _BookTile(
-                book: book,
-                isSelected: selectedBooks.contains(book.name),
-                onToggle: (v) => _toggleBook(book.name, v),
-              )),
-        ],
-
-        // ── Nouveau Testament ────────────────────────────────────
-        const SizedBox(height: 4),
-        _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
-        ...ntBooks.map((book) => _BookTile(
-              book: book,
-              isSelected: selectedBooks.contains(book.name),
-              onToggle: (v) => _toggleBook(book.name, v),
-            )),
+        // ── Liste selon l'ordre actif ────────────────────────────
+        ..._buildBookSections(context, otBooks, ntBooks, deutBooks),
 
         // ── Option deutérocanoniques ─────────────────────────────
         const SizedBox(height: 16),
@@ -112,6 +89,87 @@ class BookSelectorSection extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<Widget> _buildBookSections(
+    BuildContext context,
+    List<BibleBook> otBooks,
+    List<BibleBook> ntBooks,
+    List<BibleBook> deutBooks,
+  ) {
+    switch (orderType) {
+      case OrderType.chronological:
+        // Tous les livres mélangés, triés par ordre chronologique
+        final all = [
+          ...otBooks,
+          ...ntBooks,
+          if (includeApocrypha) ...deutBooks,
+        ]..sort((a, b) => a.chronologicalOrder.compareTo(b.chronologicalOrder));
+        return [
+          _SectionLabel(title: 'Ordre chronologique', count: all.length),
+          ...all.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+        ];
+
+      case OrderType.jewish:
+        // AT trié par ordre hébreu (Tanakh), puis NT en canonique
+        final sortedOt = [...otBooks]
+          ..sort((a, b) => (a.jewishOrder ?? 999).compareTo(b.jewishOrder ?? 999));
+        return [
+          _SectionLabel(title: 'Tanakh (Ancien Testament)', count: sortedOt.length),
+          ...sortedOt.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+          if (includeApocrypha) ...[
+            const SizedBox(height: 4),
+            _SectionLabel(title: 'Deutérocanoniques', count: deutBooks.length),
+            ...deutBooks.map((book) => _BookTile(
+                  book: book,
+                  isSelected: selectedBooks.contains(book.name),
+                  onToggle: (v) => _toggleBook(book.name, v),
+                )),
+          ],
+          const SizedBox(height: 4),
+          _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
+          ...ntBooks.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+        ];
+
+      // Canonique (défaut)
+      default:
+        return [
+          _SectionLabel(title: 'Ancien Testament', count: otBooks.length),
+          ...otBooks.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+          if (includeApocrypha) ...[
+            const SizedBox(height: 4),
+            _SectionLabel(title: 'Deutérocanoniques', count: deutBooks.length),
+            ...deutBooks.map((book) => _BookTile(
+                  book: book,
+                  isSelected: selectedBooks.contains(book.name),
+                  onToggle: (v) => _toggleBook(book.name, v),
+                )),
+          ],
+          const SizedBox(height: 4),
+          _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
+          ...ntBooks.map((book) => _BookTile(
+                book: book,
+                isSelected: selectedBooks.contains(book.name),
+                onToggle: (v) => _toggleBook(book.name, v),
+              )),
+        ];
+    }
   }
 }
 

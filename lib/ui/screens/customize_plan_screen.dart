@@ -39,6 +39,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   late TabController _tabController;
   late TextEditingController _titleController;
 
+  bool _chaptersPerDayMode = false;
+  int _chaptersPerDay = 3;
+
   /// Le plan de travail (local, pas encore sauvegardé en BD)
   late GeneratedPlan _workingPlan;
 
@@ -75,9 +78,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       _workingPlan = _generateDefaultPlan(_template.id);
     }
 
-    // TabController : 1 onglet pour les plans fixes, 3 pour les autres
+    // TabController : 0 onglet pour les plans fixes, 2 pour les autres (Livres + Distribution)
     _tabController = TabController(
-      length: _isFixedPlan ? 1 : 3,
+      length: _isFixedPlan ? 0 : 2,
       vsync: this,
     );
 
@@ -392,11 +395,10 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   indicatorColor: AppTheme.seedGold,
                   indicatorWeight: 3,
                   tabs: _isFixedPlan
-                      ? const [Tab(text: 'Affichage')]
+                      ? const []
                       : const [
                           Tab(text: 'Livres'),
                           Tab(text: 'Distribution'),
-                          Tab(text: 'Affichage'),
                         ],
                 ),
               ),
@@ -406,8 +408,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         body: TabBarView(
           controller: _tabController,
           children: _isFixedPlan
-              ? [_buildDisplayTab()]
-              : [_buildBooksTab(), _buildDistributionTab(), _buildDisplayTab()],
+              ? const []
+              : [_buildBooksTab(), _buildDistributionTab()],
         ),
       ),
       bottomNavigationBar: Container(
@@ -564,6 +566,258 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     return s.startDate.add(Duration(days: s.totalDays - 1));
   }
 
+  static const _periodPresets = [
+    (label: '15 j', days: 15),
+    (label: '1 mois', days: 30),
+    (label: '45 j', days: 45),
+    (label: '3 mois', days: 90),
+    (label: '6 mois', days: 180),
+    (label: '1 an', days: 365),
+  ];
+
+  Widget _buildPeriodPresetChips() {
+    final currentDays = _workingPlan.options.schedule.totalDays;
+    return SizedBox(
+      height: 34,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _periodPresets.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final preset = _periodPresets[i];
+          final isSelected = currentDays == preset.days;
+          return GestureDetector(
+            onTap: () {
+              _regeneratePlan(
+                schedule: ScheduleOptions(
+                  startDate: _workingPlan.options.schedule.startDate,
+                  totalDays: preset.days,
+                  readingDays: _workingPlan.options.schedule.readingDays,
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.seedGold
+                    : Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.seedGold
+                      : Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              child: Text(
+                preset.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  int _computeTotalDaysFromChapters(int chaptersPerDay) {
+    final selectedBooks = _workingPlan.options.content.selectedBooks;
+    final totalChapters = BibleData.getTotalChapters(selectedBooks);
+    if (totalChapters == 0 || chaptersPerDay <= 0) return 365;
+    final readingDaysPerWeek = _workingPlan.options.schedule.readingDays.length;
+    final totalReadingDays = (totalChapters / chaptersPerDay).ceil();
+    if (readingDaysPerWeek <= 0 || readingDaysPerWeek == 7) {
+      return totalReadingDays;
+    }
+    return (totalReadingDays * 7.0 / readingDaysPerWeek).ceil();
+  }
+
+  Widget _buildModeToggle() {
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          _buildModeButton('Par durée', !_chaptersPerDayMode, () {
+            setState(() => _chaptersPerDayMode = false);
+          }),
+          _buildModeButton('Par chapitres/jour', _chaptersPerDayMode, () {
+            setState(() => _chaptersPerDayMode = true);
+            // Application immédiate : le plan se met à jour dès le switch
+            _regeneratePlan(
+              schedule: ScheduleOptions(
+                startDate: _workingPlan.options.schedule.startDate,
+                totalDays: _computeTotalDaysFromChapters(_chaptersPerDay),
+                readingDays: _workingPlan.options.schedule.readingDays,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeButton(String label, bool selected, VoidCallback onTap) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: selected
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                color: selected
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChaptersPerDaySection() {
+    final totalDays = _computeTotalDaysFromChapters(_chaptersPerDay);
+    final totalChapters = BibleData.getTotalChapters(
+        _workingPlan.options.content.selectedBooks);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Chapitres par jour',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove, size: 18),
+                          onPressed: _chaptersPerDay > 1
+                              ? () {
+                                  setState(() => _chaptersPerDay--);
+                                  _regeneratePlan(
+                                    schedule: ScheduleOptions(
+                                      startDate: _workingPlan.options.schedule.startDate,
+                                      totalDays: _computeTotalDaysFromChapters(_chaptersPerDay),
+                                      readingDays: _workingPlan.options.schedule.readingDays,
+                                    ),
+                                  );
+                                }
+                              : null,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        Expanded(
+                          child: Text(
+                            '$_chaptersPerDay',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add, size: 18),
+                          onPressed: () {
+                            setState(() => _chaptersPerDay++);
+                            _regeneratePlan(
+                              schedule: ScheduleOptions(
+                                startDate: _workingPlan.options.schedule.startDate,
+                                totalDays: _computeTotalDaysFromChapters(_chaptersPerDay),
+                                readingDays: _workingPlan.options.schedule.readingDays,
+                              ),
+                            );
+                          },
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Durée estimée',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppTheme.seedGold.withValues(alpha: 0.08),
+                      border: Border.all(color: AppTheme.seedGold.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '$totalDays jours',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.seedGold,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '$totalChapters chapitres au total',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDateSection() {
     final startDate = _workingPlan.options.schedule.startDate;
     final endDate = _endDate;
@@ -576,6 +830,18 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         children: [
           _buildSectionTitle('Période de lecture'),
           const SizedBox(height: 12),
+          if (!_isFixedPlan) ...[
+            _buildModeToggle(),
+            const SizedBox(height: 12),
+          ],
+          if (!_isFixedPlan && !_chaptersPerDayMode) ...[
+            _buildPeriodPresetChips(),
+            const SizedBox(height: 12),
+          ],
+          if (!_isFixedPlan && _chaptersPerDayMode) ...[
+            _buildChaptersPerDaySection(),
+            const SizedBox(height: 12),
+          ],
           Row(
             children: [
               // Date de début
@@ -605,17 +871,17 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                         if (selected != null && mounted) {
                           final currentTotalDays =
                               _workingPlan.options.schedule.totalDays;
-                          // Plans fixes : on garde la durée intacte, seule la date de début change
-                          // Plans custom : on recalcule si la nouvelle date dépasse la fin actuelle
                           final newTotalDays = _isFixedPlan
                               ? currentTotalDays
-                              : () {
-                                  final currentEnd = _endDate;
-                                  final newEnd = selected.isAfter(currentEnd)
-                                      ? selected.add(const Duration(days: 364))
-                                      : currentEnd;
-                                  return newEnd.difference(selected).inDays + 1;
-                                }();
+                              : _chaptersPerDayMode
+                                  ? _computeTotalDaysFromChapters(_chaptersPerDay)
+                                  : () {
+                                      final currentEnd = _endDate;
+                                      final newEnd = selected.isAfter(currentEnd)
+                                          ? selected.add(const Duration(days: 364))
+                                          : currentEnd;
+                                      return newEnd.difference(selected).inDays + 1;
+                                    }();
                           _regeneratePlan(
                             schedule: ScheduleOptions(
                               startDate: selected,
@@ -671,7 +937,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Fin',
+                      _chaptersPerDayMode ? 'Fin (calculée)' : 'Fin',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
@@ -679,15 +945,14 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                     ),
                     const SizedBox(height: 6),
                     InkWell(
-                      onTap: _isFixedPlan
+                      onTap: (_isFixedPlan || _chaptersPerDayMode)
                           ? null
                           : () async {
                               final selected = await showDatePicker(
                                 context: context,
                                 initialDate: endDate,
                                 firstDate: startDate.add(const Duration(days: 1)),
-                                lastDate: startDate
-                                    .add(const Duration(days: 3650)),
+                                lastDate: startDate.add(const Duration(days: 3650)),
                                 locale: const Locale('fr', 'FR'),
                               );
 
@@ -698,8 +963,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                   schedule: ScheduleOptions(
                                     startDate: startDate,
                                     totalDays: newTotalDays,
-                                    readingDays: _workingPlan
-                                        .options.schedule.readingDays,
+                                    readingDays: _workingPlan.options.schedule.readingDays,
                                   ),
                                 );
                               }
@@ -708,7 +972,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: _isFixedPlan
+                          color: (_isFixedPlan || _chaptersPerDayMode)
                               ? Theme.of(context).colorScheme.surfaceContainerLowest
                               : Theme.of(context).colorScheme.surface,
                           border: Border.all(color: Theme.of(context).colorScheme.outline),
@@ -723,8 +987,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
-                                      color: _isFixedPlan
-                                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
+                                      color: (_isFixedPlan || _chaptersPerDayMode)
+                                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)
                                           : Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -733,9 +997,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                             Icon(
                               _isFixedPlan
                                   ? Icons.lock_outline
-                                  : Icons.calendar_today,
+                                  : _chaptersPerDayMode
+                                      ? Icons.auto_awesome
+                                      : Icons.calendar_today,
                               size: 16,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: _chaptersPerDayMode
+                                  ? AppTheme.seedGold
+                                  : Theme.of(context).colorScheme.tertiary,
                             ),
                           ],
                         ),
@@ -950,6 +1218,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           templateId: _workingPlan.templateId,
           selectedBooks: _workingPlan.options.content.selectedBooks.toSet(),
           includeApocrypha: _workingPlan.options.content.includeApocrypha,
+          orderType: _workingPlan.options.order.type,
           onBooksChanged: (newSelection) {
             _regeneratePlan(
               content: ContentOptions(
@@ -1298,72 +1567,6 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 dailyProverb: distribution.dailyProverb,
                 reverse: value,
                 balance: distribution.balance,
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDisplayTab() {
-    final display = _workingPlan.options.display;
-
-    return ListView(
-      padding: const EdgeInsets.all(16).copyWith(bottom: 100),
-      children: [
-        _buildSectionTitle('Options d\'affichage'),
-        const SizedBox(height: 16),
-        _buildOptionCard(
-          icon: Icons.check_box_outlined,
-          title: 'Cases à cocher',
-          subtitle: 'Suivre votre progression de lecture',
-          value: display.includeCheckbox,
-          onChanged: (value) {
-            _regeneratePlan(
-              display: DisplayOptions(
-                includeCheckbox: value,
-                showStats: display.showStats,
-                removeDates: display.removeDates,
-                sectionColors: display.sectionColors,
-                addReadingLinks: display.addReadingLinks,
-                format: display.format,
-              ),
-            );
-          },
-        ),
-        _buildOptionCard(
-          icon: Icons.bar_chart,
-          title: 'Statistiques',
-          subtitle: 'Afficher les métriques du plan',
-          value: display.showStats,
-          onChanged: (value) {
-            _regeneratePlan(
-              display: DisplayOptions(
-                includeCheckbox: display.includeCheckbox,
-                showStats: value,
-                removeDates: display.removeDates,
-                sectionColors: display.sectionColors,
-                addReadingLinks: display.addReadingLinks,
-                format: display.format,
-              ),
-            );
-          },
-        ),
-        _buildOptionCard(
-          icon: Icons.palette_outlined,
-          title: 'Couleurs par section',
-          subtitle: 'Colorier selon les genres bibliques',
-          value: display.sectionColors,
-          onChanged: (value) {
-            _regeneratePlan(
-              display: DisplayOptions(
-                includeCheckbox: display.includeCheckbox,
-                showStats: display.showStats,
-                removeDates: display.removeDates,
-                sectionColors: value,
-                addReadingLinks: display.addReadingLinks,
-                format: display.format,
               ),
             );
           },

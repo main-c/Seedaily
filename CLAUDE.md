@@ -146,3 +146,19 @@ Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 
 - Créer, modifier (régénère en préservant les jours complétés), supprimer
 - Réinitialiser la progression
+
+## Features à implémenter (backlog)
+
+### Balance adaptative (priorité haute)
+
+Idée : le plan ajuste dynamiquement la charge de lecture des jours restants selon le comportement du lecteur.
+
+- **Lecteur en retard** (jours non complétés, streak cassé) → redistribuer les passages manquants sur les prochains jours avec +1 chapitre/jour progressivement, sans écraser
+- **Lecteur en avance** → proposer d'accélérer (+1 ch/jour) pour finir plus tôt
+- **Lecteur inactif** (3+ jours sans lire) → réduire temporairement la charge pour faciliter le retour
+
+**Implémentation envisagée :**
+- Fonction dans `PlansProvider` qui recalcule la distribution des jours restants à chaque ouverture d'un plan
+- Basée sur : `currentDayIndex`, jours complétés, jours en retard, streak actuel
+- Deux niveaux : statique (front-loaded / back-loaded généré une fois) + dynamique (recalcul en temps réel)
+- Le `balance` field dans `DistributionOptions` existe déjà dans les modèles, le générateur ne l'utilise pas encore

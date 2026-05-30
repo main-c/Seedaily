@@ -97,18 +97,28 @@ class ExportService {
 
   // ─── Public API ────────────────────────────────────────────────────────────
 
-  Future<void> exportToPdf(GeneratedPlan plan) async {
+  Future<void> exportToPdf(
+    GeneratedPlan plan, {
+    bool sectionColors = true,
+    bool includeCheckbox = true,
+  }) async {
     final logo = await _loadLogo();
-    final pdf = await _buildPdf(plan, logo);
+    final pdf = await _buildPdf(plan, logo,
+        sectionColors: sectionColors, includeCheckbox: includeCheckbox);
     await Printing.layoutPdf(
       onLayout: (format) async => pdf.save(),
       name: '${plan.title}.pdf',
     );
   }
 
-  Future<bool> sharePdf(GeneratedPlan plan) async {
+  Future<bool> sharePdf(
+    GeneratedPlan plan, {
+    bool sectionColors = true,
+    bool includeCheckbox = true,
+  }) async {
     final logo = await _loadLogo();
-    final pdf = await _buildPdf(plan, logo);
+    final pdf = await _buildPdf(plan, logo,
+        sectionColors: sectionColors, includeCheckbox: includeCheckbox);
     final result = await Printing.sharePdf(
       bytes: await pdf.save(),
       filename: '${plan.title}.pdf',
@@ -131,7 +141,11 @@ class ExportService {
   // ─── Document ──────────────────────────────────────────────────────────────
 
   Future<pw.Document> _buildPdf(
-      GeneratedPlan plan, pw.ImageProvider? logo) async {
+    GeneratedPlan plan,
+    pw.ImageProvider? logo, {
+    bool sectionColors = true,
+    bool includeCheckbox = true,
+  }) async {
     final pdf = pw.Document();
     final pageFormat = PdfPageFormat.a4.landscape;
     const margin = 20.0;
@@ -166,7 +180,10 @@ class ExportService {
           children: [
             _buildPageHeader(month, logo, pageNumber, totalPages),
             pw.SizedBox(height: 8),
-            pw.Expanded(child: _buildMonthGrid(month, daysByDate)),
+            pw.Expanded(
+                child: _buildMonthGrid(month, daysByDate,
+                    sectionColors: sectionColors,
+                    includeCheckbox: includeCheckbox)),
             if (isLastPage) ...[
               pw.SizedBox(height: 8),
               _buildLegend(),
@@ -360,7 +377,11 @@ class ExportService {
   }
 
   pw.Widget _buildMonthGrid(
-      DateTime month, Map<DateTime, ReadingDay> daysByDate) {
+    DateTime month,
+    Map<DateTime, ReadingDay> daysByDate, {
+    bool sectionColors = true,
+    bool includeCheckbox = true,
+  }) {
     const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
     final firstDay = DateTime(month.year, month.month, 1);
@@ -402,7 +423,8 @@ class ExportService {
             cells.add(_buildOutOfMonthCell(rowH));
           } else {
             final date = DateTime(month.year, month.month, dayNumber);
-            cells.add(_buildDayCell(dayNumber, daysByDate[date], rowH));
+            cells.add(_buildDayCell(dayNumber, daysByDate[date], rowH,
+                sectionColors: sectionColors, includeCheckbox: includeCheckbox));
           }
         }
         rows.add(pw.TableRow(children: cells));
@@ -424,7 +446,12 @@ class ExportService {
       pw.Container(height: height, color: _lightBg);
 
   pw.Widget _buildDayCell(
-      int dayNumber, ReadingDay? readingDay, double height) {
+    int dayNumber,
+    ReadingDay? readingDay,
+    double height, {
+    bool sectionColors = true,
+    bool includeCheckbox = true,
+  }) {
     final passages = readingDay?.passages ?? [];
     final isCompleted = readingDay?.completed ?? false;
 
@@ -465,31 +492,41 @@ class ExportService {
             ],
           ),
           pw.SizedBox(height: 2),
-          ...passages.map((p) => _buildPassageLine(p, isChecked: isCompleted)),
+          ...passages.map((p) => _buildPassageLine(p,
+              isChecked: isCompleted,
+              withColor: sectionColors,
+              withCheckbox: includeCheckbox)),
         ],
       ),
     );
   }
 
-  pw.Widget _buildPassageLine(Passage passage, {bool isChecked = false}) {
+  pw.Widget _buildPassageLine(
+    Passage passage, {
+    bool isChecked = false,
+    bool withColor = true,
+    bool withCheckbox = true,
+  }) {
     return pw.Padding(
       padding: pw.EdgeInsets.only(bottom: 2.0),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          // Point couleur genre
-          pw.Container(
-            width: 5,
-            height: 5,
-            decoration: pw.BoxDecoration(
-              color: _genreColor(passage.book),
-              shape: pw.BoxShape.circle,
+          if (withColor) ...[
+            pw.Container(
+              width: 5,
+              height: 5,
+              decoration: pw.BoxDecoration(
+                color: _genreColor(passage.book),
+                shape: pw.BoxShape.circle,
+              ),
             ),
-          ),
-          pw.SizedBox(width: 3),
-          // Checkbox imprimable
-          _buildCheckbox(isChecked: isChecked),
-          pw.SizedBox(width: 4),
+            pw.SizedBox(width: 3),
+          ],
+          if (withCheckbox) ...[
+            _buildCheckbox(isChecked: isChecked),
+            pw.SizedBox(width: 4),
+          ],
           pw.Expanded(
             child: pw.Text(
               passage.shortReference,
