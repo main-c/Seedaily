@@ -158,4 +158,25 @@ class StorageService {
     await _plansBox?.clear();
     await _settingsBox?.clear();
   }
+
+  // ── Lecteur biblique ───────────────────────────────────────────────────────
+
+  Future<String?> getBibleVersion() async {
+    return _settingsBox?.get('bible_version') as String?;
+  }
+
+  Future<void> saveBibleVersion(String versionId) async {
+    await _settingsBox?.put('bible_version', versionId);
+  }
+
+  Future<double?> getBibleFontSize() async {
+    final val = _settingsBox?.get('bible_font_size');
+    if (val is double) return val;
+    if (val is int) return val.toDouble();
+    return null;
+  }
+
+  Future<void> saveBibleFontSize(double size) async {
+    await _settingsBox?.put('bible_font_size', size);
+  }
 }

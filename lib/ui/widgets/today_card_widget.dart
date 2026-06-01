@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import '../../providers/bible_reader_provider.dart';
+import '../screens/bible_reader_screen.dart';
 
 /// Widget réutilisable pour afficher la carte du jour actuel de lecture
 /// Utilisé dans MonthCalendarWidget et ListViewWidget
@@ -63,6 +67,19 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
     if (!wasAll && isNowAll) {
       widget.onMarkComplete?.call();
     } else if (wasAll && !isNowAll) {
+      widget.onMarkComplete?.call();
+    }
+  }
+
+  // Version non-toggle pour le lecteur : ne fait que cocher, jamais décocher.
+  void _markPassageRead(int index) {
+    if (_completedPassages.contains(index)) return;
+    final wasAll = _completedPassages.length == widget.day.passages.length;
+    setState(() {
+      _completedPassages.add(index);
+    });
+    final isNowAll = _completedPassages.length == widget.day.passages.length;
+    if (!wasAll && isNowAll) {
       widget.onMarkComplete?.call();
     }
   }
@@ -144,69 +161,154 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
                 final i = entry.key;
                 final passage = entry.value;
                 final isChecked = _completedPassages.contains(i);
-                return GestureDetector(
-                  onTap: canInteract ? () => _togglePassage(i) : null,
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isChecked
-                                ? AppTheme.seedGold
-                                : Colors.transparent,
-                            border: Border.all(
-                              color: isChecked
-                                  ? AppTheme.seedGold
-                                  : Colors.white.withValues(alpha: 0.5),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: isChecked
-                              ? Icon(Icons.check,
-                                  size: 13, color: Colors.white)
-                              : null,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            passage.reference,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                  color: isChecked
-                                      ? Colors.white.withValues(alpha: 0.45)
-                                      : Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: isChecked
-                                      ? TextDecoration.lineThrough
-                                      : TextDecoration.none,
-                                  decorationColor: Colors.white.withValues(alpha: 0.45),
-                                  decorationThickness: 2,
+                final bibleProvider = context.read<BibleReaderProvider>();
+                final canRead = bibleProvider.downloadedIds.isNotEmpty;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Material(
+                    color: Colors.white.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: canRead
+                          ? () {
+                              final nav = Navigator.of(context);
+                              nav.push(MaterialPageRoute(
+                                builder: (_) => ChangeNotifierProvider.value(
+                                  value: bibleProvider,
+                                  child: BibleReaderScreen(
+                                    passages: widget.day.passages,
+                                    initialPassageIndex: i,
+                                    onPassageComplete: _markPassageRead,
+                                  ),
                                 ),
-                          ),
+                              ));
+                            }
+                          : canInteract
+                              ? () => _togglePassage(i)
+                              : null,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        child: Row(
+                          children: [
+                            // Cercle de complétion
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isChecked
+                                    ? AppTheme.seedGold
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: isChecked
+                                      ? AppTheme.seedGold
+                                      : Colors.white.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: isChecked
+                                  ? const Icon(Icons.check,
+                                      size: 14, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            // Référence du passage
+                            Expanded(
+                              child: Text(
+                                passage.reference,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: isChecked
+                                          ? Colors.white.withValues(alpha: 0.4)
+                                          : Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: isChecked
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                      decorationColor: Colors.white
+                                          .withValues(alpha: 0.4),
+                                    ),
+                              ),
+                            ),
+                            // Flèche (si lecture disponible)
+                            if (canRead)
+                              Icon(
+                                Icons.chevron_right,
+                                color: isChecked
+                                    ? Colors.white.withValues(alpha: 0.25)
+                                    : Colors.white.withValues(alpha: 0.6),
+                                size: 20,
+                              ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 );
               }),
 
+            // Prompt si aucune Bible installée
+            Builder(builder: (ctx) {
+              final bibleProvider = ctx.read<BibleReaderProvider>();
+              if (bibleProvider.downloadedIds.isNotEmpty) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: GestureDetector(
+                  onTap: () => ctx.push('/bible-library'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.download_outlined,
+                          size: 13,
+                          color: Colors.white.withValues(alpha: 0.45)),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Ajouter une Bible pour lire',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+
             const SizedBox(height: 8),
 
-            // Bouton progressif
-            if (widget.showButton && widget.onMarkComplete != null)
+            // Bouton progressif — ouvre le lecteur au premier passage non lu
+            if (widget.showButton)
               _ProgressButton(
                 progress: progress,
                 completedCount: completedCount,
                 totalCount: totalCount,
                 allCompleted: allCompleted,
+                onTap: () {
+                  final bibleProvider = context.read<BibleReaderProvider>();
+                  if (bibleProvider.downloadedIds.isEmpty) return;
+                  // Premier passage non lu
+                  final firstUnread = List.generate(passages.length, (i) => i)
+                      .firstWhere((i) => !_completedPassages.contains(i),
+                          orElse: () => 0);
+                  final nav = Navigator.of(context);
+                  nav.push(MaterialPageRoute(
+                    builder: (_) => ChangeNotifierProvider.value(
+                      value: bibleProvider,
+                      child: BibleReaderScreen(
+                        passages: widget.day.passages,
+                        initialPassageIndex: firstUnread,
+                        onPassageComplete: _markPassageRead,
+                      ),
+                    ),
+                  ));
+                },
               ),
           ],
         ),
@@ -220,12 +322,14 @@ class _ProgressButton extends StatelessWidget {
   final int completedCount;
   final int totalCount;
   final bool allCompleted;
+  final VoidCallback? onTap;
 
   const _ProgressButton({
     required this.progress,
     required this.completedCount,
     required this.totalCount,
     required this.allCompleted,
+    this.onTap,
   });
 
   @override
@@ -235,7 +339,9 @@ class _ProgressButton extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
+        return GestureDetector(
+          onTap: onTap,
+          child: Container(
           height: 52,
           width: double.infinity,
           clipBehavior: Clip.hardEdge,
@@ -280,23 +386,44 @@ class _ProgressButton extends StatelessWidget {
                             ),
                           ],
                         )
-                      : Text(
-                          key: const ValueKey('progress'),
-                          '$completedCount / $totalCount passage${totalCount > 1 ? 's' : ''} lu${completedCount > 1 ? 's' : ''}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                                color: textColor,
-                                fontWeight: FontWeight.bold,
+                      : Row(
+                          key: const ValueKey('read'),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.menu_book_outlined,
+                                size: 16, color: textColor),
+                            const SizedBox(width: 8),
+                            Text(
+                              completedCount > 0 ? 'Continuer la lecture' : 'Lire',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: textColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            if (completedCount > 0) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                '$completedCount/$totalCount',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: textColor.withValues(alpha: 0.6),
+                                    ),
                               ),
+                            ],
+                          ],
                         ),
                 ),
               ),
             ],
           ),
-        );
-      },
-    );
+        ), // Container
+      ); // GestureDetector
+    },
+  );
   }
 }

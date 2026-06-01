@@ -149,6 +149,32 @@ Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 
 ## Features à implémenter (backlog)
 
+### Lecteur biblique intégré — versions multiples (priorité haute)
+
+Objectif : inclure le texte de la Bible directement dans l'app (plusieurs versions), pour que l'utilisateur lise sans quitter l'app.
+
+**Versions disponibles en domaine public (français) :**
+- Louis Segond 1910 (LSG) — la plus répandue, domaine public
+- Darby — fidèle au texte source, domaine public
+- Martin 1744 — domaine public
+- Ostervald 1744 — domaine public
+
+**Architecture envisagée :**
+- Fichiers JSON par version bundlés dans `assets/bible/` (~4-6 MB/version)
+- Structure : `{ "version": "LSG", "books": [{ "name": "Genèse", "chapters": [["1:1 Au commencement...", "1:2 ..."], [...]] }] }`
+- Service `BibleReaderService` qui charge le fichier JSON en mémoire à la demande (lazy load)
+- Sélecteur de version dans les Paramètres (`SettingsProvider.bibleVersion`)
+- Les `DayCard` affichent le texte des passages si une version est chargée
+
+**UI envisagée :**
+- Onglet "Lire" ou bottom sheet qui s'ouvre depuis un passage → affiche le texte chapitre complet avec highlight des versets du plan
+- Si aucune version chargée → bouton "Ajouter une Bible" → liste des versions disponibles
+- Option téléchargement (vs bundle complet selon taille acceptable)
+
+**Contraintes :**
+- Ne pas bundler les versions sous copyright (NEG, TOB, Semeur, BFC)
+- Taille APK : 4 versions × 5 MB ≈ +20 MB — à évaluer si on bundle tout ou si on propose le téléchargement à la demande
+
 ### Balance adaptative (priorité haute)
 
 Idée : le plan ajuste dynamiquement la charge de lecture des jours restants selon le comportement du lecteur.

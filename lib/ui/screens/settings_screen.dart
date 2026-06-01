@@ -133,6 +133,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // ),
           // const SizedBox(height: 24),
 
+          // BIBLE
+          _buildSectionTitle('BIBLE'),
+          _buildSettingCard(
+            icon: Icons.menu_book_outlined,
+            title: 'Bibliothèque biblique',
+            subtitle: 'Télécharger les versions de la Bible',
+            onTap: () => context.push('/bible-library'),
+          ),
+          const SizedBox(height: 24),
+
           // INFORMATIONS
           _buildSectionTitle('INFORMATIONS'),
           _buildSettingCard(

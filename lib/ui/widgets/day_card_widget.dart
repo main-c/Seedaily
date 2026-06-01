@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:seedaily/ui/widgets/today_card_widget.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import '../../providers/bible_reader_provider.dart';
+import '../screens/bible_reader_screen.dart';
 
 /// Widget unifié pour afficher une carte de jour de lecture
 /// - Si c'est le jour à lire (isCurrent=true) → affiche TodayCardWidget (avec bouton)
@@ -179,8 +183,89 @@ class DayCardWidget extends StatelessWidget {
                   ...groupedPassages.map((passageRef) {
                     return _buildPassageRow(context, passageRef);
                   }),
+
+                  // Bouton Lire — visible si une version est téléchargée
+                  if (!isPreviewMode && !isFuture)
+                    _buildReadButton(context),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReadButton(BuildContext context) {
+    final provider = context.read<BibleReaderProvider>();
+
+    // Aucune Bible installée → prompt discret
+    if (provider.downloadedIds.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () => context.push('/bible-library'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.download_outlined,
+                    size: 13,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.4)),
+                const SizedBox(width: 4),
+                Text(
+                  'Ajouter une Bible pour lire',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.4),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: TextButton.icon(
+          onPressed: () {
+            final nav = Navigator.of(context);
+            // Ensemble local : on appelle onTap une seule fois quand tous
+            // les passages sont lus, peu importe l'ordre de lecture.
+            final completedPassages = <int>{};
+            nav.push(MaterialPageRoute(
+              builder: (_) => ChangeNotifierProvider.value(
+                value: provider,
+                child: BibleReaderScreen(
+                  passages: day.passages,
+                  onPassageComplete: (idx) {
+                    completedPassages.add(idx);
+                    if (completedPassages.length >= day.passages.length) {
+                      onTap?.call();
+                    }
+                  },
+                ),
+              ),
+            ));
+          },
+          icon: const Icon(Icons.menu_book_outlined, size: 15),
+          label: const Text('Lire'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppTheme.seedGold,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            textStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

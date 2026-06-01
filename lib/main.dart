@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +18,12 @@ import 'services/notification_service.dart';
 import 'services/widget_service.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/bible_reader_provider.dart';
 import 'ui/screens/main_shell_screen.dart';
 import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
 import 'ui/screens/about_screen.dart';
+import 'ui/screens/bible_library_screen.dart';
 
 String? pendingNotificationAction;
 bool didLaunchFromNotification = false;
@@ -33,6 +37,13 @@ void main() async {
 
       await initializeDateFormatting('fr_FR', null);
       await Firebase.initializeApp();
+
+      // AppCheck — protège Firebase Storage contre les abus
+      // En prod : AndroidProvider.playIntegrity (nécessite app signée Play Store)
+      // En dev/test : AndroidProvider.debug (accepte toutes les requêtes)
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.playIntegrity,
+      );
 
       // Envoie les erreurs Flutter (widgets, rendu) à Crashlytics
       FlutterError.onError =
@@ -153,6 +164,11 @@ class _SeedailyAppState extends State<SeedailyApp> {
           path: '/about',
           builder: (context, state) => const AboutScreen(),
         ),
+        // Bibliothèque biblique (téléchargement des versions)
+        GoRoute(
+          path: '/bible-library',
+          builder: (context, state) => const BibleLibraryScreen(),
+        ),
       ],
     );
 
@@ -195,6 +211,11 @@ class _SeedailyAppState extends State<SeedailyApp> {
             storage: widget.storageService,
             notifications: widget.notificationService,
           )..loadSettings(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BibleReaderProvider(
+            storage: widget.storageService,
+          )..load(),
         ),
       ],
       child: Consumer<SettingsProvider>(
