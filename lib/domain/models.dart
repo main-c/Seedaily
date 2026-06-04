@@ -265,6 +265,8 @@ class DistributionOptions {
   final DailyProverbMode dailyProverb;
   final bool reverse;
   final BalanceType balance;
+  // Quand non-null, le générateur distribue exactement N chapitres par jour
+  final int? chaptersPerDay;
 
   DistributionOptions({
     this.unit = DistributionUnit.chapters,
@@ -273,6 +275,7 @@ class DistributionOptions {
     this.dailyProverb = DailyProverbMode.none,
     this.reverse = false,
     this.balance = BalanceType.even,
+    this.chaptersPerDay,
   });
 
   Map<String, dynamic> toJson() => {
@@ -282,6 +285,7 @@ class DistributionOptions {
         'dailyProverb': dailyProverb.name,
         'reverse': reverse,
         'balance': balance.name,
+        if (chaptersPerDay != null) 'chaptersPerDay': chaptersPerDay,
       };
 
   factory DistributionOptions.fromJson(Map<String, dynamic> json) {
@@ -336,6 +340,7 @@ class DistributionOptions {
         (e) => e.name == (json['balance'] as String? ?? 'even'),
         orElse: () => BalanceType.even,
       ),
+      chaptersPerDay: json['chaptersPerDay'] as int?,
     );
   }
 }

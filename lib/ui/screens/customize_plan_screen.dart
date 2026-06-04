@@ -78,6 +78,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       _workingPlan = _generateDefaultPlan(_template.id);
     }
 
+    // Restaurer le mode chapitres/jour si le plan a été créé avec ce mode
+    final savedCpd = _workingPlan.options.distribution.chaptersPerDay;
+    if (savedCpd != null) {
+      _chaptersPerDayMode = true;
+      _chaptersPerDay = savedCpd;
+    }
+
     // TabController : 0 onglet pour les plans fixes, 2 pour les autres (Livres + Distribution)
     _tabController = TabController(
       length: _isFixedPlan ? 0 : 2,
@@ -211,11 +218,23 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     DistributionOptions? distribution,
     DisplayOptions? display,
   }) {
+    // En mode chapitres/jour, injecter chaptersPerDay dans la distribution
+    final baseDistribution = distribution ?? _workingPlan.options.distribution;
+    final effectiveDistribution = DistributionOptions(
+      unit: baseDistribution.unit,
+      otNtOverlap: baseDistribution.otNtOverlap,
+      dailyPsalm: baseDistribution.dailyPsalm,
+      dailyProverb: baseDistribution.dailyProverb,
+      reverse: baseDistribution.reverse,
+      balance: baseDistribution.balance,
+      chaptersPerDay: _chaptersPerDayMode ? _chaptersPerDay : null,
+    );
+
     final newOptions = GeneratorOptions(
       content: content ?? _workingPlan.options.content,
       order: order ?? _workingPlan.options.order,
       schedule: schedule ?? _workingPlan.options.schedule,
-      distribution: distribution ?? _workingPlan.options.distribution,
+      distribution: effectiveDistribution,
       display: display ?? _workingPlan.options.display,
     );
 

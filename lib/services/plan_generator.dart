@@ -364,6 +364,13 @@ class PlanGenerator {
     final actualReadingDays = _calculateActualReadingDays(schedule);
     if (actualReadingDays == 0) return readingDays;
 
+    // Mode chapitres/jour : distribuer exactement N chapitres par jour
+    final cpd = distribution.chaptersPerDay;
+    if (cpd != null && cpd > 0) {
+      return _generateReadingDaysByChapterCount(
+          weightedPassages, options, cpd);
+    }
+
     // Calculer le poids total et le poids cible par jour
     final totalWeight = weightedPassages.fold(0, (sum, wp) => sum + wp.weight);
     final targetWeightPerDay = totalWeight / actualReadingDays;
@@ -451,6 +458,75 @@ class PlanGenerator {
         readingDays.last.passages.add(weightedPassages[passageIndex].passage);
       }
       passageIndex++;
+    }
+
+    return readingDays;
+  }
+
+  /// Distribution par nombre exact de chapitres par jour
+  List<ReadingDay> _generateReadingDaysByChapterCount(
+    List<WeightedPassage> weightedPassages,
+    GeneratorOptions options,
+    int chaptersPerDay,
+  ) {
+    final schedule = options.schedule;
+    final distribution = options.distribution;
+    final readingDays = <ReadingDay>[];
+
+    DateTime currentDate = schedule.startDate;
+    int passageIndex = 0;
+    int psalmIndex = 1;
+    int dayCount = 0;
+
+    while (passageIndex < weightedPassages.length &&
+        dayCount < schedule.totalDays) {
+      if (_isReadingDay(currentDate, schedule.readingDays)) {
+        final dayPassages = <Passage>[];
+
+        for (int i = 0; i < chaptersPerDay && passageIndex < weightedPassages.length; i++) {
+          dayPassages.add(weightedPassages[passageIndex].passage);
+          passageIndex++;
+        }
+
+        if (distribution.dailyPsalm == DailyPsalmMode.one ||
+            distribution.dailyPsalm == DailyPsalmMode.sequential) {
+          dayPassages.add(Passage(
+            book: 'Psaumes',
+            fromChapter: psalmIndex,
+            toChapter: psalmIndex,
+          ));
+          psalmIndex++;
+          if (psalmIndex > 150) psalmIndex = 1;
+        }
+
+        if (distribution.dailyProverb == DailyProverbMode.one) {
+          final proverbChapter = (readingDays.length % 31) + 1;
+          dayPassages.add(Passage(
+            book: 'Proverbes',
+            fromChapter: proverbChapter,
+            toChapter: proverbChapter,
+          ));
+        } else if (distribution.dailyProverb == DailyProverbMode.dayOfMonth) {
+          final proverbChapter = currentDate.day;
+          if (proverbChapter <= 31) {
+            dayPassages.add(Passage(
+              book: 'Proverbes',
+              fromChapter: proverbChapter,
+              toChapter: proverbChapter,
+            ));
+          }
+        }
+
+        if (dayPassages.isNotEmpty) {
+          readingDays.add(ReadingDay(
+            date: currentDate,
+            passages: dayPassages,
+          ));
+        }
+      }
+
+      currentDate = currentDate.add(const Duration(days: 1));
+      dayCount++;
     }
 
     return readingDays;
