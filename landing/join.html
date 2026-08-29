@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rejoindre un groupe · Seedaily</title>
+  <meta name="description" content="Vous avez été invité(e) à lire la Bible en groupe sur Seedaily.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rejoins mon groupe de lecture sur Seedaily">
+  <meta property="og:description" content="Lis la Bible ensemble. Ouvre ce lien sur ton téléphone pour rejoindre le groupe.">
+  <meta property="og:image" content="https://seedaily.vercel.app/assets/og_join.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://seedaily.vercel.app/join">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rejoins mon groupe de lecture sur Seedaily">
+  <meta name="twitter:description" content="Lis la Bible ensemble. Ouvre ce lien sur ton téléphone pour rejoindre le groupe.">
+  <meta name="twitter:image" content="https://seedaily.vercel.app/assets/og_join.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:       #EF9D10;
+      --gold-pale:  #FEF7E8;
+      --dark:       #0a0f18;
+      --dark-mid:   #1A2232;
+      --white:      #ffffff;
+      --off:        #F7F6F3;
+      --text:       #0d1825;
+      --muted:      rgba(13,24,37,.52);
+      --border:     rgba(13,24,37,.09);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Lexend', sans-serif;
+      background: var(--off);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 32px rgba(0,0,0,.08);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .logo-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--gold-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .icon-wrap svg {
+      width: 36px;
+      height: 36px;
+      fill: var(--gold);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .code-box {
+      background: var(--gold-pale);
+      border: 2px dashed var(--gold);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 28px;
+    }
+
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .code-value {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: var(--gold);
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--gold);
+      color: var(--white);
+      font-family: 'Lexend', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 12px;
+      transition: opacity .15s;
+    }
+    .btn-primary:hover { opacity: .88; }
+
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--text);
+      font-family: 'Lexend', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: var(--off); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .footer {
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .footer a { color: var(--gold); text-decoration: none; }
+
+    #fallback { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <span class="logo-name">Seedaily</span>
+    </div>
+
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+    </div>
+
+    <h1>Vous avez été invité(e) !</h1>
+    <p class="subtitle">Rejoignez ce groupe de lecture biblique sur Seedaily et progressez ensemble.</p>
+
+    <div class="code-box">
+      <div class="code-label">Code d'invitation</div>
+      <div class="code-value" id="code-display">------</div>
+    </div>
+
+    <!-- Bouton principal : ouvrir l'app -->
+    <a id="btn-open" href="#" class="btn-primary" onclick="openApp(event)">
+      Ouvrir dans Seedaily
+    </a>
+
+    <!-- Fallback : télécharger l'app (masqué au départ) -->
+    <div id="fallback">
+      <div class="divider">ou</div>
+      <a
+        id="btn-store"
+        href="https://play.google.com/store/apps/details?id=com.seedaily.app"
+        class="btn-secondary"
+        target="_blank"
+      >
+        Télécharger Seedaily
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/">Seedaily</a> · Plans de lecture biblique quotidiens
+  </div>
+
+  <script>
+    const code = (new URLSearchParams(window.location.search).get('c') || '').toUpperCase();
+
+    if (code) document.getElementById('code-display').textContent = code;
+
+    const deepLink = `seedaily://app/join/${code}`;
+
+    function openApp(e) {
+      e.preventDefault();
+
+      // Tente d'ouvrir l'app via le deep link
+      window.location.href = deepLink;
+
+      // Si l'app n'est pas installée, le navigateur reste sur cette page
+      // → on affiche le fallback après un court délai
+      setTimeout(() => {
+        document.getElementById('fallback').style.display = 'block';
+      }, 1800);
+    }
+
+    // Sur Android, l'Intent URL peut aussi être utilisée
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      document.getElementById('btn-store').href =
+        'https://play.google.com/store/apps/details?id=com.seedaily.app';
+    }
+  </script>
+</body>
+</html>

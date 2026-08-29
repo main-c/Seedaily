@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -8,14 +8,19 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/theme.dart';
+import 'services/groups_service.dart';
 import 'services/storage_service.dart';
 import 'services/plan_generator.dart';
 import 'services/notification_service.dart';
+import 'services/update_gate_service.dart';
 import 'services/widget_service.dart';
+import 'providers/auth_provider.dart';
+import 'providers/groups_provider.dart';
 import 'providers/plans_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/bible_reader_provider.dart';
@@ -24,6 +29,9 @@ import 'ui/screens/customize_plan_screen.dart';
 import 'ui/screens/plan_detail_screen.dart';
 import 'ui/screens/about_screen.dart';
 import 'ui/screens/bible_library_screen.dart';
+import 'ui/screens/create_group_screen.dart';
+import 'ui/screens/group_detail_screen.dart';
+import 'ui/screens/join_group_screen.dart';
 
 String? pendingNotificationAction;
 bool didLaunchFromNotification = false;
@@ -36,16 +44,15 @@ void main() async {
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
       await initializeDateFormatting('fr_FR', null);
+      Intl.defaultLocale = 'fr_FR';
       await Firebase.initializeApp();
 
-      // AppCheck — protège Firebase Storage contre les abus
-      // En prod : AndroidProvider.playIntegrity (nécessite app signée Play Store)
-      // En dev/test : AndroidProvider.debug (accepte toutes les requêtes)
       await FirebaseAppCheck.instance.activate(
-        androidProvider: AndroidProvider.playIntegrity,
+        androidProvider: kDebugMode
+            ? AndroidProvider.debug
+            : AndroidProvider.playIntegrity,
       );
 
-      // Envoie les erreurs Flutter (widgets, rendu) à Crashlytics
       FlutterError.onError =
           FirebaseCrashlytics.instance.recordFlutterFatalError;
 
@@ -82,6 +89,11 @@ void main() async {
       final planGenerator = PlanGenerator();
       await WidgetService.init();
 
+      final hasSeenOnboarding = await storageService.getHasSeenOnboarding();
+
+      // Vérification silencieuse de version — ne bloque pas l'app en cas d'erreur.
+      final updateStatus = await UpdateGateService.check();
+
       FlutterNativeSplash.remove();
 
       runApp(
@@ -89,10 +101,11 @@ void main() async {
           storageService: storageService,
           notificationService: notificationService,
           planGenerator: planGenerator,
+          hasSeenOnboarding: hasSeenOnboarding,
+          updateStatus: updateStatus,
         ),
       );
     },
-    // Envoie les erreurs Dart non gérées à Crashlytics
     (error, stack) =>
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
   );
@@ -102,12 +115,16 @@ class SeedailyApp extends StatefulWidget {
   final StorageService storageService;
   final NotificationService notificationService;
   final PlanGenerator planGenerator;
+  final bool hasSeenOnboarding;
+  final UpdateStatus updateStatus;
 
   const SeedailyApp({
     super.key,
     required this.storageService,
     required this.notificationService,
     required this.planGenerator,
+    required this.hasSeenOnboarding,
+    required this.updateStatus,
   });
 
   @override
@@ -116,27 +133,33 @@ class SeedailyApp extends StatefulWidget {
 
 class _SeedailyAppState extends State<SeedailyApp> {
   late final GoRouter _router;
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  final _groupsService = GroupsService();
 
   @override
   void initState() {
     super.initState();
 
     final initialLocation = _computeInitialLocation();
+    final showTour = !widget.hasSeenOnboarding;
     pendingNotificationAction = null;
 
     _router = GoRouter(
+      navigatorKey: _navigatorKey,
       initialLocation: initialLocation,
       routes: [
-        // Shell principal avec navigation en bas
         GoRoute(
           path: '/',
           builder: (context, state) {
             final tabIndex =
                 int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-            return MainShellScreen(key: mainShellKey,  initialIndex: tabIndex);
+            return MainShellScreen(
+              key: mainShellKey,
+              initialIndex: tabIndex,
+              showTourOnLoad: showTour,
+            );
           },
         ),
-        // Routes secondaires (sans la barre de navigation)
         GoRoute(
           path: '/plan/:id',
           builder: (context, state) {
@@ -151,7 +174,6 @@ class _SeedailyAppState extends State<SeedailyApp> {
             return CustomizePlanScreen(templateId: id);
           },
         ),
-        // Route pour éditer un plan existant
         GoRoute(
           path: '/edit-plan/:id',
           builder: (context, state) {
@@ -159,15 +181,38 @@ class _SeedailyAppState extends State<SeedailyApp> {
             return CustomizePlanScreen(planId: id);
           },
         ),
-        // Route À propos
         GoRoute(
           path: '/about',
           builder: (context, state) => const AboutScreen(),
         ),
-        // Bibliothèque biblique (téléchargement des versions)
         GoRoute(
           path: '/bible-library',
           builder: (context, state) => const BibleLibraryScreen(),
+        ),
+        // Groupe — routes poussées par-dessus la shell principale
+        GoRoute(
+          path: '/groups/create',
+          builder: (context, state) => const CreateGroupScreen(),
+        ),
+        GoRoute(
+          path: '/groups/join',
+          builder: (context, state) => const JoinGroupScreen(),
+        ),
+        // Deep link : seedaily://app/join/:code
+        GoRoute(
+          path: '/join/:code',
+          builder: (context, state) {
+            final code = state.pathParameters['code'] ?? '';
+            return JoinGroupScreen(initialCode: code.toUpperCase());
+          },
+        ),
+        // Route groupe — écran détail du groupe
+        GoRoute(
+          path: '/group/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return GroupDetailScreen(groupId: id);
+          },
         ),
       ],
     );
@@ -179,6 +224,42 @@ class _SeedailyAppState extends State<SeedailyApp> {
         _router.go('/');
       }
     };
+
+    if (widget.updateStatus != UpdateStatus.upToDate) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _showUpdateDialog(widget.updateStatus));
+    }
+  }
+
+  void _showUpdateDialog(UpdateStatus status) {
+    final ctx = _navigatorKey.currentContext;
+    if (ctx == null || !ctx.mounted) return;
+
+    showDialog(
+      context: ctx,
+      barrierDismissible: status == UpdateStatus.softUpdate,
+      builder: (_) => AlertDialog(
+        title: Text(status == UpdateStatus.forceUpdate
+            ? 'Mise à jour requise'
+            : 'Mise à jour disponible'),
+        content: Text(status == UpdateStatus.forceUpdate
+            ? "Cette version n'est plus supportée. Merci de mettre à jour l'application pour continuer."
+            : 'Une nouvelle version de Seedaily est disponible avec des améliorations.'),
+        actions: [
+          if (status == UpdateStatus.softUpdate)
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Plus tard'),
+            ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.seedGold),
+            child: const Text('Mettre à jour',
+                style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   String _computeInitialLocation() {
@@ -200,11 +281,26 @@ class _SeedailyAppState extends State<SeedailyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, PlansProvider>(
           create: (_) => PlansProvider(
             storage: widget.storageService,
             generator: widget.planGenerator,
             notifications: widget.notificationService,
           )..loadPlans(),
+          update: (_, auth, plans) {
+            if (auth.isSignedIn && auth.uid != null) {
+              plans?.setGroupContext(
+                groupsService: _groupsService,
+                userId: auth.uid!,
+                displayName: auth.displayName,
+              );
+            } else {
+              plans?.clearGroupContext();
+            }
+            return plans!;
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(
@@ -217,25 +313,36 @@ class _SeedailyAppState extends State<SeedailyApp> {
             storage: widget.storageService,
           )..load(),
         ),
+        ChangeNotifierProxyProvider<AuthProvider, GroupsProvider>(
+          create: (_) => GroupsProvider(),
+          update: (_, auth, groups) {
+            if (auth.isSignedIn && auth.uid != null) {
+              groups?.init(auth.uid!);
+            } else {
+              groups?.clear();
+            }
+            return groups!;
+          },
+        ),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, child) => MaterialApp.router(
-        title: 'Seedaily',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: settings.themeMode,
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('fr', 'FR'),
-        ],
-        locale: const Locale('fr', 'FR'),
-        routerConfig: _router,
-      ),
+          title: 'Seedaily',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: settings.themeMode,
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('fr', 'FR'),
+          ],
+          locale: const Locale('fr', 'FR'),
+          routerConfig: _router,
+        ),
       ),
     );
   }

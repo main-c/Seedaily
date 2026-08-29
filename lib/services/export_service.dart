@@ -11,91 +11,79 @@ const String _appTagline = 'Générez vos plans de lecture biblique';
 const String _appUrl = 'seedaily.app';
 
 class ExportService {
-  static const double _cellPassageFontSize = 12;
-  static const double _cellDayFontSize = 12;
-  static const double _headerFontSize = 13;
-  static const double _cellPadding = 3.0;
+  // ── Typographie ──────────────────────────────────────────────────────────────
+  static const double _titleFontSize = 24.0;
+  static const double _subtitleFontSize = 10.0;
+  static const double _brandFontSize = 12.0;
+  static const double _dayHeaderFontSize = 7.5;
+  static const double _cellDayFontSize = 7.0;
+  static const double _cellPassageFontSize = 9.5;
+  static const double _cellPadding = 5.0;
 
-  // Palette app
-  static final _primaryColor = PdfColor.fromHex('#EF9D10');
-  static final _navyColor = PdfColor.fromHex('#3B4D61');
-  static final _lightBg = PdfColor.fromHex('#F7F8FA');
-  static final _borderColor = PdfColor.fromHex('#E0E4EA');
-  static final _mutedColor = PdfColor.fromHex('#7A8699');
+  // ── Palette de base ──────────────────────────────────────────────────────────
+  static final _primaryColor = PdfColor.fromHex('#EF9D10');   // seedGold
   static final _textColor = PdfColor.fromHex('#1E242C');
+  static final _mutedColor = PdfColor.fromHex('#7A8699');
+  static final _borderColor = PdfColor.fromHex('#E0E4EA');
+  static final _lightBg = PdfColor.fromHex('#F7F8FA');
+  static final _emptyCell = PdfColor.fromHex('#F4F4F4');
 
-  // Couleurs par genre
-  static final _colorLaw = PdfColor.fromHex('#8B7355');
-  static final _colorHistory = PdfColor.fromHex('#2E86AB');
-  static final _colorWisdom = PdfColor.fromHex('#A23B72');
-  static final _colorProphets = PdfColor.fromHex('#F18F01');
-  static final _colorNT = PdfColor.fromHex('#3BAE6E');
+  // ── Couleurs pastel de fond par genre ────────────────────────────────────────
+  // Loi / Torah
+  static final _bgLaw = PdfColor.fromHex('#EDE3C5');
+  // Historiques
+  static final _bgHistory = PdfColor.fromHex('#C5E2D2');
+  // Sapientiaux
+  static final _bgWisdom = PdfColor.fromHex('#D8CDE8');
+  // Prophètes
+  static final _bgProphets = PdfColor.fromHex('#F0D5B0');
+  // Évangiles & Actes
+  static final _bgGospelsActs = PdfColor.fromHex('#BDD9EB');
+  // Épîtres
+  static final _bgEpistles = PdfColor.fromHex('#F0D4B0');
+  // Apocalypse
+  static final _bgRevelation = PdfColor.fromHex('#F0C5C8');
 
-  // Livres par genre (noms français complets depuis models.dart)
+  // ── Couleurs de texte foncées pour chaque genre (lisibles sur fond pastel) ──
+  static final _fgLaw = PdfColor.fromHex('#6B5A2E');
+  static final _fgHistory = PdfColor.fromHex('#2C6048');
+  static final _fgWisdom = PdfColor.fromHex('#4A3870');
+  static final _fgProphets = PdfColor.fromHex('#7A4A18');
+  static final _fgGospelsActs = PdfColor.fromHex('#1A5070');
+  static final _fgEpistles = PdfColor.fromHex('#7A4A18');
+  static final _fgRevelation = PdfColor.fromHex('#70282C');
+
+  // ── Classification des livres ────────────────────────────────────────────────
   static const _lawBooks = {
-    'Genèse',
-    'Exode',
-    'Lévitique',
-    'Nombres',
-    'Deutéronome',
+    'Genèse', 'Exode', 'Lévitique', 'Nombres', 'Deutéronome',
   };
   static const _wisdomBooks = {
-    'Job',
-    'Psaumes',
-    'Proverbes',
-    'Ecclésiaste',
-    'Cantique des Cantiques',
+    'Job', 'Psaumes', 'Proverbes', 'Ecclésiaste', 'Cantique des Cantiques',
   };
   static const _prophetBooks = {
-    'Ésaïe',
-    'Jérémie',
-    'Lamentations',
-    'Ézéchiel',
-    'Daniel',
-    'Osée',
-    'Joël',
-    'Amos',
-    'Abdias',
-    'Jonas',
-    'Michée',
-    'Nahum',
-    'Habacuc',
-    'Sophonie',
-    'Aggée',
-    'Zacharie',
-    'Malachie',
+    'Ésaïe', 'Jérémie', 'Lamentations', 'Ézéchiel', 'Daniel',
+    'Osée', 'Joël', 'Amos', 'Abdias', 'Jonas', 'Michée', 'Nahum',
+    'Habacuc', 'Sophonie', 'Aggée', 'Zacharie', 'Malachie',
   };
-  static const _ntBooks = {
-    'Matthieu',
-    'Marc',
-    'Luc',
-    'Jean',
-    'Actes',
-    'Romains',
-    '1 Corinthiens',
-    '2 Corinthiens',
-    'Galates',
-    'Éphésiens',
-    'Philippiens',
-    'Colossiens',
-    '1 Thessaloniciens',
-    '2 Thessaloniciens',
-    '1 Timothée',
-    '2 Timothée',
-    'Tite',
-    'Philémon',
-    'Hébreux',
-    'Jacques',
-    '1 Pierre',
-    '2 Pierre',
-    '1 Jean',
-    '2 Jean',
-    '3 Jean',
-    'Jude',
-    'Apocalypse',
+  static const _gospelActsBooks = {
+    'Matthieu', 'Marc', 'Luc', 'Jean', 'Actes',
+  };
+  static const _epistleBooks = {
+    'Romains', '1 Corinthiens', '2 Corinthiens', 'Galates', 'Éphésiens',
+    'Philippiens', 'Colossiens', '1 Thessaloniciens', '2 Thessaloniciens',
+    '1 Timothée', '2 Timothée', 'Tite', 'Philémon', 'Hébreux',
+    'Jacques', '1 Pierre', '2 Pierre', '1 Jean', '2 Jean', '3 Jean', 'Jude',
+  };
+  static const _revelationBooks = {'Apocalypse'};
+
+  // ── Tous les AT hors Loi/Sagesse/Prophètes = Historiques ────────────────────
+  static const _historyBooks = {
+    'Josué', 'Juges', 'Ruth', '1 Samuel', '2 Samuel', '1 Rois', '2 Rois',
+    '1 Chroniques', '2 Chroniques', 'Esdras', 'Néhémie', 'Esther',
+    'Tobie', 'Judith', '1 Maccabées', '2 Maccabées',
   };
 
-  // ─── Public API ────────────────────────────────────────────────────────────
+  // ── Public API ────────────────────────────────────────────────────────────────
 
   Future<void> exportToPdf(
     GeneratedPlan plan, {
@@ -127,7 +115,7 @@ class ExportService {
     return result;
   }
 
-  // ─── Logo ──────────────────────────────────────────────────────────────────
+  // ── Logo ──────────────────────────────────────────────────────────────────────
 
   Future<pw.ImageProvider?> _loadLogo() async {
     try {
@@ -138,7 +126,7 @@ class ExportService {
     }
   }
 
-  // ─── Document ──────────────────────────────────────────────────────────────
+  // ── Document ──────────────────────────────────────────────────────────────────
 
   Future<pw.Document> _buildPdf(
     GeneratedPlan plan,
@@ -148,9 +136,8 @@ class ExportService {
   }) async {
     final pdf = pw.Document();
     final pageFormat = PdfPageFormat.a4.landscape;
-    const margin = 20.0;
+    const margin = 24.0;
 
-    // Page de couverture
     pdf.addPage(pw.Page(
       pageFormat: pageFormat,
       margin: pw.EdgeInsets.all(margin),
@@ -165,7 +152,10 @@ class ExportService {
     };
 
     final months = _getMonthsInRange(plan.days.first.date, plan.days.last.date);
-    final totalPages = months.length + 1; // +1 couverture
+    final totalPages = months.length + 1;
+
+    // Genres présents dans ce plan (pour la légende)
+    final presentGenres = _detectPresentGenres(plan.days);
 
     for (var i = 0; i < months.length; i++) {
       final month = months[i];
@@ -178,18 +168,22 @@ class ExportService {
         build: (_) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            _buildPageHeader(month, logo, pageNumber, totalPages),
-            pw.SizedBox(height: 8),
+            _buildPageHeader(plan, month),
+            pw.SizedBox(height: 12),
             pw.Expanded(
-                child: _buildMonthGrid(month, daysByDate,
-                    sectionColors: sectionColors,
-                    includeCheckbox: includeCheckbox)),
-            if (isLastPage) ...[
+              child: _buildMonthGrid(
+                month,
+                daysByDate,
+                sectionColors: sectionColors,
+                includeCheckbox: includeCheckbox,
+              ),
+            ),
+            if (sectionColors && isLastPage) ...[
               pw.SizedBox(height: 8),
-              _buildLegend(),
+              _buildLegend(presentGenres),
             ],
-            pw.SizedBox(height: 6),
-            _buildPageFooter(logo),
+            pw.SizedBox(height: 4),
+            _buildPageFooter(pageNumber, totalPages),
           ],
         ),
       ));
@@ -198,7 +192,7 @@ class ExportService {
     return pdf;
   }
 
-  // ─── Page de couverture ────────────────────────────────────────────────────
+  // ── Page de couverture ────────────────────────────────────────────────────────
 
   pw.Widget _buildCoverPage(GeneratedPlan plan, pw.ImageProvider? logo) {
     final fmt = DateFormat('d MMMM yyyy', 'fr_FR');
@@ -211,13 +205,12 @@ class ExportService {
         mainAxisAlignment: pw.MainAxisAlignment.center,
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          // Logo + nom app
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
               if (logo != null) ...[
-                pw.Image(logo, width: 56, height: 56),
+                pw.Image(logo, width: 52, height: 52),
                 pw.SizedBox(width: 16),
               ],
               pw.Column(
@@ -226,39 +219,35 @@ class ExportService {
                   pw.Text(
                     _appName,
                     style: pw.TextStyle(
-                      fontSize: 32,
+                      fontSize: 30,
                       fontWeight: pw.FontWeight.bold,
                       color: _primaryColor,
                     ),
                   ),
                   pw.Text(
                     _appTagline,
-                    style: pw.TextStyle(fontSize: 10, color: _mutedColor),
+                    style: pw.TextStyle(fontSize: 9, color: _mutedColor),
                   ),
                 ],
               ),
             ],
           ),
-
           pw.SizedBox(height: 36),
-          pw.Container(width: 320, height: 1.5, color: _primaryColor),
+          pw.Container(width: 280, height: 1.5, color: _primaryColor),
           pw.SizedBox(height: 36),
-
-          // Titre du plan
           pw.Text(
             plan.title,
             style: pw.TextStyle(
               fontSize: 26,
               fontWeight: pw.FontWeight.bold,
-              color: _navyColor,
+              color: _textColor,
             ),
           ),
-
           if (hasRange) ...[
             pw.SizedBox(height: 10),
             pw.Text(
-              '$startDate  —  $endDate',
-              style: pw.TextStyle(fontSize: 11, color: _navyColor),
+              '$startDate  -  $endDate',
+              style: pw.TextStyle(fontSize: 11, color: _mutedColor),
             ),
             pw.SizedBox(height: 6),
             pw.Text(
@@ -266,32 +255,16 @@ class ExportService {
               style: pw.TextStyle(fontSize: 9, color: _mutedColor),
             ),
           ],
-
-          pw.SizedBox(height: 52),
-
-          // Bandeau app
+          pw.SizedBox(height: 48),
           pw.Container(
             padding: pw.EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: pw.BoxDecoration(
               color: _lightBg,
               borderRadius: pw.BorderRadius.all(pw.Radius.circular(8)),
             ),
-            child: pw.Column(
-              children: [
-                pw.Text(
-                  'Généré avec l\'app $_appName',
-                  style: pw.TextStyle(fontSize: 8, color: _mutedColor),
-                ),
-                pw.SizedBox(height: 4),
-                pw.Text(
-                  'Téléchargez gratuitement · $_appUrl',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    fontWeight: pw.FontWeight.bold,
-                    color: _primaryColor,
-                  ),
-                ),
-              ],
+            child: pw.Text(
+              'Généré avec $_appName · $_appUrl',
+              style: pw.TextStyle(fontSize: 9, color: _mutedColor),
             ),
           ),
         ],
@@ -299,71 +272,64 @@ class ExportService {
     );
   }
 
-  // ─── En-tête de page calendrier ───────────────────────────────────────────
+  // ── En-tête de page calendrier (style screenshot) ─────────────────────────────
+  // Gauche : titre du plan (grand bold) + "Plan de Lecture • Mois Année"
+  // Droite : "Seedaily" en or muet
 
-  pw.Widget _buildPageHeader(
-      DateTime month, pw.ImageProvider? logo, int page, int total) {
-    final label = DateFormat('MMMM yyyy', 'fr_FR').format(month);
-    final capitalized = label[0].toUpperCase() + label.substring(1);
+  pw.Widget _buildPageHeader(GeneratedPlan plan, DateTime month) {
+    final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(month);
+    final monthCap = monthLabel[0].toUpperCase() + monthLabel.substring(1);
 
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      crossAxisAlignment: pw.CrossAxisAlignment.end,
       children: [
-        pw.Text(
-          capitalized,
-          style: pw.TextStyle(
-            fontSize: 16,
-            fontWeight: pw.FontWeight.bold,
-            color: _navyColor,
-          ),
-        ),
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.center,
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            if (logo != null) ...[
-              pw.Image(logo, width: 16, height: 16),
-              pw.SizedBox(width: 5),
-            ],
             pw.Text(
-              _appName,
+              plan.title,
               style: pw.TextStyle(
-                fontSize: 9,
+                fontSize: _titleFontSize,
                 fontWeight: pw.FontWeight.bold,
-                color: _navyColor,
+                color: _textColor,
               ),
             ),
-            pw.SizedBox(width: 12),
+            pw.SizedBox(height: 2),
             pw.Text(
-              '$page / $total',
-              style: pw.TextStyle(fontSize: 8, color: _mutedColor),
+              'Plan de Lecture - $monthCap',
+              style: pw.TextStyle(fontSize: _subtitleFontSize, color: _mutedColor),
             ),
           ],
+        ),
+        pw.Text(
+          _appName,
+          style: pw.TextStyle(
+            fontSize: _brandFontSize,
+            fontWeight: pw.FontWeight.bold,
+            color: _primaryColor,
+          ),
         ),
       ],
     );
   }
 
-  // ─── Pied de page ─────────────────────────────────────────────────────────
+  // ── Pied de page ──────────────────────────────────────────────────────────────
 
-  pw.Widget _buildPageFooter(pw.ImageProvider? logo) {
+  pw.Widget _buildPageFooter(int page, int total) {
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.center,
-      crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        if (logo != null) ...[
-          pw.Image(logo, width: 9, height: 9),
-          pw.SizedBox(width: 4),
-        ],
         pw.Text(
-          '$_appName · $_appTagline · $_appUrl',
+          '$_appName · $_appUrl · $page / $total',
           style: pw.TextStyle(fontSize: 6, color: _mutedColor),
         ),
       ],
     );
   }
 
-  // ─── Grille calendrier ────────────────────────────────────────────────────
+  // ── Grille mensuelle ──────────────────────────────────────────────────────────
+  // Semaine commence le lundi (standard français)
 
   List<DateTime> _getMonthsInRange(DateTime start, DateTime end) {
     final months = <DateTime>[];
@@ -382,21 +348,22 @@ class ExportService {
     bool sectionColors = true,
     bool includeCheckbox = true,
   }) {
-    const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    // Lundi = 0 … Dimanche = 6
+    const weekDays = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
 
     final firstDay = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final startWeekday = firstDay.weekday % 7; // 0=Dim
-    final numWeeks = (daysInMonth + startWeekday + 6) ~/ 7;
+    // DateTime.weekday : 1=lun … 7=dim → décalage 0-based
+    final startWeekday = firstDay.weekday - 1;
+    final numWeeks = ((daysInMonth + startWeekday) / 7).ceil();
 
     return pw.LayoutBuilder(builder: (context, constraints) {
       final availableH = constraints?.maxHeight ?? 500.0;
-      const headerH = 26.0;
+      const headerH = 22.0;
       final rowH = (availableH - headerH) / numWeeks;
 
-      // Rangée d'en-têtes
+      // ── Rangée d'en-têtes (lundi–dimanche) ────────────────────────
       final headerRow = pw.TableRow(
-        decoration: pw.BoxDecoration(color: _navyColor),
         children: weekDays
             .map((d) => pw.Container(
                   height: headerH,
@@ -404,9 +371,10 @@ class ExportService {
                   child: pw.Text(
                     d,
                     style: pw.TextStyle(
-                      fontSize: _headerFontSize,
+                      fontSize: _dayHeaderFontSize,
                       fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.white,
+                      color: _mutedColor,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ))
@@ -423,8 +391,13 @@ class ExportService {
             cells.add(_buildOutOfMonthCell(rowH));
           } else {
             final date = DateTime(month.year, month.month, dayNumber);
-            cells.add(_buildDayCell(dayNumber, daysByDate[date], rowH,
-                sectionColors: sectionColors, includeCheckbox: includeCheckbox));
+            cells.add(_buildDayCell(
+              dayNumber,
+              daysByDate[date],
+              rowH,
+              sectionColors: sectionColors,
+              includeCheckbox: includeCheckbox,
+            ));
           }
         }
         rows.add(pw.TableRow(children: cells));
@@ -440,10 +413,12 @@ class ExportService {
     });
   }
 
-  // ─── Cellules ─────────────────────────────────────────────────────────────
+  // ── Cellule hors mois ─────────────────────────────────────────────────────────
 
   pw.Widget _buildOutOfMonthCell(double height) =>
-      pw.Container(height: height, color: _lightBg);
+      pw.Container(height: height, color: _emptyCell);
+
+  // ── Cellule d'un jour ─────────────────────────────────────────────────────────
 
   pw.Widget _buildDayCell(
     int dayNumber,
@@ -454,6 +429,12 @@ class ExportService {
   }) {
     final passages = readingDay?.passages ?? [];
     final isCompleted = readingDay?.completed ?? false;
+    final hasPassages = passages.isNotEmpty;
+
+    // Couleur de fond : genre du premier passage (si l'option est activée)
+    final bgColor = (sectionColors && hasPassages)
+        ? _genreBgColor(passages.first.book)
+        : PdfColors.white;
 
     final today = DateTime.now();
     final isToday = readingDay != null &&
@@ -463,12 +444,13 @@ class ExportService {
 
     return pw.Container(
       height: height,
+      color: bgColor,
       padding: pw.EdgeInsets.all(_cellPadding),
-      color: PdfColors.white,
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         mainAxisSize: pw.MainAxisSize.min,
         children: [
+          // Numéro du jour + coche si complété
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
@@ -476,63 +458,58 @@ class ExportService {
                 '$dayNumber',
                 style: pw.TextStyle(
                   fontSize: _cellDayFontSize,
-                  fontWeight: pw.FontWeight.bold,
-                  color: isToday ? _primaryColor : _navyColor,
+                  color: isToday ? _primaryColor : _mutedColor,
+                  fontWeight: isToday ? pw.FontWeight.bold : pw.FontWeight.normal,
                 ),
               ),
-              if (isCompleted)
+              if (isCompleted && includeCheckbox)
                 pw.Text(
                   '✓',
                   style: pw.TextStyle(
                     fontSize: 7,
-                    color: _colorNT,
+                    color: _mutedColor,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
             ],
           ),
-          pw.SizedBox(height: 2),
-          ...passages.map((p) => _buildPassageLine(p,
-              isChecked: isCompleted,
-              withColor: sectionColors,
-              withCheckbox: includeCheckbox)),
+          pw.SizedBox(height: 3),
+          // Passages
+          ...passages.map((p) => _buildPassageLine(
+                p,
+                sectionColors: sectionColors,
+                includeCheckbox: includeCheckbox && !isCompleted,
+              )),
         ],
       ),
     );
   }
 
+  // ── Ligne de passage ──────────────────────────────────────────────────────────
+
   pw.Widget _buildPassageLine(
     Passage passage, {
-    bool isChecked = false,
-    bool withColor = true,
-    bool withCheckbox = true,
+    bool sectionColors = true,
+    bool includeCheckbox = true,
   }) {
+    final fgColor = sectionColors ? _genreFgColor(passage.book) : _textColor;
+
     return pw.Padding(
       padding: pw.EdgeInsets.only(bottom: 2.0),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          if (withColor) ...[
-            pw.Container(
-              width: 5,
-              height: 5,
-              decoration: pw.BoxDecoration(
-                color: _genreColor(passage.book),
-                shape: pw.BoxShape.circle,
-              ),
-            ),
+          if (includeCheckbox) ...[
+            _buildCheckbox(),
             pw.SizedBox(width: 3),
-          ],
-          if (withCheckbox) ...[
-            _buildCheckbox(isChecked: isChecked),
-            pw.SizedBox(width: 4),
           ],
           pw.Expanded(
             child: pw.Text(
               passage.shortReference,
               style: pw.TextStyle(
                 fontSize: _cellPassageFontSize,
-                color: _textColor,
+                fontWeight: pw.FontWeight.bold,
+                color: fgColor,
               ),
             ),
           ),
@@ -541,80 +518,115 @@ class ExportService {
     );
   }
 
-  pw.Widget _buildCheckbox({bool isChecked = false}) {
+  pw.Widget _buildCheckbox() {
     return pw.Container(
-      width: 8,
-      height: 8,
+      width: 7,
+      height: 7,
       decoration: pw.BoxDecoration(
-        color: isChecked ? _colorNT : PdfColors.white,
-        border: pw.Border.all(color: _navyColor, width: 0.8),
+        color: PdfColors.white,
+        border: pw.Border.all(color: _mutedColor, width: 0.7),
         borderRadius: pw.BorderRadius.circular(1.5),
       ),
-      child: isChecked
-          ? pw.Center(
-              child: pw.Text(
-                '✓',
-                style: pw.TextStyle(
-                  fontSize: 6,
-                  color: PdfColors.white,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-            )
-          : null,
     );
   }
 
-  // ─── Genre → couleur ──────────────────────────────────────────────────────
+  // ── Genre → couleur de fond ───────────────────────────────────────────────────
 
-  PdfColor _genreColor(String bookName) {
-    if (_ntBooks.contains(bookName)) return _colorNT;
-    if (_lawBooks.contains(bookName)) return _colorLaw;
-    if (_wisdomBooks.contains(bookName)) return _colorWisdom;
-    if (_prophetBooks.contains(bookName)) return _colorProphets;
-    return _colorHistory;
+  PdfColor _genreBgColor(String bookName) {
+    if (_gospelActsBooks.contains(bookName)) return _bgGospelsActs;
+    if (_epistleBooks.contains(bookName)) return _bgEpistles;
+    if (_revelationBooks.contains(bookName)) return _bgRevelation;
+    if (_lawBooks.contains(bookName)) return _bgLaw;
+    if (_wisdomBooks.contains(bookName)) return _bgWisdom;
+    if (_prophetBooks.contains(bookName)) return _bgProphets;
+    if (_historyBooks.contains(bookName)) return _bgHistory;
+    return _bgHistory; // fallback Historiques pour tout AT non classifié
   }
 
-  // ─── Légende ──────────────────────────────────────────────────────────────
+  // ── Genre → couleur de texte ──────────────────────────────────────────────────
 
-  pw.Widget _buildLegend() {
-    final items = [
-      ('Loi / Torah', _colorLaw),
-      ('Historiques', _colorHistory),
-      ('Sapientiaux', _colorWisdom),
-      ('Prophètes', _colorProphets),
-      ('Nouveau Testament', _colorNT),
+  PdfColor _genreFgColor(String bookName) {
+    if (_gospelActsBooks.contains(bookName)) return _fgGospelsActs;
+    if (_epistleBooks.contains(bookName)) return _fgEpistles;
+    if (_revelationBooks.contains(bookName)) return _fgRevelation;
+    if (_lawBooks.contains(bookName)) return _fgLaw;
+    if (_wisdomBooks.contains(bookName)) return _fgWisdom;
+    if (_prophetBooks.contains(bookName)) return _fgProphets;
+    return _fgHistory;
+  }
+
+  // ── Détecte quels genres sont présents dans le plan ───────────────────────────
+
+  Set<String> _detectPresentGenres(List<ReadingDay> days) {
+    final genres = <String>{};
+    for (final day in days) {
+      for (final p in day.passages) {
+        final name = p.book;
+        if (_gospelActsBooks.contains(name)) {
+          genres.add('gospels');
+        } else if (_epistleBooks.contains(name)) {
+          genres.add('epistles');
+        } else if (_revelationBooks.contains(name)) {
+          genres.add('revelation');
+        } else if (_lawBooks.contains(name)) {
+          genres.add('law');
+        } else if (_wisdomBooks.contains(name)) {
+          genres.add('wisdom');
+        } else if (_prophetBooks.contains(name)) {
+          genres.add('prophets');
+        } else {
+          genres.add('history');
+        }
+      }
+    }
+    return genres;
+  }
+
+  // ── Légende ───────────────────────────────────────────────────────────────────
+
+  pw.Widget _buildLegend(Set<String> presentGenres) {
+    final allItems = [
+      ('gospels',    'Évangiles & Actes', _bgGospelsActs),
+      ('epistles',   'Épîtres',           _bgEpistles),
+      ('revelation', 'Apocalypse',        _bgRevelation),
+      ('law',        'Loi / Torah',       _bgLaw),
+      ('history',    'Historiques',       _bgHistory),
+      ('wisdom',     'Sapientiaux',       _bgWisdom),
+      ('prophets',   'Prophètes',         _bgProphets),
     ];
 
-    return pw.Container(
-      padding: pw.EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      decoration: pw.BoxDecoration(
-        color: _lightBg,
-        borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
-      ),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
-        children: items
-            .map((item) => pw.Row(
-                  mainAxisSize: pw.MainAxisSize.min,
-                  children: [
-                    pw.Container(
-                      width: 8,
-                      height: 8,
-                      decoration: pw.BoxDecoration(
-                        color: item.$2,
-                        shape: pw.BoxShape.circle,
-                      ),
-                    ),
-                    pw.SizedBox(width: 4),
-                    pw.Text(
-                      item.$1,
-                      style: pw.TextStyle(fontSize: 7, color: _navyColor),
-                    ),
-                  ],
-                ))
-            .toList(),
-      ),
+    final items = allItems.where((i) => presentGenres.contains(i.$1)).toList();
+    if (items.isEmpty) return pw.SizedBox();
+
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          if (i > 0) pw.SizedBox(width: 16),
+          _buildLegendChip(items[i].$2, items[i].$3),
+        ],
+      ],
+    );
+  }
+
+  pw.Widget _buildLegendChip(String label, PdfColor color) {
+    return pw.Row(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: [
+        pw.Container(
+          width: 14,
+          height: 10,
+          decoration: pw.BoxDecoration(
+            color: color,
+            borderRadius: pw.BorderRadius.all(pw.Radius.circular(2)),
+          ),
+        ),
+        pw.SizedBox(width: 5),
+        pw.Text(
+          label,
+          style: pw.TextStyle(fontSize: 7.5, color: _mutedColor),
+        ),
+      ],
     );
   }
 }

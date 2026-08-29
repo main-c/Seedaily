@@ -440,6 +440,20 @@ class GeneratorOptions {
         'display': display.toJson(),
       };
 
+  // Utilisé pour les plans reconstruits depuis un snapshot de groupe.
+  // Les options ne sont pas significatives dans ce contexte (plan non-éditable).
+  factory GeneratorOptions.stub({
+    required DateTime startDate,
+    required int totalDays,
+  }) =>
+      GeneratorOptions(
+        content: ContentOptions(),
+        order: OrderOptions(type: OrderType.canonical),
+        schedule: ScheduleOptions(startDate: startDate, totalDays: totalDays),
+        distribution: DistributionOptions(),
+        display: DisplayOptions(),
+      );
+
   factory GeneratorOptions.fromJson(Map<String, dynamic> json) =>
       GeneratorOptions(
         content:
@@ -689,6 +703,9 @@ class GeneratedPlan {
 
   final DateTime createdAt;
 
+  // Non-null si ce plan appartient à un groupe (lecture communautaire).
+  final String? groupId;
+
   GeneratedPlan({
     required this.id,
     required this.templateId,
@@ -696,6 +713,7 @@ class GeneratedPlan {
     required this.options,
     required this.days,
     required this.createdAt,
+    this.groupId,
   });
 
   int get totalDays => days.length;
@@ -773,6 +791,18 @@ class GeneratedPlan {
     return streak;
   }
 
+  bool get isGroupPlan => groupId != null;
+
+  GeneratedPlan copyWith({String? groupId}) => GeneratedPlan(
+        id: id,
+        templateId: templateId,
+        title: title,
+        options: options,
+        days: days,
+        createdAt: createdAt,
+        groupId: groupId ?? this.groupId,
+      );
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'templateId': templateId,
@@ -780,6 +810,7 @@ class GeneratedPlan {
         'options': options.toJson(),
         'days': days.map((d) => d.toJson()).toList(),
         'createdAt': createdAt.toIso8601String(),
+        if (groupId != null) 'groupId': groupId,
       };
 
   factory GeneratedPlan.fromJson(Map<String, dynamic> json) => GeneratedPlan(
@@ -792,5 +823,6 @@ class GeneratedPlan {
             .map((d) => ReadingDay.fromJson(d as Map<String, dynamic>))
             .toList(),
         createdAt: DateTime.parse(json['createdAt'] as String),
+        groupId: json['groupId'] as String?,
       );
 }

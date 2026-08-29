@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seedaily : Plans de lecture biblique quotidiens</title>
+  <meta name="description" content="Seedaily vous aide à lire la Bible chaque jour. 11+ plans, personnalisables, avec suivi de progression et rappels quotidiens.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://seedaily.vercel.app/">
+  <link rel="icon" type="image/png" href="assets/icons/seedaily.png">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://seedaily.vercel.app/">
+  <meta property="og:title" content="Seedaily : Plans de lecture biblique quotidiens">
+  <meta property="og:description" content="Seedaily vous aide à lire la Bible chaque jour. 11+ plans personnalisables, suivi de progression et rappels quotidiens.">
+  <meta property="og:image" content="https://seedaily.vercel.app/Shot.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Seedaily">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Seedaily : Plans de lecture biblique quotidiens">
+  <meta name="twitter:description" content="Seedaily vous aide à lire la Bible chaque jour. 11+ plans personnalisables, suivi de progression et rappels quotidiens.">
+  <meta name="twitter:image" content="https://seedaily.vercel.app/Shot.png">
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    "name": "Seedaily",
+    "description": "Application de plans de lecture biblique quotidiens. 11+ modèles personnalisables, suivi de progression, rappels et export PDF.",
+    "operatingSystem": "Android",
+    "applicationCategory": "LifestyleApplication",
+    "inLanguage": "fr",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "url": "https://play.google.com/store/apps/details?id=com.seedaily.app",
+    "publisher": { "@type": "Organization", "name": "Seedaily", "url": "https://seedaily.vercel.app" }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:        #EF9D10;
+      --gold-light:  #F9C05A;
+      --gold-pale:   #FEF7E8;
+      --dark:        #0a0f18;
+      --dark-mid:    #1A2232;
+      --white:       #ffffff;
+      --off:         #F7F6F3;
+      --text:        #0d1825;
+      --muted:       rgba(13,24,37,.52);
+      --border:      rgba(13,24,37,.09);
+      --r-card:      20px;
+      --r-btn:       12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lexend', system-ui, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .hdr {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .hdr-in {
+      max-width: 1160px; margin: 0 auto;
+      padding: 0 32px; height: 66px;
+      display: flex; align-items: center; gap: 32px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 9px; }
+    .logo-name {
+      font-size: 18px; font-weight: 700;
+      color: var(--text); letter-spacing: -.3px;
+    }
+    .hdr-nav {
+      display: flex; gap: 28px; margin-left: auto;
+    }
+    .hdr-nav a {
+      font-size: 14px; font-weight: 400;
+      color: var(--muted); text-decoration: none;
+      transition: color .2s;
+    }
+    .hdr-nav a:hover { color: var(--text); }
+    .btn-hdr {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--dark); color: white;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 9px 18px; border-radius: 10px;
+      text-decoration: none; white-space: nowrap; flex-shrink: 0;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-hdr:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(10,15,24,.22); }
+
+    /* ── HERO ───────────────────────────────────── */
+    .hero {
+      max-width: 1160px; margin: 0 auto;
+      padding: 96px 32px 0;
+      display: grid; grid-template-columns: 1fr 480px;
+      gap: 48px; align-items: center;
+      min-height: calc(100vh - 66px);
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 6px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 28px;
+    }
+    .hero-tag::before {
+      content: ''; width: 8px; height: 8px;
+      border-radius: 50%; background: var(--gold); flex-shrink: 0;
+    }
+    .hero-h1 {
+      font-size: clamp(52px, 5.5vw, 76px);
+      font-weight: 900; line-height: 1.03;
+      letter-spacing: -2.5px; color: var(--text);
+      text-wrap: balance; margin-bottom: 24px;
+    }
+    .hero-h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 17px; font-weight: 300; line-height: 1.72;
+      color: var(--muted); max-width: 460px; margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold); color: var(--dark);
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      padding: 14px 28px; border-radius: var(--r-btn);
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(239,157,16,.38); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--text);
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      padding: 14px 28px; border-radius: var(--r-btn);
+      border: 1.5px solid var(--border); text-decoration: none;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-ghost:hover { border-color: var(--text); background: rgba(13,24,37,.04); }
+
+    /* phone mockup in hero */
+    .hero-visual {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone img {
+      width: 100%; height: auto;
+      display: block;
+      filter: drop-shadow(0 32px 64px rgba(10,15,24,.18));
+    }
+    .hero-glow {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 340px; height: 260px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(239,157,16,.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* subtle dot grid behind hero text */
+    .hero-left { position: relative; }
+    .hero-left::before {
+      content: '';
+      position: absolute; inset: -40px -20px;
+      background-image: radial-gradient(circle, rgba(13,24,37,.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none; z-index: -1;
+      mask-image: radial-gradient(ellipse 80% 80% at 0% 50%, black 40%, transparent 100%);
+    }
+
+    /* ── STATS BAR ──────────────────────────────── */
+    .stats { background: var(--gold); padding: 52px 32px; position: relative; z-index: 0; }
+    .stats-in {
+      max-width: 860px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr);
+    }
+    .stat {
+      text-align: center; padding: 0 24px;
+      border-right: 1px solid rgba(10,15,24,.15);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-n {
+      display: block; font-size: 48px; font-weight: 900;
+      letter-spacing: -2px; color: var(--dark); line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-l { font-size: 13px; font-weight: 400; color: rgba(10,15,24,.6); }
+
+    /* ── SHARED SECTION STYLES ──────────────────── */
+    .sec { max-width: 1160px; margin: 0 auto; padding: 100px 32px; }
+    .sec-tag {
+      display: block; font-size: 11px; font-weight: 600;
+      letter-spacing: 6px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px;
+    }
+    .sec-h {
+      font-size: clamp(30px, 3.5vw, 44px); font-weight: 900;
+      line-height: 1.08; letter-spacing: -1px;
+      color: var(--text); text-wrap: balance; margin-bottom: 14px;
+    }
+    .sec-sub {
+      font-size: 16px; font-weight: 300; line-height: 1.7;
+      color: var(--muted); max-width: 480px; margin-bottom: 56px;
+    }
+
+    /* ── FEATURES ───────────────────────────────── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 18px;
+    }
+    .feat {
+      background: var(--off); border-radius: var(--r-card);
+      padding: 32px; transition: transform .25s, box-shadow .25s;
+    }
+    .feat:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(10,15,24,.08); }
+    .feat-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: rgba(239,157,16,.12);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .feat-icon svg { width: 22px; height: 22px; fill: var(--gold); }
+    .feat-t { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .feat-d { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.62; }
+
+    /* ── PLANS (dark) ───────────────────────────── */
+    .plans-wrap { background: var(--dark); padding: 100px 32px; }
+    .plans-wrap-in { max-width: 1160px; margin: 0 auto; }
+    .plans-wrap .sec-tag-gold {
+      display: block; font-size: 11px; font-weight: 600;
+      letter-spacing: 6px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px;
+    }
+    .plans-wrap .sec-h  { color: white; }
+    .plans-wrap .sec-sub { color: rgba(255,255,255,.42); margin-bottom: 40px; }
+
+    /* Filtres */
+    .plans-filters {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 48px;
+    }
+    .pf-btn {
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 8px 20px; border-radius: 30px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.14);
+      background: transparent; color: rgba(255,255,255,.5);
+      transition: all .2s;
+    }
+    .pf-btn:hover { border-color: rgba(255,255,255,.4); color: white; }
+    .pf-btn.active {
+      background: var(--gold); border-color: var(--gold);
+      color: var(--dark);
+    }
+
+    /* Grille */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .plan-card {
+      border-radius: 16px; overflow: hidden;
+      background: #1A2232;
+      transition: transform .25s, box-shadow .25s;
+      display: flex; flex-direction: column;
+    }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.4); }
+    .plan-card[hidden] { display: none; }
+    .plan-card-img { height: 130px; position: relative; overflow: hidden; }
+    .plan-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; filter: brightness(.72) saturate(.85);
+      transition: transform .4s ease, filter .4s ease;
+    }
+    .plan-card:hover .plan-card-img img { transform: scale(1.06); filter: brightness(.88) saturate(1); }
+    .plan-card-img::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,34,50,.9) 0%, transparent 55%);
+    }
+    .plan-card-badge {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      font-size: 10px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gold);
+      background: rgba(10,15,24,.7); backdrop-filter: blur(4px);
+      padding: 4px 10px; border-radius: 20px;
+      border: 1px solid rgba(239,157,16,.25);
+    }
+    .plan-card-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+    .plan-card-name { font-size: 16px; font-weight: 700; color: white; margin-bottom: 8px; line-height: 1.25; }
+    .plan-card-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.5); line-height: 1.6; flex: 1; margin-bottom: 16px; }
+    .plan-card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .plan-meta-pill {
+      font-size: 10px; font-weight: 600; letter-spacing: .5px;
+      color: var(--gold); background: rgba(239,157,16,.1);
+      border: 1px solid rgba(239,157,16,.2);
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .plan-cta {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      text-decoration: none; color: var(--dark);
+      background: var(--gold); border-radius: 10px;
+      padding: 9px 0; transition: opacity .2s;
+      letter-spacing: .3px;
+    }
+    .plan-cta:hover { opacity: .88; }
+    @media (max-width: 1024px) { .plans-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px)  { .plans-grid { grid-template-columns: 1fr; } }
+
+    /* ── SCREENSHOTS ────────────────────────────── */
+    .shots-wrap { padding: 100px 32px; overflow: hidden; }
+    .shots-hdr { max-width: 1160px; margin: 0 auto 52px; }
+    .shots-img-wrap { max-width: 1160px; margin: 0 auto; }
+    .shots-main-img {
+      width: 100%; height: auto; display: block;
+      filter: drop-shadow(0 24px 56px rgba(10,15,24,.14));
+    }
+
+    /* ── BLOG ───────────────────────────────────── */
+    .blog-wrap { background: var(--off); }
+    .blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+    .blog-card {
+      background: white; border-radius: var(--r-card);
+      overflow: hidden; text-decoration: none; color: inherit;
+      display: block; transition: transform .25s, box-shadow .25s;
+    }
+    .blog-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(10,15,24,.1); }
+    .blog-thumb {
+      width:100%; height: 168px; overflow: hidden;
+    }
+    .blog-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+    .blog-card:hover .blog-thumb img { transform: scale(1.04); }
+    .blog-body { padding: 24px; }
+    .blog-cat {
+      font-size: 10px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--gold);
+      display: block; margin-bottom: 10px;
+    }
+    .blog-t { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.35; margin-bottom: 10px; }
+    .blog-meta { font-size: 13px; font-weight: 300; color: var(--muted); }
+    .blog-more {
+      display: flex; justify-content: center; margin-top: 44px;
+    }
+    .btn-outline-dark {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--text); font-family: inherit; font-size: 14px; font-weight: 600;
+      padding: 13px 28px; border-radius: var(--r-btn);
+      border: 1.5px solid var(--border); text-decoration: none;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-outline-dark:hover { border-color: var(--text); background: rgba(13,24,37,.04); }
+
+    /* ── FINAL CTA ──────────────────────────────── */
+    .cta-wrap {
+      position: relative; padding: 120px 32px;
+      text-align: center; overflow: hidden;
+    }
+    .cta-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('assets/images/plans/lake_forest.jpg');
+      background-size: cover; background-position: center 55%;
+      z-index: 0;
+    }
+    .cta-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(10,15,24,.78);
+      z-index: 1;
+    }
+    .cta-wrap > * { position: relative; z-index: 2; }
+    .cta-tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 6px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 24px;
+    }
+    .cta-h {
+      font-size: clamp(40px, 5vw, 64px); font-weight: 900;
+      line-height: 1.04; letter-spacing: -2px;
+      color: white; text-wrap: balance; margin-bottom: 16px;
+    }
+    .cta-sub {
+      font-size: 17px; font-weight: 300;
+      color: rgba(255,255,255,.45); margin-bottom: 44px;
+    }
+
+    /* ── FOOTER ─────────────────────────────────── */
+    .ftr {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 64px 32px 40px;
+    }
+    .ftr-in { max-width: 1160px; margin: 0 auto; }
+    .ftr-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px; margin-bottom: 56px;
+    }
+    .ftr-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .ftr-logo-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .ftr-logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ftr-logo-name { font-size: 16px; font-weight: 700; color: white; }
+    .ftr-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.35); line-height: 1.65; max-width: 260px; }
+    .ftr-col-t {
+      font-size: 10px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 20px;
+    }
+    .ftr-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .ftr-links a {
+      font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,.5); text-decoration: none;
+      transition: color .2s;
+    }
+    .ftr-links a:hover { color: rgba(255,255,255,.88); }
+    .ftr-bottom {
+      border-top: 1px solid rgba(255,255,255,.06); padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .ftr-copy { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.25); }
+    .ftr-store a {
+      font-size: 13px; font-weight: 400; color: var(--gold);
+      text-decoration: none; opacity: .8; transition: opacity .2s;
+    }
+    .ftr-store a:hover { opacity: 1; }
+
+    /* ── NATURE FULL-BLEED ──────────────────────── */
+    .nature-banner {
+      position: relative; height: 520px;
+      overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .nature-banner-bg {
+      position: absolute; inset: 0;
+      background-image: url('assets/images/plans/mountains_golden.jpg');
+      background-size: cover; background-position: center 40%;
+      transform: scale(1.04);
+      transition: transform 8s ease-out;
+    }
+    .nature-banner-bg.loaded { transform: scale(1); }
+    .nature-banner-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,15,24,.55) 0%,
+        rgba(10,15,24,.38) 50%,
+        rgba(10,15,24,.72) 100%
+      );
+    }
+    .nature-banner-content {
+      position: relative; z-index: 2;
+      text-align: center; padding: 0 32px; max-width: 680px;
+    }
+    .nature-quote {
+      font-size: clamp(24px, 3.5vw, 40px);
+      font-weight: 900; line-height: 1.18;
+      letter-spacing: -1px; color: white;
+      text-wrap: balance; margin-bottom: 20px;
+    }
+    .nature-quote em {
+      font-style: normal; color: var(--gold-light);
+    }
+    .nature-ref {
+      font-size: 13px; font-weight: 300;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+    }
+
+
+    /* ── ANIMATIONS ─────────────────────────────── */
+    .fade {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade.on { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .fade { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2,1fr); }
+      .ftr-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    }
+    @media (max-width: 768px) {
+      .hdr-nav { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 56px 24px 0; min-height: auto; gap: 40px; }
+      .hero-visual { height: 500px; }
+      .stats-in { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid rgba(10,15,24,.15); padding: 20px 0; }
+      .stat:last-child { border-bottom: none; }
+      .features-grid, .blog-grid { grid-template-columns: 1fr; }
+      .plans-wrap { padding: 72px 24px; }
+      .ftr-grid { grid-template-columns: 1fr; gap: 32px; }
+      .ftr-bottom { flex-direction: column; gap: 10px; text-align: center; }
+      .sec, .blog-wrap .sec { padding: 72px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <img src="assets/icons/play_store_512.png" alt="Seedaily">
+      </div>
+      <span class="logo-name">Seedaily</span>
+    </a>
+    <nav class="hdr-nav">
+      <a href="#fonctionnalites">Fonctionnalités</a>
+      <a href="#plans">Plans</a>
+      <a href="#blog">Blog</a>
+      <a href="#apropos">À propos</a>
+    </nav>
+    <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="btn-hdr" target="_blank" rel="noopener">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16" style="flex-shrink:0"><path d="M14.222 9.374c1.037-.61 1.037-2.137 0-2.748L11.528 5.04 8.32 8l3.207 2.96zm-3.595 2.116L7.583 8.68 1.03 14.73c.201 1.029 1.36 1.61 2.303 1.055zM1 13.396V2.603L6.846 8zM1.03 1.27l6.553 6.05 3.044-2.81L3.333.215C2.39-.341 1.231.24 1.03 1.27"/></svg>
+      Télécharger
+    </a>
+  </div>
+</header>
+
+<!-- ══ HERO ════════════════════════════════════════════ -->
+<section>
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-tag">Lecture biblique quotidienne</div>
+      <h1 class="hero-h1">Pour lire la Bible,<br><em>chaque jour.</em></h1>
+      <p class="hero-sub">Des plans structurés, recommandés par de grands théologiens, ou un plan entièrement à votre image, à votre rythme, avec vos livres.</p>
+      <div class="hero-actions">
+        <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" target="_blank" rel="noopener" style="display:inline-block;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.28)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <img src="google_play_badge_transparent.png" alt="Disponible sur Google Play" style="height:52px;width:auto;display:block;">
+        </a>
+        <a href="#fonctionnalites" class="btn-ghost">Découvrir l'app ↓</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone">
+        <img src="shot5.png" alt="Seedaily - écran Découvrir">
+      </div>
+      <div class="hero-glow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS BAR ════════════════════════════════════════ -->
+<div class="stats">
+  <div class="stats-in">
+    <div class="stat fade">
+      <span class="stat-n">11+</span>
+      <span class="stat-l">Modèles de plans</span>
+    </div>
+    <div class="stat fade">
+      <span class="stat-n">100%</span>
+      <span class="stat-l">Lecture hors ligne</span>
+    </div>
+    <div class="stat fade">
+      <span class="stat-n">Gratuit</span>
+      <span class="stat-l">Sans abonnement</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURES ════════════════════════════════════════ -->
+<section id="fonctionnalites">
+  <div class="sec">
+    <span class="sec-tag fade">Fonctionnalités</span>
+    <h2 class="sec-h fade">Tout ce qu'il vous faut<br>pour lire.</h2>
+    <p class="sec-sub fade">Simple à prendre en main, riche pour les lecteurs assidus.</p>
+    <div class="features-grid">
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        </div>
+        <div class="feat-t">11+ modèles de plans</div>
+        <div class="feat-d">M'Cheyne, Horner, Ligue, Évangiles, Psaumes et bien plus. Des plans éprouvés par des générations de lecteurs.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </div>
+        <div class="feat-t">Plans personnalisables</div>
+        <div class="feat-d">Choisissez vos livres, votre durée, votre rythme de lecture et vos jours de lecture. Tout s'adapte.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
+        </div>
+        <div class="feat-t">Lecteur biblique intégré</div>
+        <div class="feat-d">Lisez le texte directement dans l'app, en plusieurs versions françaises (LSG, Darby…), sans connexion.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        </div>
+        <div class="feat-t">Suivi de progression</div>
+        <div class="feat-d">Streak, pourcentage de complétion, statut en temps réel. Vues liste, calendrier, hebdomadaire ou par livre.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        </div>
+        <div class="feat-t">Rappels quotidiens</div>
+        <div class="feat-d">Une notification à l'heure qui vous convient, pour ne jamais manquer un jour de lecture.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+        </div>
+        <div class="feat-t">Export PDF</div>
+        <div class="feat-d">Imprimez votre plan ou partagez-le. Code couleur par genre biblique : Loi, Histoire, Sagesse, Prophètes, NT.</div>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <div class="feat-t">Lecture en groupe</div>
+        <div class="feat-d">Créez un groupe, invitez vos amis via un lien et lisez ensemble. Suivez la progression de chaque membre en temps réel.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ NATURE BANNER ════════════════════════════════════ -->
+<div class="nature-banner">
+  <div class="nature-banner-bg" id="natureBg"></div>
+  <div class="nature-banner-overlay"></div>
+  <div class="nature-banner-content fade">
+    <div class="nature-quote">
+      "Ta parole est une lampe à mes pieds,<br>et <em>une lumière</em> sur mon sentier."
+    </div>
+    <div class="nature-ref">Psaumes 119 : 105</div>
+  </div>
+</div>
+
+<!-- ══ PLANS ════════════════════════════════════════════ -->
+<section id="plans" class="plans-wrap">
+  <div class="plans-wrap-in">
+    <span class="sec-tag-gold fade">Catalogue</span>
+    <h2 class="sec-h fade">Un plan pour chaque<br>profil de lecteur.</h2>
+    <p class="sec-sub fade">Débutant ou lecteur assidu, pressé ou méthodique : il existe un plan fait pour vous.</p>
+
+    <div class="plans-filters fade" id="planFilters">
+      <button class="pf-btn active" data-filter="all">Tous</button>
+      <button class="pf-btn" data-filter="structure">Structurés</button>
+      <button class="pf-btn" data-filter="thematique">Thématiques</button>
+      <button class="pf-btn" data-filter="perso">Personnalisables</button>
+    </div>
+
+    <div class="plans-grid fade" id="plansGrid">
+
+      <!-- Structurés -->
+      <div class="plan-card" data-cat="structure">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/mountains_clouds.jpg" alt="Plan M'Cheyne" loading="lazy">
+          <span class="plan-card-badge">Intensif</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Plan M'Cheyne</div>
+          <div class="plan-card-desc">Lecture parallèle AT + NT : 2 passages le matin, 2 le soir. La méthode de Robert Murray M'Cheyne pour traverser toute la Bible en un an.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">365 jours</span>
+            <span class="plan-meta-pill">4 passages/jour</span>
+            <span class="plan-meta-pill">Bible complète</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="structure">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/hills_mist.jpg" alt="Bible en 1 an Ligue" loading="lazy">
+          <span class="plan-card-badge">Équilibré</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Bible en 1 an (Ligue)</div>
+          <div class="plan-card-desc">Chaque jour : un passage AT, un Psaume, un Proverbe et un passage NT. Une lecture complète et variée, recommandée pour une première traversée de la Bible.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">365 jours</span>
+            <span class="plan-meta-pill">4 lectures/jour</span>
+            <span class="plan-meta-pill">Bible complète</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="structure">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/path.jpg" alt="Plan Révolutionnaire" loading="lazy">
+          <span class="plan-card-badge">Souple</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Plan Révolutionnaire</div>
+          <div class="plan-card-desc">25 jours de lecture par mois, avec 5 jours de repos intégrés. Idéal pour maintenir un rythme régulier sans pression sur les semaines chargées.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">365 jours</span>
+            <span class="plan-meta-pill">25 j/mois</span>
+            <span class="plan-meta-pill">Jours de repos</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="structure">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/forest.jpg" alt="Plan Horner" loading="lazy">
+          <span class="plan-card-badge">Avancé</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Plan Horner</div>
+          <div class="plan-card-desc">10 listes bibliques lues simultanément en boucle infinie — chaque liste repart dès sa fin. La méthode du professeur Grant Horner pour une immersion totale.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">Durée libre</span>
+            <span class="plan-meta-pill">10 chapitres/jour</span>
+            <span class="plan-meta-pill">Lecture en boucle</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <!-- Thématiques -->
+      <div class="plan-card" data-cat="thematique">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/sunrise.jpg" alt="Nouveau Testament" loading="lazy">
+          <span class="plan-card-badge">NT</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Nouveau Testament</div>
+          <div class="plan-card-desc">Les 27 livres du NT en intégralité : Évangiles, Actes des Apôtres, Épîtres et Apocalypse. Un excellent point d'entrée pour découvrir la vie de Jésus et les premières Églises.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">~90 jours</span>
+            <span class="plan-meta-pill">27 livres</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="thematique">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/desert.jpg" alt="Ancien Testament" loading="lazy">
+          <span class="plan-card-badge">AT</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Ancien Testament</div>
+          <div class="plan-card-desc">Les 39 livres de l'AT : Pentateuque, livres historiques, livres de Sagesse et Prophètes. Une plongée dans les fondements de la foi biblique.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">~365 jours</span>
+            <span class="plan-meta-pill">39 livres</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="thematique">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/lake_forest.jpg" alt="Les Évangiles" loading="lazy">
+          <span class="plan-card-badge">Débutants</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Les Évangiles</div>
+          <div class="plan-card-desc">Matthieu, Marc, Luc et Jean — quatre regards sur la vie, l'enseignement et la résurrection de Jésus-Christ. Idéal pour commencer ou approfondir.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">~30 jours</span>
+            <span class="plan-meta-pill">4 livres</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="thematique">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/mountains_golden.jpg" alt="Psaumes" loading="lazy">
+          <span class="plan-card-badge">Prière</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Psaumes</div>
+          <div class="plan-card-desc">Les 150 Psaumes, le grand livre de la prière et de l'adoration. Un Psaume par jour — joie, lamentation, louange — pour nourrir votre vie spirituelle.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">150 jours</span>
+            <span class="plan-meta-pill">1 psaume/jour</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="thematique">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/nature_sun.jpg" alt="Proverbes" loading="lazy">
+          <span class="plan-card-badge">Sagesse</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Proverbes</div>
+          <div class="plan-card-desc">31 chapitres, un par jour selon le jour du mois — un cycle perpétuel de sagesse pratique. À combiner avec n'importe quel autre plan.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">31 jours</span>
+            <span class="plan-meta-pill">1 chapitre/jour</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Démarrer ce plan
+          </a>
+        </div>
+      </div>
+
+      <!-- Personnalisables -->
+      <div class="plan-card" data-cat="perso">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/pines.jpg" alt="Ordre canonique" loading="lazy">
+          <span class="plan-card-badge">Personnalisable</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Ordre canonique</div>
+          <div class="plan-card-desc">Choisissez librement vos livres, votre durée, vos jours de lecture et la distribution. L'app génère un plan sur mesure dans l'ordre traditionnel de la Bible.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">Durée libre</span>
+            <span class="plan-meta-pill">Livres au choix</span>
+            <span class="plan-meta-pill">AT + NT + Apocryphes</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Créer mon plan
+          </a>
+        </div>
+      </div>
+
+      <div class="plan-card" data-cat="perso">
+        <div class="plan-card-img">
+          <img src="assets/images/plans/mountains_snow.jpg" alt="Ordre chronologique" loading="lazy">
+          <span class="plan-card-badge">Personnalisable</span>
+        </div>
+        <div class="plan-card-body">
+          <div class="plan-card-name">Ordre chronologique</div>
+          <div class="plan-card-desc">Mêmes options que le plan canonique, mais les livres sont réordonnés selon la chronologie historique. Idéal pour comprendre la Bible comme une histoire continue.</div>
+          <div class="plan-card-meta">
+            <span class="plan-meta-pill">Durée libre</span>
+            <span class="plan-meta-pill">Livres au choix</span>
+            <span class="plan-meta-pill">Ordre historique</span>
+          </div>
+          <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="plan-cta" target="_blank" rel="noopener">
+            ▶ Créer mon plan
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCREENSHOTS ══════════════════════════════════════ -->
+<section class="shots-wrap">
+  <div class="shots-hdr fade">
+    <span class="sec-tag">L'app en images</span>
+    <h2 class="sec-h">Conçu pour la lisibilité,<br>pensé pour la constance.</h2>
+  </div>
+  <div class="shots-img-wrap fade">
+    <img src="Shot.png" loading="lazy" alt="Seedaily, aperçu de l'app" class="shots-main-img">
+  </div>
+</section>
+
+<!-- ══ BLOG ═════════════════════════════════════════════ -->
+<section id="blog" class="blog-wrap">
+  <div class="sec blog-inner">
+    <span class="sec-tag fade">Ressources</span>
+    <h2 class="sec-h fade">Conseils pour lire<br>la Bible au quotidien.</h2>
+    <p class="sec-sub fade">Articles, méthodes et témoignages pour vous accompagner dans votre parcours de lecture.</p>
+    <div class="blog-grid">
+      <a href="article.html" class="blog-card fade">
+        <div class="blog-thumb">
+          <img src="assets/images/plans/mountains_golden.jpg" loading="lazy" alt="Montagnes dorées au lever du soleil">
+        </div>
+        <div class="blog-body">
+          <span class="blog-cat">Conseils</span>
+          <div class="blog-t">Comment tenir un plan de lecture sur 365 jours sans décrocher</div>
+          <div class="blog-meta">8 min de lecture</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FINAL CTA ════════════════════════════════════════ -->
+<section class="cta-wrap" id="apropos">
+  <div class="cta-tag fade">Disponible maintenant</div>
+  <h2 class="cta-h fade">Commencez votre plan<br>aujourd'hui.</h2>
+  <p class="cta-sub fade">Gratuit · Sans compte · Sans abonnement</p>
+  <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="fade" target="_blank" rel="noopener" style="display:inline-block;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.35)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+    <img src="google_play_badge_transparent.png" alt="Disponible sur Google Play" style="height:56px;width:auto;display:block;">
+  </a>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════ -->
+<footer class="ftr">
+  <div class="ftr-in">
+    <div class="ftr-grid">
+      <div>
+        <div class="ftr-logo">
+          <div class="ftr-logo-icon">
+            <img src="assets/icons/play_store_512.png" alt="Seedaily">
+          </div>
+          <span class="ftr-logo-name">Seedaily</span>
+        </div>
+        <p class="ftr-desc">L'application de plans de lecture biblique pour lire la Bible chaque jour, à votre rythme.</p>
+      </div>
+      <div>
+        <div class="ftr-col-t">Application</div>
+        <ul class="ftr-links">
+          <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+          <li><a href="#plans">Plans disponibles</a></li>
+          <li><a href="https://play.google.com/store/apps/details?id=com.seedaily.app" target="_blank" rel="noopener">Télécharger</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ftr-col-t">Blog</div>
+        <ul class="ftr-links">
+          <li><a href="#">Derniers articles</a></li>
+          <li><a href="#">Méthodes de lecture</a></li>
+          <li><a href="#">Plans expliqués</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ftr-col-t">Légal</div>
+        <ul class="ftr-links">
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="mailto:ngoutsoprainsong@gmail.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr-bottom">
+      <span class="ftr-copy">© 2025 Seedaily. Tous droits réservés.</span>
+      <div class="ftr-store">
+        <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" target="_blank" rel="noopener">Disponible sur Google Play →</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll fade-in
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+  // Nature banner: trigger scale-in once visible
+  const natureBg = document.getElementById('natureBg');
+  if (natureBg) {
+    const bgObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { natureBg.classList.add('loaded'); bgObs.disconnect(); }
+    }, { threshold: 0.1 });
+    bgObs.observe(natureBg);
+  }
+
+  // Plans filter
+  document.querySelectorAll('.pf-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pf-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.plan-card').forEach(card => {
+        card.hidden = f !== 'all' && card.dataset.cat !== f;
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comment tenir un plan de lecture 365 jours — Seedaily Blog</title>
+  <meta name="description" content="Conseils pratiques pour maintenir un plan de lecture biblique sur une année entière sans décrocher.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:      #EF9D10;
+      --gold-lt:   #F9C05A;
+      --dark:      #0a0f18;
+      --dark-mid:  #1A2232;
+      --white:     #ffffff;
+      --off:       #F7F6F3;
+      --text:      #0d1825;
+      --muted:     rgba(13,24,37,.52);
+      --border:    rgba(13,24,37,.09);
+      --r:         16px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Lexend', system-ui, sans-serif;
+      color: var(--text); background: var(--white);
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+
+    /* ── PROGRESS BAR ───────────────────────────── */
+    #progress {
+      position: fixed; top: 0; left: 0; z-index: 300;
+      height: 3px; width: 0%; background: var(--gold);
+      transition: width .1s linear;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .hdr {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .hdr-in {
+      max-width: 1160px; margin: 0 auto;
+      padding: 0 32px; height: 66px;
+      display: flex; align-items: center; gap: 32px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .logo-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+    .hdr-nav { display: flex; gap: 28px; margin-left: auto; }
+    .hdr-nav a { font-size: 14px; font-weight: 400; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .hdr-nav a:hover { color: var(--text); }
+    .btn-hdr {
+      display: inline-flex; align-items: center;
+      background: var(--dark); color: white;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 9px 18px; border-radius: 10px;
+      text-decoration: none; flex-shrink: 0;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-hdr:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(10,15,24,.22); }
+
+    /* ── ARTICLE HERO ───────────────────────────── */
+    .art-hero {
+      position: relative; height: 520px;
+      display: flex; align-items: flex-end; overflow: hidden;
+    }
+    .art-hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('../assets/images/plans/mountains_golden.jpg');
+      background-size: cover; background-position: center 35%;
+    }
+    .art-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,15,24,.92) 0%, rgba(10,15,24,.3) 60%, rgba(10,15,24,.15) 100%);
+    }
+    .art-hero-content {
+      position: relative; z-index: 2;
+      max-width: 800px; margin: 0 auto; width: 100%;
+      padding: 0 32px 56px;
+    }
+    .art-cat {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+    }
+    .art-cat::before {
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--gold);
+    }
+    .art-h1 {
+      font-size: clamp(28px, 4vw, 48px); font-weight: 900;
+      line-height: 1.1; letter-spacing: -1.5px;
+      color: white; text-wrap: balance; margin-bottom: 20px;
+    }
+    .art-meta {
+      display: flex; align-items: center; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .art-author {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .art-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gold); display: flex; align-items: center;
+      justify-content: center; font-size: 14px; font-weight: 700;
+      color: var(--dark); flex-shrink: 0;
+    }
+    .art-author-name { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9); }
+    .art-sep { color: rgba(255,255,255,.25); font-size: 12px; }
+    .art-date, .art-read { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.55); }
+
+    /* ── ARTICLE LAYOUT ─────────────────────────── */
+    .art-layout {
+      max-width: 1160px; margin: 0 auto;
+      padding: 72px 32px 100px;
+      display: grid; grid-template-columns: 1fr 300px;
+      gap: 80px; align-items: start;
+    }
+
+    /* ── ARTICLE BODY ───────────────────────────── */
+    .art-body { min-width: 0; }
+
+    .art-body p {
+      font-size: 17px; font-weight: 300; line-height: 1.82;
+      color: rgba(13,24,37,.78); margin-bottom: 28px;
+      max-width: 680px;
+    }
+    .art-body h2 {
+      font-size: 24px; font-weight: 900; letter-spacing: -.5px;
+      color: var(--text); margin: 52px 0 18px; line-height: 1.2;
+    }
+    .art-body h3 {
+      font-size: 18px; font-weight: 700; color: var(--text);
+      margin: 36px 0 14px;
+    }
+    .art-body strong { font-weight: 700; color: var(--text); }
+    .art-body em { font-style: italic; }
+
+    .art-pullquote {
+      border-left: 3px solid var(--gold);
+      padding: 4px 0 4px 28px; margin: 40px 0;
+    }
+    .art-pullquote p {
+      font-size: 20px; font-weight: 600; line-height: 1.5;
+      color: var(--text); font-style: italic; margin-bottom: 0;
+    }
+
+    .art-tip {
+      background: var(--off); border-radius: var(--r);
+      padding: 24px 28px; margin: 36px 0;
+      border-left: 3px solid var(--gold);
+    }
+    .art-tip-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+    }
+    .art-tip p { font-size: 15px; margin-bottom: 0; color: var(--muted); }
+
+    .art-list {
+      list-style: none; margin: 0 0 28px; padding: 0;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .art-list li {
+      display: flex; gap: 14px; align-items: flex-start;
+      font-size: 16px; font-weight: 300; line-height: 1.65;
+      color: rgba(13,24,37,.78);
+    }
+    .art-list li::before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0; margin-top: 8px;
+    }
+
+    .art-img-wrap {
+      margin: 40px 0; border-radius: var(--r); overflow: hidden;
+    }
+    .art-img-wrap img {
+      width: 100%; height: 280px;
+      object-fit: cover; object-position: center; display: block;
+    }
+    .art-img-cap {
+      font-size: 12px; font-weight: 300; color: var(--muted);
+      margin-top: 10px; font-style: italic;
+    }
+
+    /* ── SIDEBAR ────────────────────────────────── */
+    .art-sidebar { position: sticky; top: 86px; }
+
+    .side-card {
+      background: var(--off); border-radius: var(--r);
+      padding: 28px; margin-bottom: 24px;
+    }
+    .side-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+    }
+    .side-toc { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .side-toc a {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      text-decoration: none; line-height: 1.4;
+      transition: color .2s; display: block;
+      padding-left: 14px; position: relative;
+    }
+    .side-toc a::before {
+      content: ''; position: absolute; left: 0; top: 7px;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border);
+      transition: background .2s;
+    }
+    .side-toc a:hover { color: var(--text); }
+    .side-toc a:hover::before { background: var(--gold); }
+    .side-toc a.active { color: var(--text); font-weight: 600; }
+    .side-toc a.active::before { background: var(--gold); }
+
+    .side-cta {
+      background: var(--dark); border-radius: var(--r);
+      padding: 28px; text-align: center;
+    }
+    .side-cta p {
+      font-size: 14px; font-weight: 300; color: rgba(255,255,255,.55);
+      line-height: 1.6; margin-bottom: 20px;
+    }
+    .btn-gold-sm {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--gold); color: var(--dark);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      padding: 11px 20px; border-radius: 10px;
+      text-decoration: none; width: 100%;
+      justify-content: center;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .btn-gold-sm:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239,157,16,.35); }
+
+    /* Tags article */
+    .art-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+    .art-tag {
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      background: var(--off); border-radius: 20px;
+      padding: 6px 14px; text-decoration: none;
+      transition: color .2s, background .2s;
+    }
+    .art-tag:hover { color: var(--gold); background: rgba(239,157,16,.1); }
+
+    /* ── RELATED ARTICLES ───────────────────────── */
+    .related { max-width: 1160px; margin: 0 auto; padding: 80px 32px; }
+    .related-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; margin-top: 40px; }
+    .rel-card {
+      background: var(--off); border-radius: var(--r);
+      overflow: hidden; text-decoration: none; color: inherit;
+      display: block; transition: transform .25s, box-shadow .25s;
+    }
+    .rel-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(10,15,24,.1); }
+    .rel-thumb {
+      width: 100%; height: 140px; object-fit: cover;
+      object-position: center; display: block;
+      filter: brightness(.85) saturate(.8);
+      transition: filter .3s;
+    }
+    .rel-card:hover .rel-thumb { filter: brightness(.95) saturate(1); }
+    .rel-body { padding: 20px; }
+    .rel-cat {
+      font-size: 10px; font-weight: 600; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: block;
+    }
+    .rel-t { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.35; margin-bottom: 8px; }
+    .rel-meta { font-size: 12px; font-weight: 300; color: var(--muted); }
+
+    /* ── FOOTER ─────────────────────────────────── */
+    .ftr { background: var(--dark); border-top: 1px solid rgba(255,255,255,.06); padding: 64px 32px 40px; }
+    .ftr-in { max-width: 1160px; margin: 0 auto; }
+    .ftr-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 56px; }
+    .ftr-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .ftr-logo-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--gold); display: flex; align-items: center; justify-content: center; }
+    .ftr-logo-icon svg { width: 16px; height: 16px; fill: white; }
+    .ftr-logo-name { font-size: 16px; font-weight: 700; color: white; }
+    .ftr-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.35); line-height: 1.65; max-width: 260px; }
+    .ftr-col-t { font-size: 10px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 20px; }
+    .ftr-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .ftr-links a { font-size: 14px; font-weight: 300; color: rgba(255,255,255,.5); text-decoration: none; transition: color .2s; }
+    .ftr-links a:hover { color: rgba(255,255,255,.88); }
+    .ftr-bottom { border-top: 1px solid rgba(255,255,255,.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .ftr-copy { font-size: 13px; font-weight: 300; color: rgba(255,255,255,.25); }
+
+    /* ── FADE ───────────────────────────────────── */
+    .fade { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+    .fade.on { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) { .fade { opacity:1; transform:none; transition:none; } }
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 1024px) {
+      .art-layout { grid-template-columns: 1fr; gap: 48px; }
+      .art-sidebar { position: static; }
+      .ftr-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    }
+    @media (max-width: 768px) {
+      .hdr-nav { display: none; }
+      .art-hero { height: 400px; }
+      .art-hero-content { padding: 0 24px 40px; }
+      .art-layout { padding: 48px 24px 72px; }
+      .related { padding: 60px 24px; }
+      .related-grid { grid-template-columns: 1fr; }
+      .ftr-grid { grid-template-columns: 1fr; gap: 32px; }
+      .ftr-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ══ HEADER ══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">
+        <img src="../assets/icons/splash_logo.png" alt="Seedaily">
+      </div>
+      <span class="logo-name">Seedaily</span>
+    </a>
+    <nav class="hdr-nav">
+      <a href="index.html">Accueil</a>
+      <a href="index.html#fonctionnalites">Fonctionnalités</a>
+      <a href="index.html#plans">Plans</a>
+      <a href="#">Blog</a>
+    </nav>
+    <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="btn-hdr" target="_blank" rel="noopener">Télécharger</a>
+  </div>
+</header>
+
+<!-- ══ ARTICLE HERO ════════════════════════════════════ -->
+<div class="art-hero">
+  <div class="art-hero-bg"></div>
+  <div class="art-hero-overlay"></div>
+  <div class="art-hero-content">
+    <div class="art-cat">Conseils</div>
+    <h1 class="art-h1">Comment tenir un plan de lecture<br>sur 365 jours sans décrocher</h1>
+    <div class="art-meta">
+      <div class="art-author">
+        <div class="art-avatar">Y</div>
+        <span class="art-author-name">Yannik KADJIE</span>
+      </div>
+      <span class="art-sep">·</span>
+      <span class="art-date">12 juin 2025</span>
+      <span class="art-sep">·</span>
+      <span class="art-read">8 min de lecture</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARTICLE + SIDEBAR ═══════════════════════════════ -->
+<div class="art-layout">
+
+  <!-- CORPS DE L'ARTICLE -->
+  <article class="art-body">
+
+    <p>Lire la Bible en entier sur une année est l'un des objectifs les plus courants chez les chrétiens — et l'un des plus souvent abandonnés avant le mois de mars. Ce n'est pas un problème de volonté. C'est un problème de méthode et d'organisation. Voici ce qui fonctionne vraiment.</p>
+
+    <h2 id="s1">1. Choisir le bon plan dès le départ</h2>
+
+    <p>Le premier faux pas, c'est de choisir un plan trop ambitieux ou inadapté à son rythme de vie. Un plan M'Cheyne demande de lire 4 passages par jour — c'est idéal pour un lecteur aguerri, mais écrasant pour quelqu'un qui reprend la lecture après une longue pause.</p>
+
+    <p>Avant de commencer, posez-vous ces trois questions : <strong>Combien de minutes puis-je consacrer à la lecture chaque jour ?</strong> Préférez-vous lire l'Ancien et le Nouveau Testament en parallèle, ou de manière séquentielle ? Souhaitez-vous inclure les Psaumes et les Proverbes quotidiennement ?</p>
+
+    <div class="art-tip">
+      <div class="art-tip-label">Conseil pratique</div>
+      <p>Si vous débutez, commencez par le plan <strong>Ligue (Bible en 1 an)</strong> : il distribue la lecture de manière équilibrée chaque jour, avec AT, Psaumes et NT. Ni trop long, ni trop court.</p>
+    </div>
+
+    <h2 id="s2">2. Intégrer la lecture dans une routine existante</h2>
+
+    <p>La régularité ne vient pas de la motivation — elle vient de l'habitude. La motivation fluctue. L'habitude, non. Le secret est d'attacher la lecture biblique à quelque chose que vous faites déjà chaque jour.</p>
+
+    <ul class="art-list">
+      <li>Le matin avec le café, avant d'ouvrir votre téléphone</li>
+      <li>Dans les transports en commun, en utilisant le lecteur intégré de Seedaily</li>
+      <li>Le soir, les 15 minutes avant d'éteindre la lumière</li>
+      <li>Pendant votre pause déjeuner, dans un endroit calme</li>
+    </ul>
+
+    <div class="art-pullquote">
+      <p>"Ce n'est pas le meilleur moment qui fait l'habitude, c'est la cohérence du moment choisi."</p>
+    </div>
+
+    <h2 id="s3">3. Gérer les jours manqués sans culpabiliser</h2>
+
+    <p>Vous allez manquer des jours. C'est inévitable — maladie, voyage, surcharge de travail. La question n'est pas d'éviter ces jours manqués, mais de savoir quoi faire quand ils arrivent.</p>
+
+    <p>La pire chose à faire est d'essayer de "rattraper" en doublant les lectures pendant une semaine. Cela crée une pression artificielle qui mène souvent à l'abandon total. À la place, reprenez simplement là où vous en étiez. Un jour manqué ne ruine pas une année de lecture.</p>
+
+    <div class="art-img-wrap">
+      <img src="../assets/images/plans/path.jpg" alt="Sentier en forêt — une lecture pas à pas">
+      <div class="art-img-cap">La régularité, comme un sentier, se construit pas à pas.</div>
+    </div>
+
+    <h2 id="s4">4. Utiliser les outils qui vous maintiennent engagé</h2>
+
+    <p>Seedaily a été conçu pour répondre précisément à ce problème de maintien. Voici les fonctionnalités qui font la différence sur la durée :</p>
+
+    <ul class="art-list">
+      <li><strong>Le streak quotidien</strong> : voir votre série de jours consécutifs est un puissant moteur psychologique pour ne pas interrompre.</li>
+      <li><strong>Les vues calendrier et hebdomadaire</strong> : visualiser votre progression sur un mois entier donne une perspective que la simple liste ne permet pas.</li>
+      <li><strong>Les rappels personnalisés</strong> : activez une notification à l'heure précise où vous avez décidé de lire. Ne laissez pas le hasard décider.</li>
+      <li><strong>L'export PDF</strong> : imprimer son plan et le cocher à la main renforce l'engagement pour certains lecteurs.</li>
+    </ul>
+
+    <h2 id="s5">5. S'autoriser à adapter le plan en cours de route</h2>
+
+    <p>Un plan de lecture n'est pas un contrat légal. Si vous réalisez en mars que le rythme choisi est trop soutenu, rien ne vous empêche de le modifier. Seedaily permet d'éditer un plan existant en préservant les jours déjà complétés — vous ne perdez pas votre progression.</p>
+
+    <p>L'objectif n'est pas de finir le plan à la date prévue. L'objectif est de lire la Bible. Si cela prend 14 mois au lieu de 12, vous aurez quand même lu la Bible.</p>
+
+    <div class="art-tip">
+      <div class="art-tip-label">À retenir</div>
+      <p>La lecture biblique régulière transforme durablement la manière dont vous pensez, pas seulement ce que vous savez. Donnez-lui le temps de faire son travail.</p>
+    </div>
+
+    <div class="art-tags">
+      <a href="#" class="art-tag">Plans de lecture</a>
+      <a href="#" class="art-tag">Habitudes</a>
+      <a href="#" class="art-tag">Bible en 1 an</a>
+      <a href="#" class="art-tag">Conseils</a>
+      <a href="#" class="art-tag">Régularité</a>
+    </div>
+
+  </article>
+
+  <!-- SIDEBAR -->
+  <aside class="art-sidebar">
+
+    <div class="side-card">
+      <div class="side-label">Dans cet article</div>
+      <ul class="side-toc">
+        <li><a href="#s1" class="active">Choisir le bon plan</a></li>
+        <li><a href="#s2">Intégrer une routine</a></li>
+        <li><a href="#s3">Gérer les jours manqués</a></li>
+        <li><a href="#s4">Les bons outils</a></li>
+        <li><a href="#s5">Adapter en cours de route</a></li>
+      </ul>
+    </div>
+
+    <div class="side-cta">
+      <div class="side-label" style="color:var(--gold); text-align:left; margin-bottom:12px;">L'app gratuite</div>
+      <p>Tous les plans mentionnés dans cet article sont disponibles gratuitement dans Seedaily.</p>
+      <a href="https://play.google.com/store/apps/details?id=com.seedaily.app" class="btn-gold-sm" target="_blank" rel="noopener">
+        Télécharger
+      </a>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ══ RELATED ARTICLES ══════════════════════════════════ -->
+<div class="related">
+  <span style="display:block;font-size:11px;font-weight:600;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;" class="fade">Continuer la lecture</span>
+  <h2 style="font-size:clamp(24px,3vw,36px);font-weight:900;letter-spacing:-1px;color:var(--text);" class="fade">Articles similaires</h2>
+  <div class="related-grid">
+    <a href="#" class="rel-card fade">
+      <img src="../assets/images/plans/hills_mist.jpg" class="rel-thumb" alt="M'Cheyne">
+      <div class="rel-body">
+        <span class="rel-cat">Plans</span>
+        <div class="rel-t">Le plan M'Cheyne expliqué — origine, structure et comment le démarrer</div>
+        <div class="rel-meta">6 min de lecture</div>
+      </div>
+    </a>
+    <a href="#" class="rel-card fade">
+      <img src="../assets/images/plans/desert.jpg" class="rel-thumb" alt="Chronologique">
+      <div class="rel-body">
+        <span class="rel-cat">Méthodes</span>
+        <div class="rel-t">Pourquoi lire la Bible en ordre chronologique change tout à la compréhension</div>
+        <div class="rel-meta">5 min de lecture</div>
+      </div>
+    </a>
+    <a href="#" class="rel-card fade">
+      <img src="../assets/images/plans/sunrise.jpg" class="rel-thumb" alt="Streak">
+      <div class="rel-body">
+        <span class="rel-cat">Motivation</span>
+        <div class="rel-t">Comment le streak transforme votre rapport à la lecture quotidienne</div>
+        <div class="rel-meta">4 min de lecture</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════ -->
+<footer class="ftr">
+  <div class="ftr-in">
+    <div class="ftr-grid">
+      <div>
+        <div class="ftr-logo">
+          <div class="ftr-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
+          </div>
+          <span class="ftr-logo-name">Seedaily</span>
+        </div>
+        <p class="ftr-desc">L'application de plans de lecture biblique pour lire la Bible chaque jour, à votre rythme.</p>
+      </div>
+      <div>
+        <div class="ftr-col-t">Application</div>
+        <ul class="ftr-links">
+          <li><a href="index.html#fonctionnalites">Fonctionnalités</a></li>
+          <li><a href="index.html#plans">Plans disponibles</a></li>
+          <li><a href="https://play.google.com/store/apps/details?id=com.seedaily.app" target="_blank">Télécharger</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ftr-col-t">Blog</div>
+        <ul class="ftr-links">
+          <li><a href="#">Derniers articles</a></li>
+          <li><a href="#">Méthodes de lecture</a></li>
+          <li><a href="#">Plans expliqués</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ftr-col-t">Légal</div>
+        <ul class="ftr-links">
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="mailto:ngoutsoprainsong@gmail.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr-bottom">
+      <span class="ftr-copy">© 2025 Seedaily. Tous droits réservés.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reading progress bar
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    bar.style.width = pct + '%';
+  }, { passive: true });
+
+  // Fade-in on scroll
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+  // Active TOC link on scroll
+  const headings = document.querySelectorAll('article h2[id]');
+  const tocLinks = document.querySelectorAll('.side-toc a');
+  const tocObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.side-toc a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  headings.forEach(h => tocObs.observe(h));
+</script>
+</body>
+</html>

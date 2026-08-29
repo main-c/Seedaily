@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:seedaily/ui/screens/main_shell_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/plan_generator.dart';
@@ -448,7 +452,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: _savePlan,
+              onPressed: widget.isEditMode ? _savePlan : _showStartOptions,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.seedGold,
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
@@ -1650,6 +1654,93 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       ),
     );
   }
+
+  // ── Choix Solo / Avec des amis ────────────────────────────────────────────
+
+  void _showStartOptions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _ReadingTogetherModal(
+        onSolo: () {
+          Navigator.pop(ctx);
+          _savePlan();
+        },
+        onInvite: () {
+          Navigator.pop(ctx);
+          _saveGroupPlan();
+        },
+      ),
+    );
+  }
+
+  Future<void> _saveGroupPlan() async {
+    if (_workingPlan.options.content.selectedBooks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner au moins un livre biblique'),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+      return;
+    }
+
+    final auth = context.read<AuthProvider>();
+
+    // Si pas connecté, connexion Google silencieuse d'abord
+    if (!auth.isSignedIn) {
+      final ok = await auth.signInWithGoogle();
+      if (!mounted || !ok) return;
+    }
+
+    final groupsProvider = context.read<GroupsProvider>();
+    final plansProvider = context.read<PlansProvider>();
+    final planTitle = _titleController.text;
+
+    final plan = _generator.generate(
+      templateId: _workingPlan.templateId,
+      title: planTitle,
+      options: _workingPlan.options,
+      existingPlanId: _workingPlan.id,
+    );
+
+    final group = await groupsProvider.createGroup(
+      name: planTitle,
+      hostId: auth.uid!,
+      hostDisplayName: auth.displayName,
+      hostAvatarUrl: auth.avatarUrl,
+      plan: plan,
+    );
+
+    if (!mounted) return;
+
+    if (group == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                groupsProvider.error ?? 'Erreur de création du groupe.')),
+      );
+      groupsProvider.clearError();
+      return;
+    }
+
+    await plansProvider.importGroupPlan(plan.copyWith(groupId: group.id));
+
+    // Partage le lien d'invitation
+    final inviteCode = group.inviteCode;
+    await Share.share(
+      '📖 Lis la Bible avec moi sur Seedaily !\n\n'
+      'Rejoins mon plan "$planTitle" en cliquant ici :\n'
+      'seedaily://app/join/$inviteCode\n\n'
+      'Si tu n\'as pas encore l\'app :\n'
+      'https://play.google.com/store/apps/details?id=com.seedaily.app',
+      subject: 'Invitation à lire ensemble sur Seedaily',
+    );
+
+    if (!mounted) return;
+    context.push('/group/${group.id}');
+  }
 }
 
 // Delegate pour le TabBar sticky
@@ -1678,3 +1769,109 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
+
+// ── Modal "Lire ensemble" ─────────────────────────────────────────────────────
+
+class _ReadingTogetherModal extends StatelessWidget {
+  final VoidCallback onSolo;
+  final VoidCallback onInvite;
+
+  const _ReadingTogetherModal({
+    required this.onSolo,
+    required this.onInvite,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        24, 16, 24, 24 + MediaQuery.of(context).padding.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Barre de drag
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: cs.outline.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Illustration
+          SvgPicture.asset(
+            'assets/illustrations/reading_together.svg',
+            height: 200,
+          ),
+          const SizedBox(height: 28),
+
+          // Titre
+          Text(
+            'Deux valent mieux qu\'un !',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+
+          // Sous-titre
+          Text(
+            'La lecture de la Bible est encore meilleure en groupe.\n'
+            'Invite tes proches à te rejoindre dans ce plan !',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.6),
+                  height: 1.55,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // Bouton principal — inviter
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton.icon(
+              onPressed: onInvite,
+              icon: const Icon(Icons.people_outline, size: 20),
+              label: const Text(
+                'Inviter mes amis',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.seedGold,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Bouton secondaire — solo
+          TextButton(
+            onPressed: onSolo,
+            child: Text(
+              'Continuer seul(e)',
+              style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.5),
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

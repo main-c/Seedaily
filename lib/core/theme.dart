@@ -4,8 +4,8 @@ class AppTheme {
   static const String appVersion = '1.2.0';
 
   static const Color seedGold = Color(0xFFEF9D10);
-  static const Color deepNavy = Color(0xFF3B4D61);
-  static const Color mistGreyBlue = Color(0xFF6B7B8C);
+  static const Color deepNavy = Color(0xFF1A1A1A);
+  static const Color mistGreyBlue = Color(0xFF6B7280);
   static const Color backgroundLight = Color(0xFFF7F8FA);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color borderSubtle = Color(0xFFE0E4EA);

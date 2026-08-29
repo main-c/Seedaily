@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/models.dart';
 import '../services/analytics_service.dart';
+import '../services/groups_service.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../services/plan_generator.dart';
@@ -15,6 +16,12 @@ class PlansProvider with ChangeNotifier {
   final StorageService _storage;
   final PlanGenerator _generator;
   final NotificationService _notifications;
+
+  // Contexte groupe — injecté depuis main.dart après connexion.
+  // Null si l'utilisateur n'est pas connecté ou avant injection.
+  GroupsService? _groupsService;
+  String? _currentUserId;
+  String? _currentUserDisplayName;
 
   List<GeneratedPlan> _plans = [];
   bool _isLoading = false;
@@ -28,6 +35,25 @@ class PlansProvider with ChangeNotifier {
   })  : _storage = storage,
         _generator = generator,
         _notifications = notifications;
+
+  // Appelé depuis main.dart dès que l'AuthProvider signale une connexion.
+  void setGroupContext({
+    required GroupsService groupsService,
+    required String userId,
+    required String displayName,
+  }) {
+    if (_currentUserId == userId) return;
+    _groupsService = groupsService;
+    _currentUserId = userId;
+    _currentUserDisplayName = displayName;
+  }
+
+  void clearGroupContext() {
+    if (_currentUserId == null) return;
+    _groupsService = null;
+    _currentUserId = null;
+    _currentUserDisplayName = null;
+  }
 
   List<GeneratedPlan> get plans => _plans;
   bool get isLoading => _isLoading;
@@ -56,6 +82,43 @@ class PlansProvider with ChangeNotifier {
 
     await _rescheduleSmartNotifications();
     await _updateWidget();
+  }
+
+  // Génère un plan sans le sauvegarder (utilisé pour la création de groupe).
+  GeneratedPlan generatePlan({
+    required String templateId,
+    required String title,
+    required GeneratorOptions options,
+  }) =>
+      _generator.generate(templateId: templateId, title: title, options: options);
+
+  // Sauvegarde un plan pré-construit (ex: plan de groupe reconstruit depuis snapshot).
+  Future<void> importGroupPlan(GeneratedPlan plan) async {
+    // Ne pas créer de doublon si un plan local pour ce groupe existe déjà.
+    final existing = _plans.firstWhere(
+      (p) => p.groupId == plan.groupId,
+      orElse: () => plan,
+    );
+    if (existing != plan) return;
+    await _storage.savePlan(plan);
+    await loadPlans();
+  }
+
+  // Supprime le plan local lié à un groupe (quitter / supprimer le groupe).
+  Future<void> deletePlanByGroupId(String groupId) async {
+    final plan = _plans.where((p) => p.groupId == groupId).toList();
+    for (final p in plan) {
+      await _storage.deletePlan(p.id);
+      _plans.removeWhere((e) => e.id == p.id);
+    }
+    if (plan.isNotEmpty) notifyListeners();
+  }
+
+  // Lie un plan solo existant à un groupe (après conversion).
+  Future<void> linkPlanToGroup(String planId, String groupId) async {
+    final plan = _plans.firstWhere((p) => p.id == planId);
+    await _storage.savePlan(plan.copyWith(groupId: groupId));
+    await loadPlans();
   }
 
   Future<void> createPlan({
@@ -176,6 +239,26 @@ class PlansProvider with ChangeNotifier {
         await _storage.updatePlanDay(planId, date, newValue);
         plan.days[dayIndex].completed = newValue;
         notifyListeners();
+
+        // Double-écriture Firestore pour les plans de groupe.
+        if (plan.isGroupPlan &&
+            _groupsService != null &&
+            _currentUserId != null) {
+          if (newValue) {
+            await _groupsService!.markDayComplete(
+              groupId: plan.groupId!,
+              userId: _currentUserId!,
+              displayName: _currentUserDisplayName ?? 'Membre',
+              dayIndex: dayIndex,
+            );
+          } else {
+            await _groupsService!.unmarkDayComplete(
+              groupId: plan.groupId!,
+              userId: _currentUserId!,
+              dayIndex: dayIndex,
+            );
+          }
+        }
 
         if (newValue) {
           final streak = plan.currentStreak;

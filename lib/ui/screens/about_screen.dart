@@ -46,31 +46,13 @@ class AboutScreen extends StatelessWidget {
             title: 'Fonctionnalités',
             child: Column(
               children: [
-                _buildFeatureItem(
-                  context,
-                  icon: Icons.calendar_month_outlined,
-                  text: 'Plans de lecture personnalisables',
-                ),
-                _buildFeatureItem(
-                  context,
-                  icon: Icons.notifications_outlined,
-                  text: 'Rappels quotidiens',
-                ),
-                _buildFeatureItem(
-                  context,
-                  icon: Icons.track_changes_outlined,
-                  text: 'Suivi de progression',
-                ),
-                _buildFeatureItem(
-                  context,
-                  icon: Icons.picture_as_pdf_outlined,
-                  text: 'Export PDF et partage',
-                ),
-                _buildFeatureItem(
-                  context,
-                  icon: Icons.menu_book_outlined,
-                  text: 'Multiples formats de lecture',
-                ),
+                _buildFeatureItem(context, icon: Icons.auto_awesome_outlined, text: '11+ modèles de plans prêts à l\'emploi'),
+                _buildFeatureItem(context, icon: Icons.tune_outlined, text: 'Plans entièrement personnalisables'),
+                _buildFeatureItem(context, icon: Icons.menu_book_outlined, text: 'Lecteur biblique intégré (LSG, Darby…)'),
+                _buildFeatureItem(context, icon: Icons.track_changes_outlined, text: 'Suivi de progression et streak'),
+                _buildFeatureItem(context, icon: Icons.picture_as_pdf_outlined, text: 'Export PDF et partage'),
+                _buildFeatureItem(context, icon: Icons.notifications_outlined, text: 'Rappels quotidiens personnalisables'),
+                _buildFeatureItem(context, icon: Icons.widgets_outlined, text: 'Widget écran d\'accueil'),
               ],
             ),
           ),
@@ -144,19 +126,11 @@ class AboutScreen extends StatelessWidget {
   Widget _buildAppHeader(BuildContext context) {
     return Column(
       children: [
-        // Logo/Icône
+        // Logo réel de l'app
         Container(
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.seedGold,
-                Color(0xFFD4A84B),
-              ],
-            ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
@@ -166,10 +140,14 @@ class AboutScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.menu_book_rounded,
-            size: 48,
-            color: Colors.white,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              'assets/icons/play_store_512.png',
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -263,7 +241,7 @@ class AboutScreen extends StatelessWidget {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
             ),
           ),

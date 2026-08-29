@@ -23,28 +23,30 @@
       flex-direction: column;
       align-items: center;
       gap: 0;
-      padding: 64px 32px;
+      padding: 192px 96px;
     }
 
     .section-label {
       color: rgba(239,157,16,0.5);
-      font-size: 11px;
-      letter-spacing: 3px;
+      font-size: 33px;
+      letter-spacing: 9px;
       text-transform: uppercase;
-      margin-bottom: 40px;
+      margin-bottom: 120px;
     }
 
     /* ─── Slide container ─────────────────────────── */
+    /* Rendered at 3x (1140x2022) so exported PNGs are store-ready and sharp,
+       instead of the raw 380x674 CSS box being captured at 1x. */
     .slide {
-      width: 380px;
-      height: 674px; /* ~9:16 */
+      width: 1140px;
+      height: 2022px; /* ~9:16 */
       position: relative;
       overflow: hidden;
-      border-radius: 28px;
-      margin-bottom: 32px;
+      border-radius: 84px;
+      margin-bottom: 96px;
       box-shadow:
-        0 40px 80px rgba(0,0,0,0.6),
-        0 0 0 1px rgba(255,255,255,0.06);
+        0 120px 240px rgba(0,0,0,0.6),
+        0 0 0 3px rgba(255,255,255,0.06);
     }
 
     /* SVG background fills the slide */
@@ -59,7 +61,7 @@
     .slide-content {
       position: absolute;
       inset: 0;
-      padding: 48px 36px 0;
+      padding: 144px 108px 0;
       display: flex;
       flex-direction: column;
     }
@@ -68,47 +70,47 @@
     .tag {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 10px;
+      gap: 24px;
+      font-size: 30px;
       font-weight: 600;
-      letter-spacing: 2.5px;
+      letter-spacing: 7.5px;
       text-transform: uppercase;
-      margin-bottom: 20px;
+      margin-bottom: 60px;
     }
     .tag-dot {
-      width: 6px; height: 6px;
+      width: 18px; height: 18px;
       border-radius: 50%;
     }
 
     /* ─── Title ─────────────────────────── */
     .slide-title {
-      font-size: 36px;
+      font-size: 108px;
       font-weight: 900;
       line-height: 1.08;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
+      letter-spacing: -1.5px;
+      margin-bottom: 48px;
     }
 
     .slide-sub {
-      font-size: 14px;
+      font-size: 42px;
       font-weight: 300;
       line-height: 1.7;
-      max-width: 260px;
+      max-width: 780px;
     }
 
     /* ─── Phone mockup ──────────────────── */
     .phone {
       position: absolute;
-      bottom: -80px; /* overflow effect */
-      right: -20px;
-      width: 220px;
-      height: 440px;
-      border-radius: 36px;
-      border: 6px solid rgba(255,255,255,0.18);
+      bottom: -240px; /* overflow effect */
+      right: -60px;
+      width: 660px;
+      height: 1320px;
+      border-radius: 108px;
+      border: 18px solid rgba(255,255,255,0.18);
       overflow: hidden;
       box-shadow:
-        0 0 0 1px rgba(255,255,255,0.06),
-        -20px 20px 60px rgba(0,0,0,0.5);
+        0 0 0 3px rgba(255,255,255,0.06),
+        -60px 60px 180px rgba(0,0,0,0.5);
       background: #000;
       transform: rotate(3deg);
     }
@@ -122,13 +124,13 @@
     /* Phone slight left variant */
     .phone.left {
       right: auto;
-      left: -20px;
+      left: -60px;
       transform: rotate(-3deg);
     }
     .phone.center {
       right: 50%;
       transform: translateX(50%) rotate(0deg);
-      bottom: -60px;
+      bottom: -180px;
     }
 
     /* ─── Slide color themes ───────────── */
@@ -172,15 +174,15 @@
     /* ─── Hint ─────────────────────────── */
     .hint {
       color: rgba(255,255,255,0.2);
-      font-size: 11px;
+      font-size: 33px;
       text-align: center;
       line-height: 1.9;
-      margin-top: 40px;
+      margin-top: 120px;
     }
     .hint code {
       background: rgba(255,255,255,0.08);
-      padding: 2px 8px;
-      border-radius: 4px;
+      padding: 6px 24px;
+      border-radius: 12px;
     }
   </style>
 </head>
@@ -200,27 +202,23 @@
       </radialGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g1)"/>
-    <!-- Large arc top right -->
     <ellipse cx="420" cy="-40" rx="280" ry="280" fill="none" stroke="rgba(239,157,16,0.12)" stroke-width="60"/>
     <ellipse cx="420" cy="-40" rx="200" ry="200" fill="none" stroke="rgba(239,157,16,0.08)" stroke-width="40"/>
-    <!-- Wave bottom -->
     <path d="M0 500 Q90 460 180 490 Q270 520 380 480 L380 674 L0 674 Z" fill="rgba(239,157,16,0.07)"/>
     <path d="M0 540 Q100 510 200 530 Q300 550 380 520 L380 674 L0 674 Z" fill="rgba(239,157,16,0.05)"/>
-    <!-- Dots grid -->
     <g fill="rgba(255,255,255,0.04)">
       <circle cx="30" cy="300" r="2"/><circle cx="60" cy="300" r="2"/><circle cx="90" cy="300" r="2"/>
       <circle cx="30" cy="330" r="2"/><circle cx="60" cy="330" r="2"/><circle cx="90" cy="330" r="2"/>
       <circle cx="30" cy="360" r="2"/><circle cx="60" cy="360" r="2"/><circle cx="90" cy="360" r="2"/>
       <circle cx="30" cy="390" r="2"/><circle cx="60" cy="390" r="2"/><circle cx="90" cy="390" r="2"/>
     </g>
-    <!-- Gold accent line -->
-    <line x1="36" y1="220" x2="36" y2="270" stroke="#EF9D10" stroke-width="3" stroke-linecap="round"/>
+    <!-- Gold accent line: moved from y 220-270 (was cutting through the subtitle) to a clear strip lower down -->
+    <line x1="36" y1="560" x2="36" y2="610" stroke="#EF9D10" stroke-width="3" stroke-linecap="round"/>
   </svg>
   <div class="slide-content">
-    <div class="tag"><span class="tag-dot"></span>Plans de lecture</div>
-    <div class="slide-title">Lis la Bible,<br/>chaque jour.</div>
-    <div class="slide-sub">Des plans reconnus ou entièrement personnalisés. Adaptés à ton rythme, ta Bible.</div>
-  </div>
+    <div class="tag"><span class="tag-dot"></span>Générateur de plans de lecture</div>
+    <div class="slide-title">Pour lire la Bible,<br/>chaque jour.</div>
+    <div class="slide-sub">Des plans structurés, recommandés par de grands théologiens, ou un plan que tu personnalises toi-même.</div>  </div>
   <div class="phone">
     <img src="flutter_01.png" alt=""/>
   </div>
@@ -238,14 +236,10 @@
       </linearGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g2)"/>
-    <!-- Organic blob top left -->
     <path d="M-60 -60 Q80 -20 100 80 Q120 180 20 200 Q-60 220 -80 120 Z" fill="rgba(255,255,255,0.12)"/>
-    <!-- Subtle arc bottom right -->
     <ellipse cx="420" cy="720" rx="300" ry="300" fill="none" stroke="rgba(30,45,61,0.12)" stroke-width="50"/>
     <ellipse cx="420" cy="720" rx="220" ry="220" fill="none" stroke="rgba(30,45,61,0.08)" stroke-width="30"/>
-    <!-- Wave top -->
     <path d="M0 0 Q100 40 200 20 Q300 0 380 30 L380 0 Z" fill="rgba(255,255,255,0.1)"/>
-    <!-- Vertical lines texture -->
     <g stroke="rgba(30,45,61,0.06)" stroke-width="1">
       <line x1="40" y1="0" x2="40" y2="674"/>
       <line x1="80" y1="0" x2="80" y2="674"/>
@@ -255,8 +249,8 @@
   </svg>
   <div class="slide-content">
     <div class="tag"><span class="tag-dot"></span>Personnalisé</div>
-    <div class="slide-title">Ton plan,<br/>tes règles.</div>
-    <div class="slide-sub">Choisis tes livres, ta durée, ta cadence. Seedaily s'adapte à toi — pas l'inverse.</div>
+    <div class="slide-title">Ton plan,<br/>ton rythme.</div>
+    <div class="slide-sub">Choisis tes livres, ta durée, ton rythme de lecture. ajuste le plan à ta convenance.</div>
   </div>
   <div class="phone left">
     <img src="flutter_02.png" alt=""/>
@@ -275,22 +269,20 @@
       </linearGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g3)"/>
-    <!-- Gold ribbon diagonal -->
     <path d="M-40 400 Q100 350 240 380 Q320 395 440 360 L440 420 Q320 455 240 440 Q100 410 -40 460 Z" fill="rgba(239,157,16,0.1)"/>
     <path d="M-40 430 Q100 390 240 415 Q320 428 440 395 L440 440 Q320 475 240 465 Q100 440 -40 490 Z" fill="rgba(239,157,16,0.06)"/>
-    <!-- Small circles scattered -->
     <circle cx="320" cy="80" r="50" fill="rgba(239,157,16,0.07)"/>
     <circle cx="320" cy="80" r="30" fill="rgba(239,157,16,0.07)"/>
-    <!-- Progress bar hint -->
-    <rect x="36" y="250" width="80" height="4" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <rect x="36" y="250" width="52" height="4" rx="2" fill="rgba(239,157,16,0.5)"/>
-    <rect x="36" y="264" width="80" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
-    <rect x="36" y="264" width="35" height="4" rx="2" fill="rgba(239,157,16,0.3)"/>
+    <!-- Progress bar hint: moved from y 250/264 (overlapping the subtitle) to below the gold ribbon, clear of all text -->
+    <rect x="36" y="560" width="80" height="4" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <rect x="36" y="560" width="52" height="4" rx="2" fill="rgba(239,157,16,0.5)"/>
+    <rect x="36" y="574" width="80" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
+    <rect x="36" y="574" width="35" height="4" rx="2" fill="rgba(239,157,16,0.3)"/>
   </svg>
   <div class="slide-content">
     <div class="tag"><span class="tag-dot"></span>Progression</div>
     <div class="slide-title">Avance,<br/>jour après<br/>jour.</div>
-    <div class="slide-sub">Coche tes lectures au fil des jours. Regarde ton parcours prendre forme.</div>
+    <div class="slide-sub">Marque chaque lecture terminée et admire ta progression, semaine après semaine.</div>
   </div>
   <div class="phone">
     <img src="flutter_03.png" alt=""/>
@@ -309,11 +301,9 @@
       </radialGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g4)"/>
-    <!-- Large gold circle glow right -->
     <circle cx="340" cy="200" r="160" fill="rgba(239,157,16,0.06)"/>
     <circle cx="340" cy="200" r="100" fill="rgba(239,157,16,0.06)"/>
     <circle cx="340" cy="200" r="50" fill="rgba(239,157,16,0.08)"/>
-    <!-- Grid texture -->
     <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
       <line x1="0" y1="100" x2="380" y2="100"/>
       <line x1="0" y1="200" x2="380" y2="200"/>
@@ -322,15 +312,15 @@
       <line x1="200" y1="0" x2="200" y2="674"/>
       <line x1="300" y1="0" x2="300" y2="674"/>
     </g>
-    <!-- Accent dots -->
     <circle cx="36" cy="290" r="4" fill="rgba(239,157,16,0.6)"/>
     <circle cx="52" cy="290" r="4" fill="rgba(239,157,16,0.3)"/>
     <circle cx="68" cy="290" r="4" fill="rgba(239,157,16,0.15)"/>
   </svg>
   <div class="slide-content">
-    <div class="tag"><span class="tag-dot"></span>4 vues</div>
-    <div class="slide-title">La vue qui<br/>te ressemble.</div>
-    <div class="slide-sub">Calendrier, liste, semaine ou par livre. À toi de choisir comment tu lis.</div>
+    <div class="tag"><span class="tag-dot"></span>Plusieurs vues</div>
+    <div class="slide-title">Change de vue<br/>en un simple clic.</div>
+    <div class="slide-sub">Pour organiser en calendrier, liste, semaine ou selon le livre.</div>
+    <div class="slide-sub"> 
   </div>
   <div class="phone left">
     <img src="flutter_04.png" alt=""/>
@@ -349,13 +339,10 @@
       </linearGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g5)"/>
-    <!-- Blob navy bottom left -->
     <path d="M-80 500 Q40 440 80 540 Q120 640 -40 680 Z" fill="rgba(30,45,61,0.15)"/>
     <path d="M-20 560 Q80 510 110 600 Q140 690 20 710 Z" fill="rgba(30,45,61,0.1)"/>
-    <!-- Rings top right -->
     <circle cx="360" cy="60" r="80" fill="none" stroke="rgba(30,45,61,0.1)" stroke-width="20"/>
     <circle cx="360" cy="60" r="50" fill="none" stroke="rgba(30,45,61,0.08)" stroke-width="14"/>
-    <!-- Notification pill hint -->
     <rect x="36" y="270" width="140" height="36" rx="18" fill="rgba(30,45,61,0.12)"/>
     <circle cx="58" cy="288" r="10" fill="rgba(30,45,61,0.2)"/>
     <rect x="76" y="282" width="70" height="6" rx="3" fill="rgba(30,45,61,0.18)"/>
@@ -364,7 +351,7 @@
   <div class="slide-content">
     <div class="tag"><span class="tag-dot"></span>Rappels</div>
     <div class="slide-title">Aucun jour<br/>oublié.</div>
-    <div class="slide-sub">Un rappel à l'heure exacte que tu choisis. Chaque matin, sans exception.</div>
+    <div class="slide-sub">Reçois un rappel de lecture à l'heure que tu choisis.</div>
   </div>
   <div class="phone">
     <img src="flutter_05.png" alt=""/>
@@ -384,18 +371,14 @@
       </linearGradient>
     </defs>
     <rect width="380" height="674" fill="url(#g6)"/>
-    <!-- Gold wave across middle -->
     <path d="M-20 320 Q80 280 180 310 Q280 340 400 300 L400 360 Q280 400 180 370 Q80 340 -20 380 Z" fill="rgba(239,157,16,0.09)"/>
-    <!-- Large arc bottom -->
     <path d="M0 550 Q190 480 380 550 L380 674 L0 674 Z" fill="rgba(239,157,16,0.07)"/>
     <path d="M0 600 Q190 540 380 600 L380 674 L0 674 Z" fill="rgba(239,157,16,0.05)"/>
-    <!-- PDF icon hint top right -->
     <rect x="290" y="60" width="56" height="70" rx="8" fill="rgba(239,157,16,0.1)"/>
     <path d="M310 60 L346 60 L346 82 L368 82" fill="none" stroke="rgba(239,157,16,0.2)" stroke-width="2"/>
     <rect x="290" y="60" width="56" height="70" rx="8" fill="none" stroke="rgba(239,157,16,0.15)" stroke-width="1.5"/>
     <rect x="300" y="100" width="36" height="3" rx="1.5" fill="rgba(239,157,16,0.2)"/>
     <rect x="300" y="110" width="28" height="3" rx="1.5" fill="rgba(239,157,16,0.15)"/>
-    <!-- Dots bottom left -->
     <g fill="rgba(255,255,255,0.04)">
       <circle cx="36" cy="460" r="3"/><circle cx="56" cy="460" r="3"/><circle cx="76" cy="460" r="3"/>
       <circle cx="36" cy="480" r="3"/><circle cx="56" cy="480" r="3"/><circle cx="76" cy="480" r="3"/>
@@ -403,8 +386,8 @@
   </svg>
   <div class="slide-content">
     <div class="tag"><span class="tag-dot"></span>Export PDF</div>
-    <div class="slide-title">Partage<br/>ta foi.</div>
-    <div class="slide-sub">Génère et partage ton plan de lecture en un seul tap. Imprime, transmets, inspire.</div>
+    <div class="slide-title">Ton plan,<br/>version papier.</div>
+    <div class="slide-sub">Exporte ton plan en PDF, imprime-le, ou envoie-le à quelqu'un qui commence avec toi.</div>
   </div>
   <div class="phone left">
     <img src="flutter_06.png" alt=""/>
@@ -413,7 +396,7 @@
 
 <p class="hint">
   Chrome → F12 → Élément <code>.slide</code> → clic droit → <strong>Capturer le nœud</strong><br/>
-  ou Device toolbar → régler 380×674 → screenshot
+  Le nœud fait maintenant 1140×2022px directement, pas besoin de forcer le DPR.
 </p>
 
 </body>

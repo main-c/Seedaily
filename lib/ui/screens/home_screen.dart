@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
 import '../widgets/plan_card.dart';
@@ -21,20 +22,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedFilter = 'all'; // 'all', 'in_progress', 'completed'
+  PlansProvider? _plansProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<PlansProvider>();
-      provider.loadPlans();
-      provider.addListener(_onProviderChange);
+      if (!mounted) return;
+      _plansProvider = context.read<PlansProvider>();
+      _plansProvider!.loadPlans();
+      _plansProvider!.addListener(_onProviderChange);
     });
   }
 
   @override
   void dispose() {
-    context.read<PlansProvider>().removeListener(_onProviderChange);
+    _plansProvider?.removeListener(_onProviderChange);
     super.dispose();
   }
 
@@ -143,8 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final plan = filteredPlans[index];
                                   return PlanCard(
                                     plan: plan,
-                                    onTap: () =>
-                                        context.push('/plan/${plan.id}'),
+                                    onTap: () => context.push('/plan/${plan.id}'),
                                     onDelete: () async {
                                       await plansProvider.deletePlan(plan.id);
                                     },
@@ -161,97 +163,158 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildJoinButton(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: 'Rejoindre un groupe',
+      child: InkWell(
+        onTap: () => context.push('/groups/join'),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: cs.outline.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.group_add_outlined, size: 18, color: cs.onSurface),
+              const SizedBox(width: 6),
+              Text(
+                'Rejoindre',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader(BuildContext context, int activePlansCount,
       int totalStreak, int bestStreak) {
+    final authProvider = context.watch<AuthProvider>();
+    final isSignedIn = authProvider.isSignedIn;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
         children: [
-          // Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.seedGold.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.seedGold, width: 2),
+          // Logo Seedaily
+          if (!isSignedIn) ...[
+            Image.asset(
+              'assets/icons/play_store_512.png',
+              width: 40,
+              height: 40,
             ),
-            child: const Icon(Icons.person, color: AppTheme.seedGold, size: 28),
-          ),
-          const SizedBox(width: 12),
-
-          // Titre et sous-titre
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mes Plans',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                ),
-                Text(
-                  '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.6),
-                        letterSpacing: 1.2,
-                      ),
-                ),
-              ],
+            const SizedBox(width: 8),
+            Text(
+              'Seedaily',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
-          ),
+            const Spacer(),
+            _buildJoinButton(context),
+          ],
 
-          // Badge streak gamifié
-          if (totalStreak > 0)
+          // Espace pour l'avatar et le streak si connecté
+          if (isSignedIn) ...[
+            // Avatar
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
-                color: AppTheme.seedGold.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: AppTheme.seedGold.withValues(alpha: 0.3)),
+                color: AppTheme.seedGold.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppTheme.seedGold, width: 2),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: const Icon(Icons.person, color: AppTheme.seedGold, size: 28),
+            ),
+            const SizedBox(width: 12),
+
+            // Titre et sous-titre
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.local_fire_department,
-                      color: AppTheme.seedGold, size: 18),
-                  const SizedBox(width: 4),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$totalStreak j.',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                      ),
-                      if (bestStreak > totalStreak)
-                        Text(
-                          'Rec. $bestStreak',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.5),
-                                fontSize: 10,
-                              ),
+                  Text(
+                    'Mes Plans',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
-                    ],
+                  ),
+                  Text(
+                    '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.6),
+                          letterSpacing: 1.2,
+                        ),
                   ),
                 ],
               ),
             ),
+
+            // Bouton rejoindre un groupe
+            _buildJoinButton(context),
+            const SizedBox(width: 4),
+
+            // Badge streak gamifié
+            if (totalStreak > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.seedGold.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: AppTheme.seedGold.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.local_fire_department,
+                        color: AppTheme.seedGold, size: 18),
+                    const SizedBox(width: 4),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$totalStreak j.',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                        if (bestStreak > totalStreak)
+                          Text(
+                            'Rec. $bestStreak',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.5),
+                                  fontSize: 10,
+                                ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );

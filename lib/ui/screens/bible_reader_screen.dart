@@ -267,21 +267,23 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   Widget _buildChapterView(BuildContext context, _ReaderPage page,
       BibleChapterData data, BibleReaderProvider provider, bool isDark) {
-    final textColor =
+    final hasPartialHighlight = page.highlightFrom != null || page.highlightTo != null;
+    final dimmedColor = isDark
+        ? Colors.white.withValues(alpha: 0.35)
+        : Colors.black.withValues(alpha: 0.3);
+    final activeColor =
         isDark ? Colors.white.withValues(alpha: 0.92) : const Color(0xFF1C1C1E);
-    final verseNumColor =
-        isDark ? Colors.white.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.3);
 
     // Construire le texte continu avec numéros inline
     final spans = <InlineSpan>[];
     for (var v = 1; v <= data.verseCount; v++) {
       final text = data.verse(v) ?? '';
       final isHighlighted = page.isHighlighted(v);
-      final highlightBg = isHighlighted
-          ? (isDark
-              ? AppTheme.seedGold.withValues(alpha: 0.15)
-              : AppTheme.seedGold.withValues(alpha: 0.12))
-          : null;
+      // Les versets hors-passage sont atténués quand il y a une sélection partielle
+      final verseColor = (hasPartialHighlight && !isHighlighted) ? dimmedColor : activeColor;
+      final verseNumColor = isHighlighted
+          ? AppTheme.seedGold.withValues(alpha: 0.85)
+          : (hasPartialHighlight ? dimmedColor : dimmedColor);
 
       // Numéro de verset en superscript
       spans.add(WidgetSpan(
@@ -292,9 +294,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             '$v',
             style: GoogleFonts.sourceSerif4(
               fontSize: provider.fontSize * 0.58,
-              color: isHighlighted
-                  ? AppTheme.seedGold.withValues(alpha: 0.85)
-                  : verseNumColor,
+              color: verseNumColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -306,9 +306,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         text: '$text ',
         style: GoogleFonts.sourceSerif4(
           fontSize: provider.fontSize,
-          color: textColor,
+          color: verseColor,
           height: 1.8,
-          backgroundColor: highlightBg,
           decoration: TextDecoration.none,
         ),
       ));

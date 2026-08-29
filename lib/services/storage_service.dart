@@ -135,6 +135,14 @@ class StorageService {
     await _settingsBox?.put('notif_prompt_shown', true);
   }
 
+  Future<bool> getHasSeenOnboarding() async {
+    return _settingsBox?.get('has_seen_onboarding', defaultValue: false) ?? false;
+  }
+
+  Future<void> setHasSeenOnboarding() async {
+    await _settingsBox?.put('has_seen_onboarding', true);
+  }
+
   Future<int> getBestStreak() async {
     return _settingsBox?.get('best_streak', defaultValue: 0) ?? 0;
   }

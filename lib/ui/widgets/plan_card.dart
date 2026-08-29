@@ -157,6 +157,33 @@ class PlanCard extends StatelessWidget {
                     ),
                   ),
 
+                // Badge "Groupe" en bas à gauche de l'image
+                if (plan.isGroupPlan)
+                  Positioned(
+                    bottom: 10,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.50),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.groups, size: 12, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text('Groupe',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 // Menu options en haut à gauche
                 Positioned(
                   top: 8,

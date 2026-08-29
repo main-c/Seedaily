@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../domain/models.dart';
+import '../../domain/group_models.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../services/export_service.dart';
 import '../../core/theme.dart';
@@ -51,14 +55,25 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         actions: [
-          // Bouton configuration → page d'édition
+          if (plan.isGroupPlan)
+            IconButton(
+              icon: const Icon(Icons.person_add_outlined),
+              tooltip: 'Inviter',
+              onPressed: () => _shareInvite(plan),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.group_add_outlined),
+              tooltip: 'Partager avec des amis',
+              onPressed: () => _showConvertToGroupSheet(plan),
+            ),
           IconButton(
             icon: const Icon(Icons.tune),
             onPressed: () => context.push('/edit-plan/${widget.planId}'),
             tooltip: 'Configuration',
           ),
           IconButton(
-            icon: const Icon(Icons.share_outlined),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => _showExportBottomSheet(context, plan),
             tooltip: 'Exporter',
           ),
@@ -85,124 +100,251 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     }).length;
     final delta = plan.completedDays - expectedDays;
 
+    if (!plan.isGroupPlan) {
+      return _buildProgressCard(
+        plan: plan,
+        delta: delta,
+        expectedDays: expectedDays,
+      );
+    }
+
+    // Plan de groupe : on enveloppe dans StreamBuilders pour les données membres
+    final gp = context.read<GroupsProvider>();
+    return StreamBuilder<List<GroupMember>>(
+      stream: gp.watchMembers(plan.groupId!),
+      builder: (context, membersSnap) {
+        final members = membersSnap.data ?? [];
+        return StreamBuilder<List<GroupProgress>>(
+          stream: gp.watchTodayProgress(plan.groupId!),
+          builder: (context, progressSnap) {
+            final todayProgress = progressSnap.data ?? [];
+            final completedCount = todayProgress.length;
+            final totalCount = members.isEmpty ? 1 : members.length;
+            final groupPct = completedCount / totalCount;
+
+            return _buildProgressCard(
+              plan: plan,
+              delta: delta,
+              expectedDays: expectedDays,
+              groupPct: groupPct,
+              completedCount: completedCount,
+              totalCount: totalCount,
+              members: members,
+              todayProgress: todayProgress,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressCard({
+    required GeneratedPlan plan,
+    required int delta,
+    required int expectedDays,
+    double? groupPct,
+    int completedCount = 0,
+    int totalCount = 0,
+    List<GroupMember> members = const [],
+    List<GroupProgress> todayProgress = const [],
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final isGroup = groupPct != null;
+    final myPct = plan.progress / 100;
+
     return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.all(20),
+      
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titre de la section
-          Text(
-            'Progression du plan',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-          ),
-          const SizedBox(height: 12),
-
-          // Jours lus avec pourcentage
+          // ── Ligne 1 : titre + badge rythme ─────────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '${plan.completedDays}/${plan.totalDays} jours',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
+                'Ma progression',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,
                     ),
               ),
-              Text(
-                '${plan.progress.toStringAsFixed(0)}%',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTheme.seedGold,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
+              const Spacer(),
+              _buildPaceBadge(delta, expectedDays),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Barre de progression - agrandie pour meilleure visibilité
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: plan.progress / 100,
-              minHeight: 12,
-              backgroundColor: Theme.of(context).colorScheme.outline,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppTheme.seedGold,
+          // ── Ligne 2 : jours + pourcentage ──────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Jour ${plan.completedDays} sur ${plan.totalDays}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
+              Text(
+                '${plan.progress.toStringAsFixed(0)}% complété',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // ── Barre de progression ────────────────────────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: myPct,
+              minHeight: 5,
+              backgroundColor: cs.outline.withValues(alpha: 0.15),
+              color: AppTheme.seedGold,
             ),
           ),
-          const SizedBox(height: 12),
 
-          // Badge avance / retard / à jour
-          _buildPaceIndicator(delta, expectedDays),
+          // ── Ligne 3 : avatars membres + label (groupe seulement) ───
+          if (isGroup) ...[
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => _showMembersSheet(
+                members,
+                todayProgress,
+                context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!)?.hostId ==
+                    context.read<AuthProvider>().uid,
+                context.read<AuthProvider>().uid,
+              ),
+              child: Row(
+                children: [
+                  _buildAvatarStack(members, cs),
+                  const Spacer(),
+                  Text(
+                    'Amis qui lisent',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right,
+                      size: 16, color: cs.onSurface.withValues(alpha: 0.35)),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildPaceIndicator(int delta, int expectedDays) {
+  Widget _buildPaceBadge(int delta, int expectedDays) {
     if (expectedDays == 0) return const SizedBox.shrink();
 
-    final Color bgColor;
-    final Color textColor;
-    final IconData icon;
     final String label;
+    final Color bg;
+    final Color fg;
 
     if (delta == 0) {
-      bgColor = Colors.green.withValues(alpha: 0.12);
-      textColor = Colors.green.shade700;
-      icon = Icons.check_circle_outline;
-      label = 'À jour';
+      label = 'Vous êtes à jour';
+      bg = AppTheme.seedGold.withValues(alpha: 0.13);
+      fg = AppTheme.seedGold;
     } else if (delta > 0) {
-      bgColor = Colors.green.withValues(alpha: 0.12);
-      textColor = Colors.green.shade700;
-      icon = Icons.trending_up;
-      label = 'En avance de $delta jour${delta > 1 ? 's' : ''}';
+      label = 'En avance de $delta j.';
+      bg = Colors.green.withValues(alpha: 0.12);
+      fg = Colors.green.shade700;
     } else {
       final behind = -delta;
-      bgColor = behind <= 3
+      label = 'En retard de $behind j.';
+      bg = behind <= 3
           ? Colors.orange.withValues(alpha: 0.12)
           : Colors.red.withValues(alpha: 0.10);
-      textColor = behind <= 3 ? Colors.orange.shade800 : Colors.red.shade700;
-      icon = Icons.trending_down;
-      label = 'En retard de $behind jour${behind > 1 ? 's' : ''}';
+      fg = behind <= 3 ? Colors.orange.shade800 : Colors.red.shade700;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: bg,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarStack(List<GroupMember> members, ColorScheme cs) {
+    const maxVisible = 3;
+    final visible = members.take(maxVisible).toList();
+    final extra = members.length - maxVisible;
+    const size = 30.0;
+    const overlap = 20.0;
+    final totalWidth = visible.length * overlap + (extra > 0 ? overlap : 0) + (size - overlap);
+
+    return SizedBox(
+      height: size,
+      width: totalWidth.clamp(size, 200.0),
+      child: Stack(
         children: [
-          Icon(icon, size: 14, color: textColor),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.w600,
+          for (int i = 0; i < visible.length; i++)
+            Positioned(
+              left: i * overlap,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: cs.surface, width: 2),
                 ),
-          ),
+                child: CircleAvatar(
+                  radius: size / 2,
+                  backgroundColor: AppTheme.seedGold.withValues(alpha: 0.18),
+                  backgroundImage: visible[i].avatarUrl != null
+                      ? NetworkImage(visible[i].avatarUrl!)
+                      : null,
+                  child: visible[i].avatarUrl == null
+                      ? Text(
+                          visible[i].displayName.isNotEmpty
+                              ? visible[i].displayName[0].toUpperCase()
+                              : '?',
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.seedGold),
+                        )
+                      : null,
+                ),
+              ),
+            ),
+          if (extra > 0)
+            Positioned(
+              left: visible.length * overlap,
+              child: Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.seedGold.withValues(alpha: 0.13),
+                  border: Border.all(color: cs.surface, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    '+$extra',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.seedGold),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -302,116 +444,205 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     }
   }
 
-  void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {
-    bool sectionColors = true;
-    bool includeCheckbox = true;
-    bool isExporting = false;
+  // ── Section Groupe ──────────────────────────────────────────────────────────
+
+  void _showConvertToGroupSheet(GeneratedPlan plan) {
+    final auth = context.read<AuthProvider>();
+
+    // Pas connecté → on propose la connexion
+    if (!auth.isSignedIn) {
+      showModalBottomSheet<void>(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) {
+          final cs = Theme.of(context).colorScheme;
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline, size: 40,
+                      color: cs.onSurface.withValues(alpha: 0.3)),
+                  const SizedBox(height: 16),
+                  Text('Connexion requise',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Connectez-vous avec Google pour partager ce plan avec des amis.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                        ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        await auth.signInWithGoogle();
+                      },
+                      icon: const Icon(Icons.login, color: Colors.white),
+                      label: const Text('Se connecter',
+                          style: TextStyle(color: Colors.white)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.seedGold,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+      return;
+    }
+
+    final nameCtrl = TextEditingController(text: plan.title);
+    bool isCreating = false;
 
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
+          final cs = Theme.of(context).colorScheme;
           return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            padding: EdgeInsets.fromLTRB(
+                24, 20, 24, MediaQuery.of(ctx).viewInsets.bottom + 32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Titre ────────────────────────────────────────────────
+                // ── Header ────────────────────────────────────────────
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.seedGold.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.picture_as_pdf_outlined,
-                          color: AppTheme.seedGold, size: 20),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Icon(Icons.close, color: cs.onSurface, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Exporter en PDF',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                )),
-                        Text('Calendrier A4 paysage',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                                )),
-                      ],
-                    ),
+                    Text('Partager avec des amis',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold)),
                   ],
                 ),
-
-                const SizedBox(height: 20),
-                Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
-                const SizedBox(height: 8),
-
-                // ── Options ───────────────────────────────────────────────
-                Text('Options',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.8,
-                        )),
                 const SizedBox(height: 12),
-
-                _ExportOptionTile(
-                  icon: Icons.palette_outlined,
-                  title: 'Couleurs par genre biblique',
-                  subtitle: 'Loi · Historiques · Sagesse · Prophètes · NT',
-                  value: sectionColors,
-                  onChanged: (v) => setSheetState(() => sectionColors = v),
+                Text(
+                  'Créez un groupe depuis votre plan "${plan.title}". '
+                  'Vos amis pourront vous rejoindre et vous suivrez votre progression ensemble.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.55),
+                        height: 1.5,
+                      ),
                 ),
-                const SizedBox(height: 8),
-                _ExportOptionTile(
-                  icon: Icons.check_box_outlined,
-                  title: 'Cases à cocher',
-                  subtitle: 'Pour suivre la lecture sur papier',
-                  value: includeCheckbox,
-                  onChanged: (v) => setSheetState(() => includeCheckbox = v),
-                ),
-
                 const SizedBox(height: 24),
 
-                // ── Bouton export ─────────────────────────────────────────
+                // ── Nom du groupe ──────────────────────────────────────
+                Text('Nom du groupe',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.6),
+                        letterSpacing: 0.4)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: nameCtrl,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    hintText: 'Ex : Famille, Cellule, Amis…',
+                    filled: true,
+                    fillColor: cs.surfaceContainerLowest,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // ── Bouton ─────────────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: isExporting
+                  child: FilledButton.icon(
+                    onPressed: isCreating
                         ? null
                         : () async {
-                            setSheetState(() => isExporting = true);
+                            final name = nameCtrl.text.trim();
+                            if (name.isEmpty) return;
+                            setSheetState(() => isCreating = true);
+
+                            final groupsProvider =
+                                context.read<GroupsProvider>();
+                            final plansProvider = context.read<PlansProvider>();
+
+                            final group = await groupsProvider.createGroup(
+                              name: name,
+                              hostId: auth.uid!,
+                              hostDisplayName: auth.displayName,
+                              hostAvatarUrl: auth.avatarUrl,
+                              plan: plan,
+                            );
+
+                            if (!ctx.mounted) return;
+
+                            if (group == null) {
+                              setSheetState(() => isCreating = false);
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(
+                                    content: Text(groupsProvider.error ??
+                                        'Erreur de création.')),
+                              );
+                              groupsProvider.clearError();
+                              return;
+                            }
+
+                            // Lie le plan local au groupe
+                            await plansProvider.linkPlanToGroup(
+                                plan.id, group.id);
+
+                            if (!ctx.mounted) return;
                             Navigator.pop(ctx);
-                            await _exportService.sharePdf(
-                              plan,
-                              sectionColors: sectionColors,
-                              includeCheckbox: includeCheckbox,
+
+                            // Partage le lien d'invitation
+                            Share.share(
+                              'Lis la Bible avec moi sur Seedaily !\n\n'
+                              'Rejoins mon plan "${plan.title}" :\n'
+                              'https://seedaily.vercel.app/join?c=${group.inviteCode}\n\n'
+                              'Télécharge l\'app :\n'
+                              'https://play.google.com/store/apps/details?id=com.seedaily.app',
+                              subject: 'Invitation à lire ensemble sur Seedaily',
                             );
                           },
-                    icon: isExporting
+                    icon: isCreating
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
                           )
-                        : const Icon(Icons.share_outlined),
-                    label: Text(isExporting ? 'Génération…' : 'Générer et partager'),
-                    style: ElevatedButton.styleFrom(
+                        : const Icon(Icons.group_add_outlined,
+                            color: Colors.white, size: 20),
+                    label: Text(
+                      isCreating ? 'Création…' : 'Créer le groupe et inviter',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.seedGold,
-                      foregroundColor: Theme.of(context).colorScheme.onSurface,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
+                          borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
                 ),
@@ -422,57 +653,335 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       ),
     );
   }
-}
 
-class _ExportOptionTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
+  void _shareInvite(GeneratedPlan plan) {
+    final group = context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!);
+    if (group == null) return;
+    Share.share(
+      'Lis la Bible avec moi sur Seedaily !\n\n'
+      'Rejoins mon plan "${plan.title}" en cliquant ici :\n'
+      'https://seedaily.vercel.app/join?c=${group.inviteCode}\n\n'
+      'Si tu n\'as pas encore l\'app :\n'
+      'https://play.google.com/store/apps/details?id=com.seedaily.app',
+      subject: 'Invitation à lire ensemble sur Seedaily',
+    );
+  }
 
-  const _ExportOptionTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
+  void _showMembersSheet(
+    List<GroupMember> members,
+    List<GroupProgress> todayProgress,
+    bool isHost,
+    String? currentUid,
+  ) {
+    final completedUserIds = todayProgress.map((p) => p.userId).toSet();
 
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: value
-              ? AppTheme.seedGold.withValues(alpha: 0.4)
-              : cs.outline,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) {
+        final cs = Theme.of(context).colorScheme;
+        final sorted = [...members]..sort((a, b) {
+            if (a.isHost != b.isHost) return a.isHost ? -1 : 1;
+            final aDone = completedUserIds.contains(a.userId);
+            final bDone = completedUserIds.contains(b.userId);
+            if (aDone != bDone) return aDone ? -1 : 1;
+            return 0;
+          });
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text('Membres du groupe',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ...sorted.map((m) {
+                  final done = completedUserIds.contains(m.userId);
+                  final isMe = m.userId == currentUid;
+                  final progress = todayProgress
+                      .where((p) => p.userId == m.userId)
+                      .firstOrNull;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor:
+                              AppTheme.seedGold.withValues(alpha: 0.15),
+                          backgroundImage: m.avatarUrl != null
+                              ? NetworkImage(m.avatarUrl!)
+                              : null,
+                          child: m.avatarUrl == null
+                              ? Text(
+                                  m.displayName.isNotEmpty
+                                      ? m.displayName[0].toUpperCase()
+                                      : '?',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.seedGold,
+                                      fontSize: 13))
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    isMe ? 'Moi' : m.displayName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: isMe
+                                                ? AppTheme.seedGold
+                                                : null),
+                                  ),
+                                  if (m.isHost) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: cs.outline.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text('admin',
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: cs.onSurface
+                                                  .withValues(alpha: 0.4))),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              // Heure de lecture : visible par tous si complété
+                              if (done && progress?.completedAt != null)
+                                Text(
+                                  _formatTime(progress!.completedAt),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                          color: cs.onSurface
+                                              .withValues(alpha: 0.45)),
+                                ),
+                            ],
+                          ),
+                        ),
+                        done
+                            ? Icon(Icons.check_circle,
+                                color: AppTheme.seedGold, size: 20)
+                            : Icon(Icons.radio_button_unchecked,
+                                color: cs.outline.withValues(alpha: 0.4),
+                                size: 20),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return 'Lu à $h:$m';
+  }
+
+  void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {
+    bool sectionColors = true;
+    bool includeCheckbox = true;
+    bool isExporting = false;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final cs = Theme.of(context).colorScheme;
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Header : X + titre ────────────────────────────────
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(ctx),
+                        child: Icon(Icons.close, color: cs.onSurface, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Exporter mon plan',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Description ───────────────────────────────────────
+                  Text(
+                    'Personnalisez l\'apparence de votre plan de lecture avant de le télécharger au format PDF.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                          height: 1.5,
+                        ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── Toggle 1 : couleurs ───────────────────────────────
+                  _buildExportToggle(
+                    context: context,
+                    cs: cs,
+                    title: 'Colorer par genre biblique',
+                    subtitle:
+                        'Attribue une couleur spécifique à chaque type de livre comme la Loi, les Prophètes, les Évangiles.',
+                    value: sectionColors,
+                    onChanged: (v) => setSheetState(() => sectionColors = v),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Toggle 2 : cases à cocher ─────────────────────────
+                  _buildExportToggle(
+                    context: context,
+                    cs: cs,
+                    title: 'Afficher les cases à cocher',
+                    subtitle:
+                        'Pour le suivi papier. Ajoute une case vide à côté de chaque session de lecture.',
+                    value: includeCheckbox,
+                    onChanged: (v) => setSheetState(() => includeCheckbox = v),
+                  ),
+                  const SizedBox(height: 36),
+
+                  // ── Bouton Générer ────────────────────────────────────
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: FilledButton.icon(
+                      onPressed: isExporting
+                          ? null
+                          : () async {
+                              setSheetState(() => isExporting = true);
+                              Navigator.pop(ctx);
+                              await _exportService.sharePdf(
+                                plan,
+                                sectionColors: sectionColors,
+                                includeCheckbox: includeCheckbox,
+                              );
+                            },
+                      icon: isExporting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.picture_as_pdf_outlined,
+                              color: Colors.white, size: 20),
+                      label: Text(
+                        isExporting ? 'Génération…' : 'Générer le PDF',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.deepNavy,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildExportToggle({
+    required BuildContext context,
+    required ColorScheme cs,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: cs.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.55),
+                      height: 1.45,
+                    ),
+              ),
+            ],
+          ),
         ),
-      ),
-      child: SwitchListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        secondary: Icon(icon,
-            color: value ? AppTheme.seedGold : cs.onSurface.withValues(alpha: 0.5),
-            size: 22),
-        title: Text(title,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
-                )),
-        subtitle: Text(subtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.5),
-                )),
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: Colors.white,
-        activeTrackColor: AppTheme.seedGold,
-        inactiveThumbColor: cs.onSurface.withValues(alpha: 0.4),
-        inactiveTrackColor: cs.surface,
-      ),
+        const SizedBox(width: 12),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeTrackColor: AppTheme.seedGold,
+          activeThumbColor: Colors.white,
+          inactiveThumbColor: cs.onSurface.withValues(alpha: 0.4),
+          inactiveTrackColor: cs.outline.withValues(alpha: 0.3),
+        ),
+      ],
     );
   }
 }

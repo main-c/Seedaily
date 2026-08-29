@@ -6,7 +6,14 @@ import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
 
 class CreatePlanScreen extends StatefulWidget {
-  const CreatePlanScreen({super.key});
+  final GlobalKey? customPlanBtnKey;
+  final GlobalKey? templateSectionKey;
+
+  const CreatePlanScreen({
+    super.key,
+    this.customPlanBtnKey,
+    this.templateSectionKey,
+  });
 
   @override
   State<CreatePlanScreen> createState() => _CreatePlanScreenState();
@@ -199,6 +206,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   // ── Section : Plans structurés ─────────────────────────
                   if (fixedPlans.isNotEmpty) ...[
                     _SectionHeader(
+                      key: widget.templateSectionKey,
                       title: 'Plans structurés',
                       subtitle: 'Structure fixe — choisissez simplement votre date de début',
                     ),
@@ -236,6 +244,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     return GestureDetector(
       onTap: () => context.push('/customize-plan/canonical-plan'),
       child: Container(
+        key: widget.customPlanBtnKey,
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         decoration: BoxDecoration(
           color: cs.surface,
@@ -302,7 +311,7 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const _SectionHeader({required this.title, required this.subtitle});
+  const _SectionHeader({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {

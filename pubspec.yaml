@@ -1,7 +1,7 @@
 name: seedaily
 description: Application de génération de plans de lecture biblique personnalisés
 publish_to: "none"
-version: 1.3.0+8
+version: 1.3.2+12
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -35,7 +35,17 @@ dependencies:
   firebase_analytics: ^11.3.3
   firebase_crashlytics: ^4.1.3
   firebase_storage: ^12.3.3
-  firebase_app_check: ^0.3.2+2
+  firebase_app_check: ^0.3.2+10
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+  firebase_messaging: ^15.1.3
+  firebase_remote_config: ^5.1.3
+
+  # Auth
+  google_sign_in: ^6.2.1
+
+  # Versioning
+  package_info_plus: ^8.1.1
 
   # Lecteur biblique
   http: ^1.2.2
@@ -45,11 +55,16 @@ dependencies:
   # Widget écran d'accueil
   home_widget: ^0.6.0
 
+  # Tour guidé / coach marks
+  tutorial_coach_mark: ^1.2.11
+
   # Utilitaires
   intl: ^0.20.2
   uuid: ^4.3.3
   collection: ^1.18.0
   permission_handler: ^11.3.1
+  flutter_svg: ^2.0.10+1
+  share_plus: ^10.1.4
 
   # UI
   cupertino_icons: ^1.0.6
@@ -68,6 +83,7 @@ flutter:
     - assets/images/
     - assets/images/plans/
     - assets/icons/
+    - assets/illustrations/
 
   fonts:
     - family: Lexend

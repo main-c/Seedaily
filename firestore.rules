@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Profils utilisateurs ───────────────────────────────────────────────
+    // Chaque utilisateur ne peut lire/écrire que son propre profil.
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Groupes ────────────────────────────────────────────────────────────
+
+    match /groups/{groupId} {
+
+      // get (lecture directe par ID) : membres ou groupe actif.
+      allow get: if request.auth != null
+        && (isMember(groupId) || resource.data.status == 'active');
+
+      // list (query par inviteCode) : tout utilisateur connecté peut chercher un groupe actif.
+      allow list: if request.auth != null;
+
+      // Création : n'importe quel utilisateur connecté peut créer un groupe.
+      // L'hostId doit correspondre à son UID.
+      allow create: if request.auth != null
+        && request.resource.data.hostId == request.auth.uid;
+
+      // Mise à jour / suppression : réservées à l'hôte.
+      allow update, delete: if request.auth != null
+        && resource.data.hostId == request.auth.uid;
+
+      // ── Membres ───────────────────────────────────────────────────────
+      match /members/{memberId} {
+
+        // Lecture : accessible à tout membre du groupe.
+        allow read: if request.auth != null && isMember(groupId);
+
+        // Rejoindre : l'utilisateur crée sa propre fiche membre.
+        allow create: if request.auth != null
+          && request.resource.data.userId == request.auth.uid;
+
+        // Quitter : un membre peut supprimer sa propre fiche.
+        allow delete: if request.auth != null
+          && (memberId == request.auth.uid
+            || resource.data.userId == request.auth.uid);
+      }
+
+      // ── Progression ───────────────────────────────────────────────────
+      match /progress/{progressId} {
+
+        // Lecture : accessible à tout membre du groupe.
+        allow read: if request.auth != null && isMember(groupId);
+
+        // Écriture / suppression : un membre ne gère que sa propre progression.
+        allow create: if request.auth != null
+          && request.resource.data.userId == request.auth.uid;
+
+        allow delete: if request.auth != null
+          && resource.data.userId == request.auth.uid;
+      }
+    }
+
+    // ── Requête collectionGroup sur 'members' ──────────────────────────────
+    // Permet à watchUserGroups() de lister tous les groupes d'un utilisateur
+    // via collectionGroup('members').where('userId', ==, uid).
+
+    match /{path=**}/members/{memberId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ── Fonction helper ────────────────────────────────────────────────────
+
+    function isMember(groupId) {
+      return exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+  }
+}

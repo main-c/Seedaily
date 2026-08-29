@@ -10,6 +10,7 @@ class SettingsProvider with ChangeNotifier {
   DateTime _notificationTime = DateTime(2025, 1, 1, 9, 0);
   bool _notificationsEnabled = false;
   bool _notifPromptShown = false;
+  bool _hasSeenOnboarding = false;
   ThemeMode _themeMode = ThemeMode.system;
 
   SettingsProvider({
@@ -21,6 +22,7 @@ class SettingsProvider with ChangeNotifier {
   DateTime get notificationTime => _notificationTime;
   bool get notificationsEnabled => _notificationsEnabled;
   bool get notifPromptShown => _notifPromptShown;
+  bool get hasSeenOnboarding => _hasSeenOnboarding;
   ThemeMode get themeMode => _themeMode;
 
   Future<void> loadSettings() async {
@@ -32,6 +34,7 @@ class SettingsProvider with ChangeNotifier {
 
       _notificationsEnabled = await _storage.getNotificationsEnabled();
       _notifPromptShown = await _storage.getNotifPromptShown();
+      _hasSeenOnboarding = await _storage.getHasSeenOnboarding();
 
       final savedMode = await _storage.getThemeMode();
       _themeMode = switch (savedMode) {
@@ -106,6 +109,12 @@ class SettingsProvider with ChangeNotifier {
   Future<void> markNotifPromptShown() async {
     _notifPromptShown = true;
     await _storage.setNotifPromptShown();
+  }
+
+  Future<void> markOnboardingComplete() async {
+    _hasSeenOnboarding = true;
+    await _storage.setHasSeenOnboarding();
+    notifyListeners();
   }
 
   Future<void> showTestNotification() async {

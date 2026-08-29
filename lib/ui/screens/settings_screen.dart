@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../core/theme.dart';
+import 'main_shell_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -153,6 +155,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               context.push('/about');
             },
           ),
+          const SizedBox(height: 8),
+          _buildSettingCard(
+            icon: Icons.slideshow_outlined,
+            title: 'Revoir l\'introduction',
+            subtitle: 'Rejouer le tutoriel de démarrage',
+            onTap: () {
+              mainShellKey.currentState?.startTour(context, force: true);
+            },
+          ),
           const SizedBox(height: 12),
           // _buildSettingCard(
           //   icon: Icons.download_outline,
@@ -161,6 +172,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
           //   onTap: () {},
           // ),
           const SizedBox(height: 24),
+
+          // COMPTE
+          _buildSectionTitle('COMPTE'),
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              if (!auth.isSignedIn) {
+                return _buildSettingCard(
+                  icon: Icons.login_outlined,
+                  title: 'Se connecter',
+                  subtitle: 'Pour lire en groupe avec des amis',
+                  onTap: () async { await auth.signInWithGoogle(); },
+                );
+              }
+              return Column(
+                children: [
+                  _buildSettingCard(
+                    icon: Icons.person_outline,
+                    title: auth.displayName,
+                    subtitle: auth.user?.email ?? '',
+                    trailing: auth.avatarUrl != null
+                        ? CircleAvatar(
+                            radius: 16,
+                            backgroundImage: NetworkImage(auth.avatarUrl!),
+                          )
+                        : const SizedBox.shrink(),
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingCard(
+                    icon: Icons.logout,
+                    title: 'Se déconnecter',
+                    titleColor: Colors.red.shade600,
+                    onTap: () => _confirmSignOut(context, auth),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  void _confirmSignOut(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Se déconnecter ?'),
+        content: const Text(
+            'Vous serez déconnecté de vos groupes de lecture.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler')),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await auth.signOut();
+            },
+            style:
+                FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
+            child: const Text('Se déconnecter',
+                style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );
