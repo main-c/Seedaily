@@ -208,7 +208,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     _SectionHeader(
                       key: widget.templateSectionKey,
                       title: 'Plans structurés',
-                      subtitle: 'Structure fixe — choisissez simplement votre date de début',
+                      subtitle: 'Structure fixe: choisissez simplement votre date de début',
                     ),
                     const SizedBox(height: 10),
                     ...fixedPlans.map((t) => _PlanCard(
@@ -222,7 +222,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   if (thematicPlans.isNotEmpty) ...[
                     _SectionHeader(
                       title: 'Plans thématiques',
-                      subtitle: 'Livres ciblés — ajustez la durée et le rythme',
+                      subtitle: 'Livres ciblés: ajustez la durée et le rythme',
                     ),
                     const SizedBox(height: 10),
                     ...thematicPlans.map((t) => _PlanCard(
