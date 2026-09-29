@@ -1730,16 +1730,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     // Partage le lien d'invitation
     final inviteCode = group.inviteCode;
     await Share.share(
-      '📖 Lis la Bible avec moi sur Seedaily !\n\n'
-      'Rejoins mon plan "$planTitle" en cliquant ici :\n'
-      'seedaily://app/join/$inviteCode\n\n'
-      'Si tu n\'as pas encore l\'app :\n'
-      'https://play.google.com/store/apps/details?id=com.seedaily.app',
-      subject: 'Invitation à lire ensemble sur Seedaily',
+      'Je lis "$planTitle" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
+      '${AppTheme.joinUrl(inviteCode)}',
+      subject: 'Lire la Bible ensemble',
     );
 
     if (!mounted) return;
-    context.push('/group/${group.id}');
+    context.go('/plan/${plan.id}');
   }
 }
 

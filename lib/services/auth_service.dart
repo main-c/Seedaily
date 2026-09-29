@@ -29,7 +29,8 @@ class AuthService {
     final user = result.user;
     if (user == null) return null;
 
-    await _upsertUserProfile(user);
+    // Firestore writes are non-critical: auth succeeds even if they fail.
+    try { await _upsertUserProfile(user); } catch (_) {}
     await _storeFcmToken(user.uid);
     return user;
   }

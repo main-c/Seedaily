@@ -177,36 +177,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionTitle('COMPTE'),
           Consumer<AuthProvider>(
             builder: (context, auth, _) {
-              if (!auth.isSignedIn) {
-                return _buildSettingCard(
-                  icon: Icons.login_outlined,
-                  title: 'Se connecter',
-                  subtitle: 'Pour lire en groupe avec des amis',
-                  onTap: () async { await auth.signInWithGoogle(); },
-                );
-              }
-              return Column(
-                children: [
-                  _buildSettingCard(
-                    icon: Icons.person_outline,
-                    title: auth.displayName,
-                    subtitle: auth.user?.email ?? '',
-                    trailing: auth.avatarUrl != null
-                        ? CircleAvatar(
-                            radius: 16,
-                            backgroundImage: NetworkImage(auth.avatarUrl!),
-                          )
-                        : const SizedBox.shrink(),
+              final Widget content;
+
+              if (auth.isLoading) {
+                content = KeyedSubtree(
+                  key: const ValueKey('loading'),
+                  child: _buildSettingCard(
+                    icon: Icons.login_outlined,
+                    title: 'Connexion en cours…',
+                    subtitle: 'Veuillez patienter',
+                    trailing: const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                     onTap: () {},
                   ),
-                  const SizedBox(height: 12),
-                  _buildSettingCard(
-                    icon: Icons.logout,
-                    title: 'Se déconnecter',
-                    titleColor: Colors.red.shade600,
-                    onTap: () => _confirmSignOut(context, auth),
+                );
+              } else if (!auth.isSignedIn) {
+                content = KeyedSubtree(
+                  key: const ValueKey('signedOut'),
+                  child: _buildSettingCard(
+                    icon: Icons.login_outlined,
+                    title: 'Se connecter',
+                    subtitle: auth.error ?? 'Pour lire en groupe avec des amis',
+                    subtitleColor: auth.error != null ? Colors.red.shade600 : null,
+                    onTap: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final ok = await auth.signInWithGoogle();
+                      if (!ok && auth.error != null && mounted) {
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(auth.error!)),
+                        );
+                      }
+                    },
                   ),
-                ],
+                );
+              } else {
+                content = Column(
+                  key: const ValueKey('signedIn'),
+                  children: [
+                    _buildSettingCard(
+                      icon: Icons.person_outline,
+                      title: auth.displayName,
+                      subtitle: auth.user?.email ?? '',
+                      trailing: auth.avatarUrl != null
+                          ? CircleAvatar(
+                              radius: 16,
+                              backgroundImage: NetworkImage(auth.avatarUrl!),
+                            )
+                          : const SizedBox.shrink(),
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSettingCard(
+                      icon: Icons.logout,
+                      title: 'Se déconnecter',
+                      titleColor: Colors.red.shade600,
+                      onTap: () => _confirmSignOut(context, auth),
+                    ),
+                  ],
+                );
+              }
+
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                child: content,
               );
             },
           ),

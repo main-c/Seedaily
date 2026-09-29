@@ -1,0 +1,91 @@
+<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+
+  <!-- Ground shadow -->
+  <ellipse cx="240" cy="288" rx="185" ry="14" fill="#E5E7EB"/>
+
+  <!-- Book glow -->
+  <ellipse cx="240" cy="220" rx="90" ry="48" fill="#EF9D10" fill-opacity="0.12"/>
+
+  <!-- Open Bible / Book -->
+  <!-- Left page -->
+  <path d="M168 178 Q202 170 234 172 L234 265 Q202 263 168 270 Z" fill="#FFF8F0"/>
+  <!-- Right page -->
+  <path d="M246 172 Q278 170 312 178 L312 270 Q278 263 246 265 Z" fill="#FEFEFE"/>
+  <!-- Spine -->
+  <rect x="232" y="170" width="7" height="96" rx="3" fill="#C9A96E"/>
+  <!-- Text lines left page -->
+  <line x1="178" y1="192" x2="226" y2="191" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="178" y1="202" x2="222" y2="201" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="178" y1="212" x2="227" y2="211" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="178" y1="222" x2="218" y2="221" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="178" y1="232" x2="224" y2="231" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="178" y1="242" x2="215" y2="241" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <!-- Text lines right page -->
+  <line x1="253" y1="192" x2="302" y2="191" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="253" y1="202" x2="298" y2="201" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="253" y1="212" x2="303" y2="211" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="253" y1="222" x2="295" y2="221" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="253" y1="232" x2="301" y2="231" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="253" y1="242" x2="293" y2="241" stroke="#D4C5B0" stroke-width="2" stroke-linecap="round"/>
+  <!-- Book bottom cover -->
+  <path d="M168 270 Q202 263 234 265 L246 265 Q278 263 312 270 L310 280 Q240 288 170 280 Z" fill="#C9A96E"/>
+
+  <!-- ── PERSON LEFT (dark outfit) ── -->
+  <!-- Body -->
+  <rect x="50" y="158" width="92" height="108" rx="24" fill="#1A1A1A"/>
+  <!-- Neck -->
+  <rect x="88" y="148" width="16" height="22" rx="8" fill="#FBBF8A"/>
+  <!-- Head -->
+  <circle cx="96" cy="112" r="46" fill="#FBBF8A"/>
+  <!-- Hair -->
+  <path d="M52 104 Q56 58 96 62 Q136 58 140 104 Q132 72 96 68 Q60 72 52 104 Z" fill="#1A1A1A"/>
+  <!-- Eyes -->
+  <circle cx="82" cy="110" r="5.5" fill="#1A1A1A"/>
+  <circle cx="110" cy="110" r="5.5" fill="#1A1A1A"/>
+  <circle cx="84" cy="108" r="2" fill="white"/>
+  <circle cx="112" cy="108" r="2" fill="white"/>
+  <!-- Smile -->
+  <path d="M83 128 Q96 138 109 128" stroke="#1A1A1A" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Arm toward book -->
+  <rect x="132" y="162" width="50" height="26" rx="13" fill="#1A1A1A"/>
+  <!-- Hand -->
+  <circle cx="183" cy="175" r="14" fill="#FBBF8A"/>
+
+  <!-- ── PERSON RIGHT (gold outfit) ── -->
+  <!-- Body -->
+  <rect x="338" y="158" width="92" height="108" rx="24" fill="#EF9D10"/>
+  <!-- Neck -->
+  <rect x="376" y="148" width="16" height="22" rx="8" fill="#F4A261"/>
+  <!-- Head -->
+  <circle cx="384" cy="112" r="46" fill="#F4A261"/>
+  <!-- Hair (bun style) -->
+  <circle cx="384" cy="68" r="28" fill="#1A1A1A"/>
+  <path d="M340 106 Q346 60 384 64 Q422 60 428 106 Q418 75 384 71 Q350 75 340 106 Z" fill="#1A1A1A"/>
+  <!-- Eyes -->
+  <circle cx="370" cy="110" r="5.5" fill="#1A1A1A"/>
+  <circle cx="398" cy="110" r="5.5" fill="#1A1A1A"/>
+  <circle cx="372" cy="108" r="2" fill="white"/>
+  <circle cx="400" cy="108" r="2" fill="white"/>
+  <!-- Smile -->
+  <path d="M371 128 Q384 138 397 128" stroke="#1A1A1A" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Arm toward book -->
+  <rect x="298" y="162" width="50" height="26" rx="13" fill="#EF9D10"/>
+  <!-- Hand -->
+  <circle cx="297" cy="175" r="14" fill="#F4A261"/>
+
+  <!-- ── DÉCORATIONS ── -->
+  <!-- Star top-left -->
+  <path d="M38 56 L41 46 L44 56 L54 59 L44 62 L41 72 L38 62 L28 59 Z" fill="#EF9D10" fill-opacity="0.65"/>
+  <!-- Star top-right -->
+  <path d="M436 46 L438.5 38 L441 46 L449 48.5 L441 51 L438.5 59 L436 51 L428 48.5 Z" fill="#EF9D10" fill-opacity="0.5"/>
+  <!-- Small dots -->
+  <circle cx="26" cy="195" r="6" fill="#EF9D10" fill-opacity="0.35"/>
+  <circle cx="454" cy="200" r="5" fill="#EF9D10" fill-opacity="0.35"/>
+  <circle cx="70" cy="240" r="4" fill="#EF9D10" fill-opacity="0.25"/>
+  <circle cx="412" cy="238" r="4" fill="#EF9D10" fill-opacity="0.25"/>
+  <!-- Heart above book spine -->
+  <path d="M240 155 C240 151 234.5 148 234.5 152.5 C234.5 148 245.5 148 245.5 152.5 C245.5 148 251 151 240 162 Z" fill="#E45B5B" fill-opacity="0.8"/>
+  <!-- Small dot above heart -->
+  <circle cx="240" cy="143" r="3.5" fill="#EF9D10" fill-opacity="0.6"/>
+
+</svg>

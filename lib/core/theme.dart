@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const String appVersion = '1.2.0';
 
+  static const String appId = 'com.seedaily.app';
+  static const String joinBaseUrl = 'https://seedaily.vercel.app/join';
+  static const String playStoreUrl =
+      'https://play.google.com/store/apps/details?id=$appId';
+
+  static String joinUrl(String inviteCode) => '$joinBaseUrl?c=$inviteCode';
+
   static const Color seedGold = Color(0xFFEF9D10);
   static const Color deepNavy = Color(0xFF1A1A1A);
   static const Color mistGreyBlue = Color(0xFF6B7280);

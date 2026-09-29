@@ -48,7 +48,14 @@ class AuthProvider extends ChangeNotifier {
       return user != null;
     } catch (e) {
       _isLoading = false;
-      _error = 'Connexion impossible. Réessayez.';
+      final msg = e.toString();
+      if (msg.contains('10') || msg.contains('sign_in_failed')) {
+        _error = 'Connexion échouée. Vérifiez votre connexion ou réessayez.';
+      } else if (msg.contains('network')) {
+        _error = 'Pas de connexion internet.';
+      } else {
+        _error = 'Connexion impossible. Réessayez.';
+      }
       notifyListeners();
       return false;
     }

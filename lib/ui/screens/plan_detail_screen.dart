@@ -617,12 +617,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
                             // Partage le lien d'invitation
                             Share.share(
-                              'Lis la Bible avec moi sur Seedaily !\n\n'
-                              'Rejoins mon plan "${plan.title}" :\n'
-                              'https://seedaily.vercel.app/join?c=${group.inviteCode}\n\n'
-                              'Télécharge l\'app :\n'
-                              'https://play.google.com/store/apps/details?id=com.seedaily.app',
-                              subject: 'Invitation à lire ensemble sur Seedaily',
+                              'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
+                              '${AppTheme.joinUrl(group.inviteCode)}',
+                              subject: 'Lire la Bible ensemble',
                             );
                           },
                     icon: isCreating
@@ -656,14 +653,16 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
   void _shareInvite(GeneratedPlan plan) {
     final group = context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!);
-    if (group == null) return;
+    if (group == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Groupe non disponible. Réessayez dans un instant.')),
+      );
+      return;
+    }
     Share.share(
-      'Lis la Bible avec moi sur Seedaily !\n\n'
-      'Rejoins mon plan "${plan.title}" en cliquant ici :\n'
-      'https://seedaily.vercel.app/join?c=${group.inviteCode}\n\n'
-      'Si tu n\'as pas encore l\'app :\n'
-      'https://play.google.com/store/apps/details?id=com.seedaily.app',
-      subject: 'Invitation à lire ensemble sur Seedaily',
+      'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
+      '${AppTheme.joinUrl(group.inviteCode)}',
+      subject: 'Lire la Bible ensemble',
     );
   }
 

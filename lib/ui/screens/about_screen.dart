@@ -80,7 +80,7 @@ class AboutScreen extends StatelessWidget {
                   context,
                   icon: Icons.star_outline,
                   title: 'Noter l\'application',
-                  onTap: () => _showUrlAction(context, 'https://play.google.com/store/apps/details?id=com.seedaily.app'),
+                  onTap: () => _showUrlAction(context, AppTheme.playStoreUrl),
                 ),
                 _buildLinkItem(
                   context,
