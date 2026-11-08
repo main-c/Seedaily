@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../l10n/l10n.dart';
 
 // ── Rôle d'un membre dans un groupe ──────────────────────────────────────────
 
@@ -190,7 +191,7 @@ class GroupMember {
     final data = doc.data() as Map<String, dynamic>;
     return GroupMember(
       userId: doc.id,
-      displayName: data['displayName'] as String? ?? 'Membre',
+      displayName: data['displayName'] as String? ?? appL10n.commonMember,
       avatarUrl: data['avatarUrl'] as String?,
       role: GroupMemberRole.values.firstWhere(
         (r) => r.name == (data['role'] as String? ?? 'member'),
@@ -231,7 +232,7 @@ class GroupProgress {
     final data = doc.data() as Map<String, dynamic>;
     return GroupProgress(
       userId: data['userId'] as String,
-      displayName: data['displayName'] as String? ?? 'Membre',
+      displayName: data['displayName'] as String? ?? appL10n.commonMember,
       dayIndex: data['dayIndex'] as int,
       completedAt:
           (data['completedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),

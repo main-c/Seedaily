@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../domain/group_models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
@@ -42,11 +43,11 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Impossible de charger le groupe.'),
+                    Text(context.l10n.groupDetailLoadError),
                     const SizedBox(height: 16),
                     FilledButton(
                       onPressed: () => context.go('/'),
-                      child: const Text('Retour à l\'accueil'),
+                      child: Text(context.l10n.groupDetailBackHome),
                     ),
                   ],
                 )
@@ -120,7 +121,7 @@ class _GroupDetailBody extends StatelessWidget {
                       actions: [
                         IconButton(
                           icon: const Icon(Icons.share_outlined),
-                          tooltip: 'Partager le lien',
+                          tooltip: context.l10n.groupDetailShareLink,
                           onPressed: () =>
                               _showInviteDialog(context, group.inviteCode),
                         ),
@@ -131,15 +132,15 @@ class _GroupDetailBody extends StatelessWidget {
                           },
                           itemBuilder: (_) => [
                             if (isHost)
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                   value: 'delete',
-                                  child: Text('Supprimer le groupe',
-                                      style: TextStyle(color: Colors.red)))
+                                  child: Text(context.l10n.groupDetailDelete,
+                                      style: const TextStyle(color: Colors.red)))
                             else
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                   value: 'leave',
-                                  child: Text('Quitter le groupe',
-                                      style: TextStyle(color: Colors.red))),
+                                  child: Text(context.l10n.groupDetailLeave,
+                                      style: const TextStyle(color: Colors.red))),
                           ],
                         ),
                       ],
@@ -203,7 +204,7 @@ class _GroupDetailBody extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
                         child: Row(
                           children: [
-                            Text("Aujourd'hui",
+                            Text(context.l10n.today,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
@@ -255,10 +256,11 @@ class _GroupDetailBody extends StatelessWidget {
   }
 
   void _showInviteDialog(BuildContext context, String code) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Code d\'invitation'),
+        title: Text(l10n.groupDetailInviteCode),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -273,7 +275,7 @@ class _GroupDetailBody extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Partagez ce code avec les membres de votre groupe.',
+              l10n.groupDetailShareCode,
               style: TextStyle(
                   color: Theme.of(context)
                       .colorScheme
@@ -289,16 +291,16 @@ class _GroupDetailBody extends StatelessWidget {
               Clipboard.setData(ClipboardData(text: code));
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Code copié !')),
+                SnackBar(content: Text(l10n.groupDetailCodeCopied)),
               );
             },
-            child: const Text('Copier'),
+            child: Text(l10n.groupDetailCopy),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context),
             style: FilledButton.styleFrom(backgroundColor: AppTheme.seedGold),
-            child: const Text('Fermer',
-                style: TextStyle(color: Colors.white)),
+            child: Text(l10n.commonClose,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -306,16 +308,16 @@ class _GroupDetailBody extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Supprimer le groupe ?'),
-        content: const Text(
-            'Le groupe et toutes les progressions seront supprimés définitivement.'),
+        title: Text(l10n.groupDetailDeleteConfirmTitle),
+        content: Text(l10n.groupDetailDeleteConfirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler')),
+              child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () async {
               final groups = context.read<GroupsProvider>();
@@ -328,7 +330,7 @@ class _GroupDetailBody extends StatelessWidget {
             style:
                 FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
             child:
-                const Text('Supprimer', style: TextStyle(color: Colors.white)),
+                Text(l10n.commonDelete, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -336,16 +338,16 @@ class _GroupDetailBody extends StatelessWidget {
   }
 
   void _confirmLeave(BuildContext context, String userId) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Quitter le groupe ?'),
-        content: const Text(
-            'Vous quitterez ce groupe et le plan associé sera supprimé de votre appareil.'),
+        title: Text(l10n.groupDetailLeaveConfirmTitle),
+        content: Text(l10n.groupDetailLeaveConfirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler')),
+              child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () async {
               final groups = context.read<GroupsProvider>();
@@ -358,7 +360,7 @@ class _GroupDetailBody extends StatelessWidget {
             style:
                 FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
             child:
-                const Text('Quitter', style: TextStyle(color: Colors.white)),
+                Text(l10n.groupDetailLeaveAction, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -419,7 +421,7 @@ class _PlanSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Jour $elapsed sur $total · ${(pct * 100).toStringAsFixed(0)} %',
+            '${context.l10n.dayOfTotal(elapsed, total)} · ${context.l10n.percent((pct * 100).round())}',
             style: Theme.of(context)
                 .textTheme
                 .labelSmall
@@ -485,7 +487,7 @@ class _MemberTile extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      isCurrentUser ? 'Moi' : member.displayName,
+                      isCurrentUser ? context.l10n.commonMe : member.displayName,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: isCurrentUser ? AppTheme.seedGold : null),
@@ -499,7 +501,7 @@ class _MemberTile extends StatelessWidget {
                           color: cs.outline.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text('admin',
+                        child: Text(context.l10n.groupDetailAdminBadge,
                             style: TextStyle(
                                 fontSize: 10,
                                 color: cs.onSurface.withValues(alpha: 0.4))),
@@ -509,7 +511,7 @@ class _MemberTile extends StatelessWidget {
                 ),
                 if (done && status.completedAt != null)
                   Text(
-                    _formatTime(status.completedAt!),
+                    _formatTime(context, status.completedAt!),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.4)),
                   ),
@@ -526,9 +528,9 @@ class _MemberTile extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime dt) {
+  String _formatTime(BuildContext context, DateTime dt) {
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return 'Lu à $h:$m';
+    return context.l10n.groupDetailReadAt('$h:$m');
   }
 }

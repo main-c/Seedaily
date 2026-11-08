@@ -44,5 +44,294 @@
   "settingsSignOutConfirmBody": "Vous serez déconnecté de vos groupes de lecture.",
   "authErrorFailed": "Connexion échouée. Vérifiez votre connexion ou réessayez.",
   "authErrorNetwork": "Pas de connexion internet.",
-  "authErrorGeneric": "Connexion impossible. Réessayez."
+  "authErrorGeneric": "Connexion impossible. Réessayez.",
+  "widgetNoPlan": "Créez un plan de lecture pour commencer",
+  "widgetReadToday": "Lecture du jour terminée. A demain !",
+  "widgetStreakAmazing": "Incroyable : {n} jours de suite !",
+  "@widgetStreakAmazing": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetStreakGood": "{n} jours de suite. Continuez !",
+  "@widgetStreakGood": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetStreakDay": "Jour {n}. Restez dans le rythme !",
+  "@widgetStreakDay": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetReady": "Prêt pour ta lecture du jour ?",
+  "widgetStreakLabel": "{count, plural, =1{jour} other{jours}}",
+  "@widgetStreakLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetBadgeRead": "Lu",
+  "widgetSectionToday": "Pour aujourd'hui",
+  "widgetSectionNext": "Prochain passage",
+  "widgetEmpty": "Ouvre Seedaily pour commencer",
+  "widgetDayLabels": "LMMJVSD",
+  "notifActionViewPlans": "Voir mes plans",
+  "notifActionCreatePlan": "Créer un plan",
+  "notifChannelName": "Lecture quotidienne",
+  "notifChannelDescription": "Rappels quotidiens pour votre lecture biblique",
+  "notifOpenApp": "Ouvrir Seedaily",
+  "notifDailyTitle": "Lecture du Jour",
+  "notifDailyTitleStreak": "Lecture du Jour · 🔥{n} jours",
+  "@notifDailyTitleStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifEveningBehind": "⚠️ Tu as {n} jours de retard. Un petit effort ce soir?",
+  "@notifEveningBehind": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifEveningNotRead": "⚠️ Tu n'as pas encore lu aujourd'hui. Prends quelques minutes!",
+  "notifGeneric1": "10 minutes aujourd'hui peuvent nourrir toute ta journée 🌱",
+  "notifGeneric2": "Un nouveau chapitre t'attend aujourd'hui 📖",
+  "notifGeneric3": "Prêt pour ta lecture du jour ? 🙏",
+  "notifGeneric4": "La Parole te nourrit chaque jour ✨",
+  "notifGeneric5": "Continue ton parcours, tu progresses bien 💪",
+  "notifGeneric6": "Un moment avec Dieu aujourd'hui ? 🕊️",
+  "notifGeneric7": "Ta lecture quotidienne est prête 📖",
+  "notifGeneric8": "Garde le cap, tu es sur la bonne voie 🌟",
+  "notifUrgent1": "Tu as {n} jours de retard. Commence par un seul chapitre ! ⚡",
+  "@notifUrgent1": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifUrgent2": "⚠️ {n} jours non lus t'attendent. Un petit pas aujourd'hui ?",
+  "@notifUrgent2": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifUrgent3": "Le retard s'accumule ({n} jours). Un effort aujourd'hui ? 💪",
+  "@notifUrgent3": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifUrgent4": "Tu es à {n} jours du rythme. La Parole t'attend ! ⚠️",
+  "@notifUrgent4": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifCatchup1": "Encore un effort et tu rattrapes ton plan ! 🎯",
+  "notifCatchup2": "Un chapitre aujourd'hui et tu es presque à jour 📖",
+  "notifCatchup3": "La régularité vient avec la pratique. Tu peux le faire ! 💪",
+  "notifCatchup4": "Presque rattrapé — continue sur ta lancée ! 🔥",
+  "notifOnTrack1": "Tu es dans le rythme. La Parole t'attend ! ✨",
+  "notifOnTrack2": "Parfait, tu es à jour. Continue comme ça ! 🌟",
+  "notifOnTrack3": "Un nouveau chapitre t'attend aujourd'hui 📖",
+  "notifOnTrack4": "Tu es fidèle à ton plan. Bravo ! 🙌",
+  "notifPraise1": "Impressionnant ! Tu es en avance de {n} jour(s) 🏆",
+  "@notifPraise1": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifPraise2": "Tu es {n} jour(s) en avance sur ton plan. Continue ! 🌟",
+  "@notifPraise2": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifPraise3": "En avance de {n} jour(s) ! Tu es une inspiration ✨",
+  "@notifPraise3": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notifPraise4": "Quel rythme ! {n} jour(s) d'avance. Garde le cap ! 🔥",
+  "@notifPraise4": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "templateCanonicalPlanTitle": "Plan Canonique",
+  "templateCanonicalPlanDescription": "Lecture de toute la Bible dans l’ordre traditionnel de Genèse a Apocalypse.",
+  "templateCanonicalPlanDetails": "Ce plan suit l’ordre classique des livres bibliques tel que présenté dans la plupart des Bibles chrétiennes.\nVous pouvez modifier la durée (6 mois, 1 an, 2 ans…), sélectionner certains livres seulement, ou choisir vos jours de lecture.\nIdéal comme base flexible pour construire votre propre parcours complet.",
+  "templateChronologicalPlanTitle": "Plan Chronologique",
+  "templateChronologicalPlanDescription": "Lecture de la Bible selon l’ordre historique des événements et de rédaction.",
+  "templateChronologicalPlanDetails": "Ce plan replace les livres et passages dans leur contexte historique présumé afin de mieux comprendre la progression de l’histoire biblique.\nParfait pour suivre le fil narratif de la révélation biblique.\nVous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objectif d’étude.",
+  "templateNewTestamentTitle": "Nouveau Testament",
+  "templateNewTestamentDescription": "Découvrez la vie de Jésus, la naissance de l’Église et l’enseignement apostolique.",
+  "templateNewTestamentDetails": "Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.\nVous pouvez lire en format intensif (30 jours) ou progressif (3 à 6 mois).",
+  "templateOldTestamentTitle": "Ancien Testament",
+  "templateOldTestamentDescription": "Explorez la Loi, l’histoire d’Israël, les livres poétiques et les prophètes.",
+  "templateOldTestamentDetails": "Les 39 livres de l’Ancien Testament, ajustables selon votre durée.\n              Vous pouvez sélectionner uniquement certaines sections.",
+  "templateGospelsTitle": "Les Évangiles",
+  "templateGospelsDescription": "Matthieu, Marc, Luc et Jean dans un parcours centré sur la vie de Jésus.",
+  "templateGospelsDetails": "Idéal pour découvrir ou redécouvrir la personne et l’œuvre du Christ.\nVous pouvez compléter avec le livre des Actes ou adapter la durée (2 semaines à 3 mois).\nParfait pour un groupe de croissance ou un nouveau croyant.",
+  "templatePsalmsTitle": "Les Psaumes",
+  "templatePsalmsDescription": "150 psaumes pour nourrir la prière et la méditation.",
+  "templatePsalmsDetails": "Un parcours spirituel centré sur l’adoration, la repentance et la confiance en Dieu.\nChoisissez votre rythme : 1 psaume par jour ou plusieurs par lecture.\nPeut être combiné avec Proverbes pour un équilibre entre prière et sagesse.",
+  "templateProverbsTitle": "Les Proverbes",
+  "templateProverbsDescription": "31 chapitres de sagesse pratique pour la vie quotidienne.",
+  "templateProverbsDetails": "Un plan idéal pour une lecture mensuelle (1 chapitre par jour).\nPeut être associé à Ecclésiaste ou Cantique des cantiques pour approfondir la littérature sapientielle.\nSimple, court et applicable immédiatement.",
+  "templateMcheyneTitle": "Plan M'Cheyne",
+  "templateMcheyneDescription": "Une lecture parallèle de l’Ancien et du Nouveau Testament.",
+  "templateMcheyneDetails": "Créé par Robert Murray M’Cheyne, ce plan propose une lecture parallèle de l’Ancien et du Nouveau Testament.\nLes passages sont prédéfinis et suivent la structure originale.\nVous choisissez simplement la date de début.",
+  "templateBibleYearLigueTitle": "Bible en 1 an (Ligue)",
+  "templateBibleYearLigueDescription": "Lecture quotidienne équilibrée de l'ancien testament, les Psaumes, Les Proverbes et du nouveau testament",
+  "templateBibleYearLigueDetails": "Chaque jour propose un passage de l’Ancien Testament, un Psaume, un Proverbe et un passage du Nouveau Testament.\nPlan structuré et prédéfini, idéal pour une lecture communautaire en Église.",
+  "templateRevolutionaryTitle": "Plan révolutionnaire",
+  "templateRevolutionaryDescription": "25 lectures par mois avec jours de repos intégrés..",
+  "templateRevolutionaryDetails": "Plan structuré pour favoriser la régularité sans surcharge.\nLes jours de pause permettent de rattraper ou méditer.\nStructure fixe : il suffit de choisir votre date de départ.",
+  "templateHornerTitle": "Plan Horner",
+  "templateHornerDescription": "Méthode intensive : 10 chapitres par jour en lectures parallèles.",
+  "templateHornerDetails": "Conçu par le Professeur Grant Horner, ce plan divise la Bible en 10 listes distinctes lues simultanément.\nTrès exigeant, il favorise l’immersion et la répétition des textes.\nStructure entièrement prédéfinie.",
+  "pdfTagline": "Générez vos plans de lecture biblique",
+  "pdfReadingDays": "{count, plural, =1{1 jour de lecture} other{{count} jours de lecture}}",
+  "@pdfReadingDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfGeneratedWith": "Généré avec {app}",
+  "@pdfGeneratedWith": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfMonthTitle": "Plan de Lecture - {month}",
+  "@pdfMonthTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfWeekDays": "LUN,MAR,MER,JEU,VEN,SAM,DIM",
+  "pdfGenreGospelsActs": "Évangiles & Actes",
+  "pdfGenreEpistles": "Épîtres",
+  "pdfGenreRevelation": "Apocalypse",
+  "pdfGenreLaw": "Loi / Torah",
+  "pdfGenreHistory": "Historiques",
+  "pdfGenreWisdom": "Sapientiaux",
+  "pdfGenreProphets": "Prophètes",
+  "bibleVersionLsgDescription": "Traduction classique, la plus répandue en France",
+  "bibleVersionMartinDescription": "Traduction de David Martin, fidèle au texte reçu",
+  "bibleVersionOstervaldDescription": "Révision d'Ostervald, style classique",
+  "bibleVersionEpeeDescription": "Traduction moderne fidèle à l'original",
+  "bibleVersionKjvDescription": "Traduction anglaise classique, domaine public",
+  "bibleVersionAsvDescription": "Révision américaine de la KJV, domaine public",
+  "today": "Aujourd'hui",
+  "percent": "{n} %",
+  "@percent": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dayOfTotal": "Jour {day} sur {total}",
+  "@dayOfTotal": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsTitle": "Groupes",
+  "groupsSignInTitle": "Lecture en groupe",
+  "groupsSignInBody": "Lisez avec vos proches et votre communauté. Connectez-vous pour créer ou rejoindre un groupe.",
+  "groupsSigningIn": "Connexion…",
+  "groupsContinueWithGoogle": "Continuer avec Google",
+  "groupsEmptyTitle": "Aucun groupe pour l'instant",
+  "groupsEmptyMessage": "Choisissez un plan dans Découvrir, puis sélectionnez \"Avec des amis\" pour lire avec votre communauté.",
+  "groupsEmptyAction": "Découvrir des plans",
+  "groupsNewGroupPlan": "Nouveau plan de groupe",
+  "groupsBadge": "Groupe",
+  "groupDetailLoadError": "Impossible de charger le groupe.",
+  "groupDetailBackHome": "Retour à l'accueil",
+  "groupDetailShareLink": "Partager le lien",
+  "groupDetailDelete": "Supprimer le groupe",
+  "groupDetailLeave": "Quitter le groupe",
+  "groupDetailInviteCode": "Code d'invitation",
+  "groupDetailShareCode": "Partagez ce code avec les membres de votre groupe.",
+  "groupDetailCodeCopied": "Code copié !",
+  "groupDetailCopy": "Copier",
+  "groupDetailDeleteConfirmTitle": "Supprimer le groupe ?",
+  "groupDetailDeleteConfirmBody": "Le groupe et toutes les progressions seront supprimés définitivement.",
+  "groupDetailLeaveConfirmTitle": "Quitter le groupe ?",
+  "groupDetailLeaveConfirmBody": "Vous quitterez ce groupe et le plan associé sera supprimé de votre appareil.",
+  "groupDetailLeaveAction": "Quitter",
+  "groupDetailAdminBadge": "admin",
+  "groupDetailReadAt": "Lu à {time}",
+  "@groupDetailReadAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "groupsErrorLoad": "Impossible de charger les groupes.",
+  "groupsErrorCreate": "Impossible de créer le groupe. Réessayez.",
+  "groupsErrorInvalidCode": "Code invalide ou groupe introuvable.",
+  "groupsErrorJoin": "Impossible de rejoindre le groupe. Réessayez.",
+  "groupsErrorLeave": "Impossible de quitter le groupe.",
+  "groupsErrorDelete": "Impossible de supprimer le groupe.",
+  "groupCreatePickPlan": "Choisissez un plan pour le groupe.",
+  "groupCreateError": "Erreur de création.",
+  "groupCreateTitle": "Créer un groupe",
+  "groupCreateNameLabel": "Nom du groupe",
+  "groupCreateNameHint": "Ex : Famille Martin, Cellule Alpha…",
+  "groupCreateNameRequired": "Donnez un nom.",
+  "groupCreatePlanLabel": "Plan de lecture",
+  "groupCreateStartDateLabel": "Date de début",
+  "groupCreateSubmit": "Créer le groupe",
+  "groupJoinCodeLength": "Le code doit faire 6 caractères.",
+  "groupJoinInvalidCode": "Code invalide ou expiré.",
+  "groupJoinTitle": "Rejoindre un groupe",
+  "groupJoinEnterCode": "Entrez le code d'invitation",
+  "groupJoinAskAdmin": "Demandez le code à l'administrateur de votre groupe.",
+  "groupJoinSubmit": "Rejoindre"
 }

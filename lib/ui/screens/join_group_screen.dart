@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/error_texts.dart';
+import '../../l10n/l10n.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
@@ -56,7 +58,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     final code = _codeCtrl.text.trim().toUpperCase();
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Le code doit faire 6 caractères.')),
+        SnackBar(content: Text(context.l10n.groupJoinCodeLength)),
       );
       return;
     }
@@ -90,7 +92,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       setState(() => _isJoining = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(groupsProvider.error ?? 'Code invalide ou expiré.')),
+            content: Text(groupsErrorText(context.l10n, groupsProvider.error, context.l10n.groupJoinInvalidCode))),
       );
       groupsProvider.clearError();
       return;
@@ -106,10 +108,11 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rejoindre un groupe'),
+        title: Text(l10n.groupJoinTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -136,7 +139,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
             ),
             const SizedBox(height: 28),
             Text(
-              'Entrez le code d\'invitation',
+              l10n.groupJoinEnterCode,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -144,7 +147,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Demandez le code à l\'administrateur de votre groupe.',
+              l10n.groupJoinAskAdmin,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.55), height: 1.5),
             ),
@@ -205,8 +208,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Rejoindre',
-                        style: TextStyle(
+                    : Text(l10n.groupJoinSubmit,
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),

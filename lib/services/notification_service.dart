@@ -8,6 +8,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 
 import '../core/theme.dart';
 import '../domain/models.dart';
+import '../l10n/l10n.dart';
 
 /// IDs des actions de notification (utilisés pour la navigation)
 const String kNotificationActionViewPlans = 'view_plans';
@@ -17,16 +18,16 @@ const String kNotificationActionCreatePlan = 'create_plan';
 const int _kEveningNotifId = 20;
 const int _kTestNotifId = 99;
 
-const List<AndroidNotificationAction> _dailyActions = [
+List<AndroidNotificationAction> _dailyActions() => [
   AndroidNotificationAction(
     kNotificationActionViewPlans,
-    'Voir mes plans',
+    appL10n.notifActionViewPlans,
     showsUserInterface: true,
     cancelNotification: true,
   ),
   AndroidNotificationAction(
     kNotificationActionCreatePlan,
-    'Créer un plan',
+    appL10n.notifActionCreatePlan,
     showsUserInterface: true,
     cancelNotification: true,
     titleColor: AppTheme.seedGold,
@@ -44,13 +45,13 @@ AndroidNotificationDetails _buildAndroidDetails({
 
   return AndroidNotificationDetails(
     'daily_reading',
-    'Lecture quotidienne',
-    channelDescription: 'Rappels quotidiens pour votre lecture biblique',
+    appL10n.notifChannelName,
+    channelDescription: appL10n.notifChannelDescription,
     importance: Importance.max,
     priority: Priority.high,
     largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'),
     styleInformation: BigTextStyleInformation(bigText),
-    actions: _dailyActions,
+    actions: _dailyActions(),
   );
 }
 
@@ -70,44 +71,33 @@ class NotificationService {
   // Pools de messages contextuels
   // ============================================================
 
-  static const List<String> _messagesGeneric = [
-    '10 minutes aujourd\'hui peuvent nourrir toute ta journée 🌱',
-    'Un nouveau chapitre t\'attend aujourd\'hui 📖',
-    'Prêt pour ta lecture du jour ? 🙏',
-    'La Parole te nourrit chaque jour ✨',
-    'Continue ton parcours, tu progresses bien 💪',
-    'Un moment avec Dieu aujourd\'hui ? 🕊️',
-    'Ta lecture quotidienne est prête 📖',
-    'Garde le cap, tu es sur la bonne voie 🌟',
-  ];
+  static List<String> get _messagesGeneric {
+    final l = appL10n;
+    return [
+      l.notifGeneric1, l.notifGeneric2, l.notifGeneric3, l.notifGeneric4,
+      l.notifGeneric5, l.notifGeneric6, l.notifGeneric7, l.notifGeneric8,
+    ];
+  }
 
-  static const List<String> _messagesUrgent = [
-    'Tu as {n} jours de retard. Commence par un seul chapitre ! ⚡',
-    '⚠️ {n} jours non lus t\'attendent. Un petit pas aujourd\'hui ?',
-    'Le retard s\'accumule ({n} jours). Un effort aujourd\'hui ? 💪',
-    'Tu es à {n} jours du rythme. La Parole t\'attend ! ⚠️',
-  ];
+  static List<String Function(int)> get _messagesUrgent {
+    final l = appL10n;
+    return [l.notifUrgent1, l.notifUrgent2, l.notifUrgent3, l.notifUrgent4];
+  }
 
-  static const List<String> _messagesGentleCatchup = [
-    'Encore un effort et tu rattrapes ton plan ! 🎯',
-    'Un chapitre aujourd\'hui et tu es presque à jour 📖',
-    'La régularité vient avec la pratique. Tu peux le faire ! 💪',
-    'Presque rattrapé — continue sur ta lancée ! 🔥',
-  ];
+  static List<String> get _messagesGentleCatchup {
+    final l = appL10n;
+    return [l.notifCatchup1, l.notifCatchup2, l.notifCatchup3, l.notifCatchup4];
+  }
 
-  static const List<String> _messagesOnTrack = [
-    'Tu es dans le rythme. La Parole t\'attend ! ✨',
-    'Parfait, tu es à jour. Continue comme ça ! 🌟',
-    'Un nouveau chapitre t\'attend aujourd\'hui 📖',
-    'Tu es fidèle à ton plan. Bravo ! 🙌',
-  ];
+  static List<String> get _messagesOnTrack {
+    final l = appL10n;
+    return [l.notifOnTrack1, l.notifOnTrack2, l.notifOnTrack3, l.notifOnTrack4];
+  }
 
-  static const List<String> _messagesPraise = [
-    'Impressionnant ! Tu es en avance de {n} jour(s) 🏆',
-    'Tu es {n} jour(s) en avance sur ton plan. Continue ! 🌟',
-    'En avance de {n} jour(s) ! Tu es une inspiration ✨',
-    'Quel rythme ! {n} jour(s) d\'avance. Garde le cap ! 🔥',
-  ];
+  static List<String Function(int)> get _messagesPraise {
+    final l = appL10n;
+    return [l.notifPraise1, l.notifPraise2, l.notifPraise3, l.notifPraise4];
+  }
 
   // ============================================================
   // Initialisation
@@ -129,11 +119,11 @@ class NotificationService {
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    const linuxSettings = LinuxInitializationSettings(
-      defaultActionName: 'Ouvrir Seedaily',
+    final linuxSettings = LinuxInitializationSettings(
+      defaultActionName: appL10n.notifOpenApp,
     );
 
-    const initSettings = InitializationSettings(
+    final initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
       linux: linuxSettings,
@@ -228,14 +218,14 @@ class NotificationService {
 
     if (worstDelta < -3) {
       final msg = _messagesUrgent[day % _messagesUrgent.length];
-      return msg.replaceAll('{n}', '${-worstDelta}');
+      return msg(-worstDelta);
     } else if (worstDelta < 0) {
       return _messagesGentleCatchup[day % _messagesGentleCatchup.length];
     } else if (worstDelta == 0) {
       return _messagesOnTrack[day % _messagesOnTrack.length];
     } else {
       final msg = _messagesPraise[day % _messagesPraise.length];
-      return msg.replaceAll('{n}', '$worstDelta');
+      return msg(worstDelta);
     }
   }
 
@@ -282,9 +272,9 @@ class NotificationService {
           : readingDayNames;
 
       final contextMessage = _selectMessage(activePlans);
-      final streakPart =
-          currentStreak > 1 ? ' · 🔥$currentStreak jours' : '';
-      final title = 'Lecture du Jour$streakPart';
+      final title = currentStreak > 1
+          ? appL10n.notifDailyTitleStreak(currentStreak)
+          : appL10n.notifDailyTitle;
 
       for (final dayName in effectiveDays) {
         final entry = dayMap[dayName];
@@ -351,8 +341,8 @@ class NotificationService {
 
       final scheduledTz = tz.TZDateTime.from(evening.toUtc(), tz.local);
       final body = behindDays > 3
-          ? '⚠️ Tu as $behindDays jours de retard. Un petit effort ce soir?'
-          : '⚠️ Tu n\'as pas encore lu aujourd\'hui. Prends quelques minutes!';
+          ? appL10n.notifEveningBehind(behindDays)
+          : appL10n.notifEveningNotRead;
 
       await _notifications.zonedSchedule(
         _kEveningNotifId,
@@ -386,13 +376,13 @@ class NotificationService {
   /// Affiche immédiatement une notification de test avec passage simulé.
   Future<void> showTestNotification({String? passage}) async {
     if (!_initialized) await init();
-    const testMsg = 'Prêt pour ta lecture du jour ?';
+    final testMsg = appL10n.widgetReady;
     const testPassage = 'Gen 1 · Matt 1 · Ps 1';
     final effectivePassage = passage ?? testPassage;
     final body = effectivePassage;
     await _notifications.show(
       _kTestNotifId,
-      'Lecture du Jour',
+      appL10n.notifDailyTitle,
       body,
       NotificationDetails(
         android: _buildAndroidDetails(

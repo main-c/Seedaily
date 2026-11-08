@@ -6,6 +6,7 @@ import '../domain/mcheyne_plan_data.dart';
 import '../domain/ligue_plan_data.dart';
 import '../domain/revolutionary_plan_data.dart';
 import '../domain/horner_plan_data.dart';
+import '../l10n/l10n.dart';
 
 /// Passage avec son poids (nombre de versets) pour une distribution équilibrée
 class WeightedPassage {
@@ -559,32 +560,25 @@ class PlanGenerator {
   }
 
   List<ReadingPlanTemplate> getDefaultTemplates() {
+    final l10n = appL10n;
     return [
       // Plans personnalisables — l'utilisateur peut modifier livres, durée et jours de lecture
       ReadingPlanTemplate(
         id: 'canonical-plan',
-        title: 'Plan Canonique',
+        title: l10n.templateCanonicalPlanTitle,
         image: 'assets/images/plans/bible.jpg',
-        description:
-            'Lecture de toute la Bible dans l’ordre traditionnel de Genèse a Apocalypse.',
-        porte:
-            '''Ce plan suit l’ordre classique des livres bibliques tel que présenté dans la plupart des Bibles chrétiennes.
-Vous pouvez modifier la durée (6 mois, 1 an, 2 ans…), sélectionner certains livres seulement, ou choisir vos jours de lecture.
-Idéal comme base flexible pour construire votre propre parcours complet.''',
+        description: l10n.templateCanonicalPlanDescription,
+        porte: l10n.templateCanonicalPlanDetails,
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 365,
       ),
       ReadingPlanTemplate(
         id: 'chronological-plan',
-        title: 'Plan Chronologique',
+        title: l10n.templateChronologicalPlanTitle,
         image: 'assets/images/plans/mountains_golden.jpg',
-        description:
-            'Lecture de la Bible selon l’ordre historique des événements et de rédaction.',
-        porte:
-            '''Ce plan replace les livres et passages dans leur contexte historique présumé afin de mieux comprendre la progression de l’histoire biblique.
-Parfait pour suivre le fil narratif de la révélation biblique.
-Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objectif d’étude.''',
+        description: l10n.templateChronologicalPlanDescription,
+        porte: l10n.templateChronologicalPlanDetails,
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 365,
@@ -593,67 +587,50 @@ Vous pouvez ajuster la durée, retirer ou ajouter des livres selon votre objecti
       // Plans thématiques — points de départ personnalisables
       ReadingPlanTemplate(
         id: 'new-testament',
-        title: 'Nouveau Testament',
+        title: l10n.templateNewTestamentTitle,
         image: 'assets/images/plans/desert.jpg',
-        description:
-            'Découvrez la vie de Jésus, la naissance de l’Église et l’enseignement apostolique.',
-        porte:
-            '''Les 27 livres du Nouveau Testament dans un parcours adaptable à votre rythme.
-Vous pouvez lire en format intensif (30 jours) ou progressif (3 à 6 mois).''',
+        description: l10n.templateNewTestamentDescription,
+        porte: l10n.templateNewTestamentDetails,
         type: 'custom',
         difficulty: 'modéré',
         estimatedDays: 90,
       ),
       ReadingPlanTemplate(
         id: 'old-testament',
-        title: 'Ancien Testament',
+        title: l10n.templateOldTestamentTitle,
         image: 'assets/images/plans/path.jpg',
-        description:
-            'Explorez la Loi, l’histoire d’Israël, les livres poétiques et les prophètes.',
-        porte:
-            '''Les 39 livres de l’Ancien Testament, ajustables selon votre durée.
-              Vous pouvez sélectionner uniquement certaines sections.''',
+        description: l10n.templateOldTestamentDescription,
+        porte: l10n.templateOldTestamentDetails,
         type: 'custom',
         difficulty: 'intense',
         estimatedDays: 365,
       ),
       ReadingPlanTemplate(
         id: 'gospels',
-        title: 'Les Évangiles',
+        title: l10n.templateGospelsTitle,
         image: 'assets/images/plans/sunrise.jpg',
-        description:
-            'Matthieu, Marc, Luc et Jean dans un parcours centré sur la vie de Jésus.',
-        porte:
-            '''Idéal pour découvrir ou redécouvrir la personne et l’œuvre du Christ.
-Vous pouvez compléter avec le livre des Actes ou adapter la durée (2 semaines à 3 mois).
-Parfait pour un groupe de croissance ou un nouveau croyant.''',
+        description: l10n.templateGospelsDescription,
+        porte: l10n.templateGospelsDetails,
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 30,
       ),
       ReadingPlanTemplate(
         id: 'psalms',
-        title: 'Les Psaumes',
+        title: l10n.templatePsalmsTitle,
         image: 'assets/images/plans/mountains_clouds.jpg',
-        description: '150 psaumes pour nourrir la prière et la méditation.',
-        porte:
-            '''Un parcours spirituel centré sur l’adoration, la repentance et la confiance en Dieu.
-Choisissez votre rythme : 1 psaume par jour ou plusieurs par lecture.
-Peut être combiné avec Proverbes pour un équilibre entre prière et sagesse.''',
+        description: l10n.templatePsalmsDescription,
+        porte: l10n.templatePsalmsDetails,
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 150,
       ),
       ReadingPlanTemplate(
         id: 'proverbs',
-        title: 'Les Proverbes',
+        title: l10n.templateProverbsTitle,
         image: 'assets/images/plans/book.jpg',
-        description:
-            '31 chapitres de sagesse pratique pour la vie quotidienne.',
-        porte:
-            '''Un plan idéal pour une lecture mensuelle (1 chapitre par jour).
-Peut être associé à Ecclésiaste ou Cantique des cantiques pour approfondir la littérature sapientielle.
-Simple, court et applicable immédiatement.''',
+        description: l10n.templateProverbsDescription,
+        porte: l10n.templateProverbsDetails,
         type: 'custom',
         difficulty: 'léger',
         estimatedDays: 31,
@@ -716,53 +693,40 @@ Simple, court et applicable immédiatement.''',
       // Plans fixes (challenges historiques) — structure prédéfinie, choisissez la date de début
       ReadingPlanTemplate(
         id: 'mcheyne',
-        title: 'Plan M\'Cheyne',
+        title: l10n.templateMcheyneTitle,
         image: 'assets/images/plans/hills_mist.jpg',
-        description:
-            'Une lecture parallèle de l’Ancien et du Nouveau Testament.',
-        porte:
-            '''Créé par Robert Murray M’Cheyne, ce plan propose une lecture parallèle de l’Ancien et du Nouveau Testament.
-Les passages sont prédéfinis et suivent la structure originale.
-Vous choisissez simplement la date de début.''',
+        description: l10n.templateMcheyneDescription,
+        porte: l10n.templateMcheyneDetails,
         type: 'fixed',
         difficulty: 'intense',
         estimatedDays: 365,
       ),
       ReadingPlanTemplate(
         id: 'bible-year-ligue',
-        title: 'Bible en 1 an (Ligue)',
+        title: l10n.templateBibleYearLigueTitle,
         image: 'assets/images/plans/nature_sun.jpg',
-        description:
-            '''Lecture quotidienne équilibrée de l'ancien testament, les Psaumes, Les Proverbes et du nouveau testament''',
-        porte:
-            '''Chaque jour propose un passage de l’Ancien Testament, un Psaume, un Proverbe et un passage du Nouveau Testament.
-Plan structuré et prédéfini, idéal pour une lecture communautaire en Église.''',
+        description: l10n.templateBibleYearLigueDescription,
+        porte: l10n.templateBibleYearLigueDetails,
         type: 'fixed',
         difficulty: 'modéré',
         estimatedDays: 365,
       ),
       ReadingPlanTemplate(
         id: 'revolutionary',
-        title: 'Plan révolutionnaire',
+        title: l10n.templateRevolutionaryTitle,
         image: 'assets/images/plans/lake_forest.jpg',
-        description: '25 lectures par mois avec jours de repos intégrés..',
-        porte: '''Plan structuré pour favoriser la régularité sans surcharge.
-Les jours de pause permettent de rattraper ou méditer.
-Structure fixe : il suffit de choisir votre date de départ.''',
+        description: l10n.templateRevolutionaryDescription,
+        porte: l10n.templateRevolutionaryDetails,
         type: 'fixed',
         difficulty: 'léger',
         estimatedDays: 365,
       ),
       ReadingPlanTemplate(
         id: 'horner',
-        title: 'Plan Horner',
+        title: l10n.templateHornerTitle,
         image: 'assets/images/plans/forest.jpg',
-        description:
-            'Méthode intensive : 10 chapitres par jour en lectures parallèles.',
-        porte:
-            '''Conçu par le Professeur Grant Horner, ce plan divise la Bible en 10 listes distinctes lues simultanément.
-Très exigeant, il favorise l’immersion et la répétition des textes.
-Structure entièrement prédéfinie.''',
+        description: l10n.templateHornerDescription,
+        porte: l10n.templateHornerDetails,
         type: 'fixed',
         difficulty: 'intense',
         estimatedDays: 365,
