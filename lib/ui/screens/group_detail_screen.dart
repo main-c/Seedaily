@@ -164,8 +164,8 @@ class _GroupDetailBody extends StatelessWidget {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      AppTheme.seedGold
-                                          .withValues(alpha: 0.35),
+                                      AppTheme.deepNavy
+                                          .withValues(alpha: 0.6),
                                       Theme.of(context)
                                           .colorScheme
                                           .onSurface
@@ -176,7 +176,7 @@ class _GroupDetailBody extends StatelessWidget {
                                 child: Center(
                                   child: Icon(Icons.groups_rounded,
                                       size: 64,
-                                      color: AppTheme.seedGold
+                                      color: Colors.white
                                           .withValues(alpha: 0.5)),
                                 ),
                               ),
@@ -227,8 +227,10 @@ class _GroupDetailBody extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppTheme.seedGold
-                                    .withValues(alpha: 0.12),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -238,7 +240,10 @@ class _GroupDetailBody extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: AppTheme.seedGold),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.7)),
                               ),
                             ),
                           ],
@@ -445,14 +450,15 @@ class _TodayReadingCard extends StatelessWidget {
                         : context.l10n.groupMarkRead),
                     style: FilledButton.styleFrom(
                       backgroundColor: day.completed
-                          ? AppTheme.seedGold.withValues(alpha: 0.15)
+                          ? cs.onSurface.withValues(alpha: 0.06)
                           : AppTheme.seedGold,
                       foregroundColor:
-                          day.completed ? AppTheme.seedGold : Colors.white,
+                          day.completed ? cs.onSurface : Colors.white,
                     ),
                   ),
                 const Spacer(),
                 TextButton(
+                  style: TextButton.styleFrom(foregroundColor: cs.onSurface),
                   onPressed: () => context.push('/plan/${plan.id}'),
                   child: Text(context.l10n.groupOpenPlan),
                 ),
@@ -493,7 +499,7 @@ class _PlanSummaryCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.menu_book_outlined,
-                  size: 18, color: AppTheme.seedGold),
+                  size: 18, color: cs.onSurface.withValues(alpha: 0.6)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(group.planMeta.title,
@@ -544,22 +550,16 @@ class _MemberTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: done
-            ? AppTheme.seedGold.withValues(alpha: 0.06)
-            : cs.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: done
-              ? AppTheme.seedGold.withValues(alpha: 0.2)
-              : cs.outline.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
           // Avatar
           CircleAvatar(
             radius: 20,
-            backgroundColor: AppTheme.seedGold.withValues(alpha: 0.15),
+            backgroundColor: cs.onSurface.withValues(alpha: 0.08),
             backgroundImage: member.avatarUrl != null
                 ? NetworkImage(member.avatarUrl!)
                 : null,
@@ -570,7 +570,7 @@ class _MemberTile extends StatelessWidget {
                         : '?',
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.seedGold),
+                        color: cs.onSurface.withValues(alpha: 0.7)),
                   )
                 : null,
           ),
@@ -584,8 +584,7 @@ class _MemberTile extends StatelessWidget {
                     Text(
                       isCurrentUser ? context.l10n.commonMe : member.displayName,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isCurrentUser ? AppTheme.seedGold : null),
+                          fontWeight: FontWeight.w600),
                     ),
                     if (member.isHost) ...[
                       const SizedBox(width: 6),
@@ -610,7 +609,7 @@ class _MemberTile extends StatelessWidget {
           ),
           // Indicateur lu / pas lu
           done
-              ? Icon(Icons.check_circle, color: AppTheme.seedGold, size: 22)
+              ? Icon(Icons.check_circle, color: cs.onSurface, size: 22)
               : Icon(Icons.radio_button_unchecked,
                   color: cs.outline.withValues(alpha: 0.4), size: 22),
         ],

@@ -123,7 +123,7 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppTheme.seedGold,
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -202,18 +202,18 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isChecked
-                                    ? AppTheme.seedGold
+                                    ? Colors.white
                                     : Colors.transparent,
                                 border: Border.all(
                                   color: isChecked
-                                      ? AppTheme.seedGold
+                                      ? Colors.white
                                       : Colors.white.withValues(alpha: 0.5),
                                   width: 1.5,
                                 ),
                               ),
                               child: isChecked
                                   ? const Icon(Icons.check,
-                                      size: 14, color: Colors.white)
+                                      size: 14, color: AppTheme.deepNavy)
                                   : null,
                             ),
                             const SizedBox(width: 12),

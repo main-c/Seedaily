@@ -139,14 +139,17 @@ class _VersionCard extends StatelessWidget {
     final progress = provider.downloadProgress[version.id] ?? 0.0;
     final isSelected = provider.selectedVersionId == version.id && isDownloaded;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: cs.surface,
+    // Material (et non un Container décoré) : le ListTile y peint son effet au toucher.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+      color: cs.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
+        side: BorderSide(
           color: isSelected
-              ? AppTheme.seedGold
+              ? cs.onSurface
               : cs.outline.withValues(alpha: 0.5),
           width: isSelected ? 1.5 : 1,
         ),
@@ -160,7 +163,7 @@ class _VersionCard extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: isDownloaded
-                    ? AppTheme.seedGold.withValues(alpha: 0.12)
+                    ? cs.onSurface.withValues(alpha: 0.06)
                     : cs.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -171,7 +174,7 @@ class _VersionCard extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: isDownloaded
-                        ? AppTheme.seedGold
+                        ? cs.onSurface
                         : cs.onSurface.withValues(alpha: 0.35),
                   ),
                   textAlign: TextAlign.center,
@@ -251,6 +254,7 @@ class _VersionCard extends StatelessWidget {
             ),
         ],
       ),
+      ),
     );
   }
 
@@ -271,12 +275,12 @@ class _VersionCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isSelected)
-            const Icon(Icons.check_circle, color: AppTheme.seedGold, size: 20)
+            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onSurface, size: 20)
           else
             TextButton(
               onPressed: () => provider.selectVersion(version.id),
               style: TextButton.styleFrom(
-                foregroundColor: AppTheme.seedGold,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
               child: Text(context.l10n.bibleLibraryUse),
@@ -295,7 +299,8 @@ class _VersionCard extends StatelessWidget {
     }
 
     return IconButton(
-      icon: const Icon(Icons.download_outlined, color: AppTheme.seedGold),
+      icon: Icon(Icons.download_outlined,
+          color: Theme.of(context).colorScheme.onSurface),
       onPressed: () => _startDownload(context),
     );
   }

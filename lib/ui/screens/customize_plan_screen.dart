@@ -417,7 +417,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   controller: _tabController,
                   labelColor: Theme.of(context).colorScheme.onSurface,
                   unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  indicatorColor: AppTheme.seedGold,
+                  indicatorColor: Theme.of(context).colorScheme.onSurface,
                   indicatorWeight: 3,
                   tabs: _isFixedPlan
                       ? const []
@@ -493,7 +493,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.seedGold.withValues(alpha: 0.3),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
             Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
           ],
         ),
@@ -501,7 +501,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Icon(
         Icons.menu_book_rounded,
         size: 64,
-        color: AppTheme.seedGold.withValues(alpha: 0.6),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25),
       ),
     );
   }
@@ -540,7 +540,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       ? context.l10n.tourCustomPlanTitle
                       : _template.title,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.seedGold,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -625,12 +625,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppTheme.seedGold
+                    ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
-                      ? AppTheme.seedGold
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).colorScheme.outline,
                 ),
               ),
@@ -640,7 +640,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   color: isSelected
-                      ? Theme.of(context).colorScheme.onSurface
+                      ? Theme.of(context).colorScheme.surface
                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
@@ -815,15 +815,15 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppTheme.seedGold.withValues(alpha: 0.08),
-                      border: Border.all(color: AppTheme.seedGold.withValues(alpha: 0.3)),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       context.l10n.dayCount(totalDays),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.seedGold,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
                   ),
@@ -1027,7 +1027,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                       : Icons.calendar_today,
                               size: 16,
                               color: _chaptersPerDayMode
-                                  ? AppTheme.seedGold
+                                  ? Theme.of(context).colorScheme.onSurface
                                   : Theme.of(context).colorScheme.tertiary,
                             ),
                           ],
@@ -1096,7 +1096,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.seedGold : Theme.of(context).colorScheme.surface,
+                    color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
                     shape: BoxShape.circle,
                     border: isSelected
                         ? null
@@ -1107,7 +1107,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       day['label']!,
                       style: TextStyle(
                         color: isSelected
-                            ? Theme.of(context).colorScheme.onSurface
+                            ? Theme.of(context).colorScheme.surface
                             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -1176,7 +1176,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.seedGold : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -1185,7 +1185,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               Icon(
                 icon,
                 size: 20,
-                color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: isSelected ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(height: 4),
               Text(
@@ -1193,7 +1193,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: isSelected ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1282,19 +1282,19 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.seedGold.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppTheme.seedGold.withValues(alpha: 0.3)),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.tune, size: 14, color: AppTheme.seedGold),
+            Icon(Icons.tune, size: 14, color: Theme.of(context).colorScheme.onSurface),
             const SizedBox(width: 5),
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.seedGold,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
             ),
@@ -1347,12 +1347,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                           horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppTheme.seedGold.withValues(alpha: 0.08)
+                            ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04)
                             : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
-                              ? AppTheme.seedGold
+                              ? Theme.of(context).colorScheme.onSurface
                               : Theme.of(context).colorScheme.outline,
                           width: isSelected ? 1.5 : 1,
                         ),
@@ -1362,7 +1362,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                           Icon(icon,
                               size: 20,
                               color: isSelected
-                                  ? AppTheme.seedGold
+                                  ? Theme.of(context).colorScheme.onSurface
                                   : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                           const SizedBox(width: 12),
                           Expanded(
@@ -1389,8 +1389,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                             ),
                           ),
                           if (isSelected)
-                            const Icon(Icons.check_circle,
-                                color: AppTheme.seedGold, size: 18),
+                            Icon(Icons.check_circle,
+                                color: Theme.of(context).colorScheme.onSurface, size: 18),
                         ],
                       ),
                     ),
@@ -1436,16 +1436,16 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: AppTheme.seedGold.withValues(alpha: 0.08),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.seedGold.withValues(alpha: 0.4),
+              color: Theme.of(context).colorScheme.outline,
             ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.lock_outline,
-                  color: AppTheme.seedGold, size: 18),
+              Icon(Icons.lock_outline,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), size: 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -1607,30 +1607,27 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+    // Material (et non un Container décoré) : le ListTile y peint son effet au toucher.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+      color: Theme.of(context).colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: value
-              ? AppTheme.seedGold.withValues(alpha: 0.3)
-              : Theme.of(context).colorScheme.outline,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: SwitchListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         secondary: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: value
-                ? AppTheme.seedGold.withValues(alpha: 0.1)
-                : Theme.of(context).colorScheme.surfaceContainerLowest,
+            color: Theme.of(context).colorScheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: value ? AppTheme.seedGold : Theme.of(context).colorScheme.tertiary,
+            color: value ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.tertiary,
             size: 24,
           ),
         ),
@@ -1653,6 +1650,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         activeTrackColor: AppTheme.seedGold,
         inactiveThumbColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
         inactiveTrackColor: Theme.of(context).colorScheme.surface,
+      ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
 import '../../l10n/l10n.dart';
@@ -175,7 +174,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
         ? context.l10n.oldTestamentShort
         : context.l10n.newTestamentShort;
     final testamentColor =
-        book?.isOldTestament == true ? Theme.of(context).colorScheme.onSurface : AppTheme.seedGold;
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     final progressPercentage =
         daysCount > 0 ? completedDays / daysCount : 0.0;
 

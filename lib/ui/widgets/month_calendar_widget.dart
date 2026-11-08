@@ -121,7 +121,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   icon: const Icon(Icons.chevron_left),
                   onPressed: _canNavigatePrevious ? _previousMonth : null,
                   color: _canNavigatePrevious
-                      ? AppTheme.seedGold
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                 ),
                 Expanded(
@@ -139,7 +139,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   icon: const Icon(Icons.chevron_right),
                   onPressed: _canNavigateNext ? _nextMonth : null,
                   color: _canNavigateNext
-                      ? AppTheme.seedGold
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.3),
                 ),
               ],
@@ -157,13 +157,13 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppTheme.seedGold.withValues(alpha: 0.1),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         context.l10n.calendarPreviewBadge,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.seedGold,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontWeight: FontWeight.w600,
                             ),
                       ),
@@ -307,27 +307,20 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
         margin: const EdgeInsets.all(2),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
+          // Seul le jour sélectionné est doré ; le reste en noir sur blanc.
           color: isSelectedDay
               ? AppTheme.seedGold
               : isCompleted
-                  ? AppTheme.seedGold.withValues(alpha: 0.5)
-                  : isCurrentDay
-                      ? AppTheme.seedGold.withValues(alpha: 0.2)
-                      : isPastDay
-                          ? AppTheme.seedGold.withValues(alpha: 0.1)
-                          : Theme.of(context).colorScheme.surfaceContainerLowest,
+                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)
+                  : Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelectedDay
                 ? AppTheme.seedGold
-                : isCompleted
-                    ? AppTheme.seedGold.withValues(alpha: 0.5)
-                    : isCurrentDay
-                        ? AppTheme.seedGold.withValues(alpha: 0.5)
-                        : isPastDay
-                            ? AppTheme.seedGold.withValues(alpha: 0.2)
-                            : Theme.of(context).colorScheme.outline,
-            width: isSelectedDay ? 2 : 1,
+                : isCurrentDay
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+            width: isSelectedDay || isCurrentDay ? 1.5 : 1,
           ),
         ),
         child: Column(
@@ -341,14 +334,10 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   '$dayNumber',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: isSelectedDay
-                            ? Theme.of(context).colorScheme.surface
-                            : isCompleted
-                                ? AppTheme.seedGold.withValues(alpha: 0.5)
-                                : isCurrentDay
-                                    ? AppTheme.seedGold
-                                    : isPastDay
-                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
-                                        : AppTheme.seedGold,
+                            ? Colors.white
+                            : isCompleted || isPastDay
+                                ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)
+                                : Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                       ),
@@ -357,7 +346,9 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                   Icon(
                     Icons.check_circle,
                     size: 12,
-                    color: isSelectedDay ? Theme.of(context).colorScheme.surface : AppTheme.seedGold.withValues(alpha: 0.5),
+                    color: isSelectedDay
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
               ],
             ),
@@ -367,7 +358,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                 displayText,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: isSelectedDay
-                          ? Theme.of(context).colorScheme.surface
+                          ? Colors.white
                           : isCurrentDay
                               ? Theme.of(context).colorScheme.onSurface
                               : isPastDay

@@ -53,11 +53,11 @@ class _SignInPrompt extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppTheme.seedGold.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.group_outlined,
-                    size: 40, color: AppTheme.seedGold),
+                    size: 40, color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 24),
               Text(
@@ -229,15 +229,15 @@ class _GroupCard extends StatelessWidget {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            AppTheme.seedGold.withValues(alpha: 0.3),
-                            cs.onSurface.withValues(alpha: 0.1),
+                            cs.onSurface.withValues(alpha: 0.08),
+                            cs.onSurface.withValues(alpha: 0.15),
                           ],
                         ),
                       ),
                       child: Center(
                         child: Icon(Icons.groups_rounded,
                             size: 48,
-                            color: AppTheme.seedGold.withValues(alpha: 0.5)),
+                            color: cs.onSurface.withValues(alpha: 0.25)),
                       ),
                     ),
                   ),

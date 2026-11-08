@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/models.dart';
 import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
@@ -56,7 +57,7 @@ class PlanCard extends StatelessWidget {
     } else if (expected == 0) {
       // Plan pas encore commencé
       statusText = l10n.planCardStreakShort(streak);
-      statusColor = AppTheme.seedGold;
+      statusColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     } else if (delta == 0) {
       statusText = l10n.planCardOnTrack;
       statusColor = AppTheme.success;
@@ -108,8 +109,14 @@ class PlanCard extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              AppTheme.seedGold.withValues(alpha: 0.3),
-                              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                              Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.08),
+                              Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.1),
                             ],
                           ),
                         ),
@@ -117,7 +124,10 @@ class PlanCard extends StatelessWidget {
                           child: Icon(
                             Icons.menu_book_rounded,
                             size: 64,
-                            color: AppTheme.seedGold.withValues(alpha: 0.5),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.25),
                           ),
                         ),
                       );
@@ -133,8 +143,9 @@ class PlanCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
+                      // Même style discret que le badge « Groupe » ; seule la flamme est dorée.
                       decoration: BoxDecoration(
-                        color: AppTheme.seedGold,
+                        color: Colors.black.withValues(alpha: 0.50),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -142,7 +153,7 @@ class PlanCard extends StatelessWidget {
                         children: [
                           const Icon(
                             Icons.local_fire_department,
-                            color: Colors.white,
+                            color: AppTheme.seedGold,
                             size: 16,
                           ),
                           const SizedBox(width: 4),
@@ -159,29 +170,35 @@ class PlanCard extends StatelessWidget {
                     ),
                   ),
 
-                // Badge "Groupe" en bas à gauche de l'image
+                // Badge "Groupe" en bas à gauche de l'image : ouvre le groupe
                 if (plan.isGroupPlan)
                   Positioned(
                     bottom: 10,
                     left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.50),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.groups, size: 12, color: Colors.white),
-                          const SizedBox(width: 4),
-                          Text(l10n.groupsBadge,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600)),
-                        ],
+                    child: GestureDetector(
+                      onTap: () => context.push('/group/${plan.groupId}'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.50),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.groups,
+                                size: 12, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(l10n.groupsBadge,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600)),
+                            const Icon(Icons.chevron_right,
+                                size: 14, color: Colors.white),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -234,7 +251,8 @@ class PlanCard extends StatelessWidget {
                                   .titleMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -270,13 +288,16 @@ class PlanCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.seedGold.withValues(alpha: 0.15),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${progress.toStringAsFixed(0)}%',
                           style: TextStyle(
-                            color: AppTheme.seedGold,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
@@ -294,13 +315,19 @@ class PlanCard extends StatelessWidget {
                       Text(
                         l10n.statProgress,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.6),
                             ),
                       ),
                       Text(
                         '${progress.toStringAsFixed(0)}%',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.6),
                             ),
                       ),
                     ],
@@ -333,7 +360,10 @@ class PlanCard extends StatelessWidget {
                             Icon(
                               Icons.calendar_today_outlined,
                               size: 14,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.6),
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -342,13 +372,20 @@ class PlanCard extends StatelessWidget {
                                   .textTheme
                                   .labelSmall
                                   ?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               '•',
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6)),
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -357,7 +394,10 @@ class PlanCard extends StatelessWidget {
                                   .textTheme
                                   .labelSmall
                                   ?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                             ),
                           ],
@@ -378,7 +418,9 @@ class PlanCard extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          isCompleted ? l10n.planCardReview : l10n.commonContinue,
+                          isCompleted
+                              ? l10n.planCardReview
+                              : l10n.commonContinue,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,

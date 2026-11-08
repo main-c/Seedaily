@@ -237,7 +237,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: AppTheme.seedGold.withValues(alpha: 0.5)),
+                    color: Theme.of(context).colorScheme.outline),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -245,15 +245,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 children: [
                   Icon(Icons.language,
                       size: 14,
-                      color: AppTheme.seedGold.withValues(alpha: 0.8)),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Text(
                     provider.selectedVersion?.shortName ?? 'LSG',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Lexend',
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.seedGold,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -477,7 +477,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                       divisions: 13,
                       activeColor: AppTheme.seedGold,
                       inactiveColor:
-                          AppTheme.seedGold.withValues(alpha: 0.2),
+                          Theme.of(context).colorScheme.outline,
                       onChanged: (v) {
                         provider.setFontSize(v);
                         setSheet(() {});

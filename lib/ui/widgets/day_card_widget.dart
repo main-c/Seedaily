@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:seedaily/ui/widgets/today_card_widget.dart';
 
-import '../../core/theme.dart';
 import '../../domain/models.dart';
 import '../../l10n/l10n.dart';
 import '../../providers/bible_reader_provider.dart';
@@ -123,7 +122,7 @@ class DayCardWidget extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: isOutOfSequence
                                           ? Colors.orange.withValues(alpha: 0.15)
-                                          : AppTheme.seedGold.withValues(alpha: 0.5),
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
@@ -262,7 +261,7 @@ class DayCardWidget extends StatelessWidget {
           icon: const Icon(Icons.menu_book_outlined, size: 15),
           label: Text(context.l10n.dayRead),
           style: TextButton.styleFrom(
-            foregroundColor: AppTheme.seedGold,
+            foregroundColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             textStyle: const TextStyle(
               fontSize: 13,

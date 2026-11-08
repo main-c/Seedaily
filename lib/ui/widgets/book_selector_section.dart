@@ -184,15 +184,13 @@ class _SelectAllTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+    // Material (et non un Container décoré) : le ListTile y peint son effet au toucher.
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isAllSelected
-              ? AppTheme.seedGold.withValues(alpha: 0.3)
-              : Theme.of(context).colorScheme.outline,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: SwitchListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

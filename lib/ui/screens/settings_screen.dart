@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.access_time_outlined,
                 title: l10n.settingsReminderTime,
                 subtitle: timeStr,
-                subtitleColor: AppTheme.seedGold,
+                subtitleColor: null,
                 onTap: () async {
                   final selectedTime = await showTimePicker(
                     context: context,
@@ -296,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ? Text(l10n.settingsLanguageAutoHint)
                   : null,
               trailing: settings.language == language
-                  ? const Icon(Icons.check, color: AppTheme.seedGold)
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.onSurface)
                   : null,
               onTap: () {
                 Navigator.pop(dialogContext);

@@ -251,11 +251,12 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppTheme.seedGold.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.seedGold, width: 2),
               ),
-              child: const Icon(Icons.person, color: AppTheme.seedGold, size: 28),
+              child: Icon(Icons.person,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  size: 28),
             ),
             const SizedBox(width: 12),
 
@@ -294,10 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.seedGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: AppTheme.seedGold.withValues(alpha: 0.3)),
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -382,17 +382,22 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.seedGold : Colors.transparent,
+          // Filtre actif : noir sur blanc inversé (l'or reste pour les actions).
+          color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.seedGold : Theme.of(context).colorScheme.outline,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onSurface
+                : Theme.of(context).colorScheme.outline,
             width: 1.5,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+            color: isSelected
+                ? Theme.of(context).colorScheme.surface
+                : Theme.of(context).colorScheme.onSurface,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             fontSize: 14,
           ),
@@ -440,7 +445,6 @@ class _MilestoneDialog extends StatelessWidget {
               context.l10n.milestoneTitle(streakDays),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.seedGold,
                   ),
               textAlign: TextAlign.center,
             ),

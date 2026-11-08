@@ -15,7 +15,6 @@ import '../widgets/month_calendar_widget.dart';
 import '../widgets/list_view_widget.dart';
 import '../widgets/weekly_view_widget.dart';
 import '../widgets/by_book_view_widget.dart';
-import '../widgets/member_progress_label.dart';
 
 class PlanDetailScreen extends StatefulWidget {
   final String planId;
@@ -229,12 +228,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           if (isGroup) ...[
             const SizedBox(height: 16),
             GestureDetector(
-              onTap: () => _showMembersSheet(
-                statuses,
-                context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!)?.hostId ==
-                    context.read<AuthProvider>().uid,
-                context.read<AuthProvider>().uid,
-              ),
+              // Ouvre l'écran du groupe : membres, retard, lecture du jour.
+              onTap: () => context.push('/group/${plan.groupId}'),
               child: Row(
                 children: [
                   _buildAvatarStack(members, cs),
@@ -267,8 +262,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
     if (delta == 0) {
       label = context.l10n.planPaceOnTrack;
-      bg = AppTheme.seedGold.withValues(alpha: 0.13);
-      fg = AppTheme.seedGold;
+      bg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06);
+      fg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
     } else if (delta > 0) {
       label = context.l10n.planPaceAhead(delta);
       bg = Colors.green.withValues(alpha: 0.12);
@@ -322,7 +317,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 child: CircleAvatar(
                   // La bordure de 2 px doit tenir dans `size`, sinon le Stack coupe le cercle.
                   radius: size / 2 - 2,
-                  backgroundColor: AppTheme.seedGold.withValues(alpha: 0.18),
+                  backgroundColor: cs.onSurface.withValues(alpha: 0.08),
                   backgroundImage: visible[i].avatarUrl != null
                       ? NetworkImage(visible[i].avatarUrl!)
                       : null,
@@ -334,7 +329,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                           style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.seedGold),
+                              color: cs.onSurface.withValues(alpha: 0.7)),
                         )
                       : null,
                 ),
@@ -348,7 +343,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 height: size,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.seedGold.withValues(alpha: 0.13),
+                  color: cs.onSurface.withValues(alpha: 0.08),
                   border: Border.all(color: cs.surface, width: 2),
                 ),
                 child: Center(
@@ -357,7 +352,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                     style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.seedGold),
+                        color: cs.onSurface.withValues(alpha: 0.7)),
                   ),
                 ),
               ),
@@ -672,128 +667,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       return;
     }
     shareGroupInvite(plan.title, group.inviteCode);
-  }
-
-  void _showMembersSheet(
-    List<GroupDayStatus> statuses,
-    bool isHost,
-    String? currentUid,
-  ) {
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) {
-        final cs = Theme.of(context).colorScheme;
-
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(context.l10n.planGroupMembers,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700)),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ...statuses.map((status) {
-                  final m = status.member;
-                  final done = status.hasCompleted;
-                  final isMe = m.userId == currentUid;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor:
-                              AppTheme.seedGold.withValues(alpha: 0.15),
-                          backgroundImage: m.avatarUrl != null
-                              ? NetworkImage(m.avatarUrl!)
-                              : null,
-                          child: m.avatarUrl == null
-                              ? Text(
-                                  m.displayName.isNotEmpty
-                                      ? m.displayName[0].toUpperCase()
-                                      : '?',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.seedGold,
-                                      fontSize: 13))
-                              : null,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    isMe ? context.l10n.commonMe : m.displayName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: isMe
-                                                ? AppTheme.seedGold
-                                                : null),
-                                  ),
-                                  if (m.isHost) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 1),
-                                      decoration: BoxDecoration(
-                                        color: cs.outline.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(context.l10n.groupDetailAdminBadge,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: cs.onSurface
-                                                  .withValues(alpha: 0.4))),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              MemberProgressLabel(status: status),
-                            ],
-                          ),
-                        ),
-                        done
-                            ? Icon(Icons.check_circle,
-                                color: AppTheme.seedGold, size: 20)
-                            : Icon(Icons.radio_button_unchecked,
-                                color: cs.outline.withValues(alpha: 0.4),
-                                size: 20),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {

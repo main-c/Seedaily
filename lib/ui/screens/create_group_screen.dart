@@ -199,7 +199,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.calendar_today_outlined,
-                          size: 20, color: AppTheme.seedGold),
+                          size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                       const SizedBox(width: 12),
                       Text(
                         DateFormat.yMd().format(_startDate),
@@ -273,7 +273,7 @@ class _PlanPicker extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8),
           child: Material(
             color: isSelected
-                ? AppTheme.seedGold.withValues(alpha: 0.08)
+                ? cs.onSurface.withValues(alpha: 0.04)
                 : cs.surface,
             borderRadius: BorderRadius.circular(12),
             child: InkWell(
@@ -294,9 +294,7 @@ class _PlanPicker extends StatelessWidget {
                                   .bodyMedium
                                   ?.copyWith(
                                       fontWeight: FontWeight.w600,
-                                      color: isSelected
-                                          ? AppTheme.seedGold
-                                          : cs.onSurface)),
+                                      color: cs.onSurface)),
                           if (t.description.isNotEmpty)
                             Text(t.description,
                                 style: Theme.of(context)
@@ -312,7 +310,7 @@ class _PlanPicker extends StatelessWidget {
                     ),
                     if (isSelected)
                       Icon(Icons.check_circle,
-                          color: AppTheme.seedGold, size: 20)
+                          color: cs.onSurface, size: 20)
                     else
                       Icon(Icons.radio_button_unchecked,
                           color: cs.outline, size: 20),

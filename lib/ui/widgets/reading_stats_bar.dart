@@ -175,7 +175,7 @@ class ReadingStatsBar extends StatelessWidget {
             Text(
               '${(progress * 100).toStringAsFixed(0)}%',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.seedGold,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
             ),
@@ -214,7 +214,7 @@ class ReadingStatsBar extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: AppTheme.seedGold,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           size: 20,
         ),
         const SizedBox(height: 4),

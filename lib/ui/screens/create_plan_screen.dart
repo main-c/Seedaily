@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
-import '../../core/theme.dart';
 import '../../l10n/l10n.dart';
 
 class CreatePlanScreen extends StatefulWidget {
@@ -151,7 +150,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(color: AppTheme.seedGold, width: 1.5),
+                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface, width: 1.5),
                                   ),
                                 ),
                               ),
@@ -269,10 +268,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.seedGold.withValues(alpha: 0.12),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.tune, color: AppTheme.seedGold, size: 24),
+              child: Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurface, size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -348,7 +347,7 @@ class _PlanCard extends StatelessWidget {
 
   const _PlanCard({required this.template, required this.onTap});
 
-  Widget _placeholder() {
+  Widget _placeholder(BuildContext context) {
     return Container(
       width: 72,
       height: 72,
@@ -356,13 +355,13 @@ class _PlanCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
           colors: [
-            AppTheme.seedGold.withValues(alpha: 0.3),
-            AppTheme.deepNavy.withValues(alpha: 0.15),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
           ],
         ),
       ),
       child: Icon(Icons.menu_book_rounded,
-          size: 32, color: AppTheme.seedGold.withValues(alpha: 0.6)),
+          size: 32, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25)),
     );
   }
 
@@ -399,9 +398,9 @@ class _PlanCard extends StatelessWidget {
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _placeholder(),
+                          errorBuilder: (_, __, ___) => _placeholder(context),
                         )
-                      : _placeholder(),
+                      : _placeholder(context),
                 ),
                 const SizedBox(width: 14),
                 Expanded(

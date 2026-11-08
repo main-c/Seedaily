@@ -161,11 +161,11 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: AppTheme.seedGold.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.group_add_outlined,
-                    size: 36, color: AppTheme.seedGold),
+                    size: 36, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             const SizedBox(height: 28),
@@ -197,7 +197,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 8,
-                    color: AppTheme.seedGold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
               decoration: InputDecoration(
                 hintText: 'XXXXXX',
@@ -227,8 +227,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.seedGold,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor:
-                      AppTheme.seedGold.withValues(alpha: 0.35),
+                  disabledBackgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                 ),
