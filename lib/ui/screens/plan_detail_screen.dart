@@ -9,6 +9,8 @@ import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../services/export_service.dart';
 import '../../core/theme.dart';
+import '../../l10n/error_texts.dart';
+import '../../l10n/l10n.dart';
 import '../widgets/month_calendar_widget.dart';
 import '../widgets/list_view_widget.dart';
 import '../widgets/weekly_view_widget.dart';
@@ -36,9 +38,9 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
     if (plan == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Plan introuvable')),
-        body: const Center(
-          child: Text('Ce plan n\'existe pas'),
+        appBar: AppBar(title: Text(context.l10n.planNotFoundTitle)),
+        body: Center(
+          child: Text(context.l10n.planNotFoundBody),
         ),
       );
     }
@@ -58,24 +60,24 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           if (plan.isGroupPlan)
             IconButton(
               icon: const Icon(Icons.person_add_outlined),
-              tooltip: 'Inviter',
+              tooltip: context.l10n.planInvite,
               onPressed: () => _shareInvite(plan),
             )
           else
             IconButton(
               icon: const Icon(Icons.group_add_outlined),
-              tooltip: 'Partager avec des amis',
+              tooltip: context.l10n.planShareWithFriends,
               onPressed: () => _showConvertToGroupSheet(plan),
             ),
           IconButton(
             icon: const Icon(Icons.tune),
             onPressed: () => context.push('/edit-plan/${widget.planId}'),
-            tooltip: 'Configuration',
+            tooltip: context.l10n.planSettings,
           ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => _showExportBottomSheet(context, plan),
-            tooltip: 'Exporter',
+            tooltip: context.l10n.planExport,
           ),
         ],
         scrolledUnderElevation: 0,
@@ -164,7 +166,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Ma progression',
+                context.l10n.planMyProgress,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: cs.onSurface,
@@ -181,14 +183,14 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Jour ${plan.completedDays} sur ${plan.totalDays}',
+                context.l10n.dayOfTotal(plan.completedDays, plan.totalDays),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: cs.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
               ),
               Text(
-                '${plan.progress.toStringAsFixed(0)}% complété',
+                context.l10n.planPercentComplete(plan.progress.round()),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.5),
                     ),
@@ -224,7 +226,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   _buildAvatarStack(members, cs),
                   const Spacer(),
                   Text(
-                    'Amis qui lisent',
+                    context.l10n.planFriendsReading,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w500,
@@ -250,16 +252,16 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     final Color fg;
 
     if (delta == 0) {
-      label = 'Vous êtes à jour';
+      label = context.l10n.planPaceOnTrack;
       bg = AppTheme.seedGold.withValues(alpha: 0.13);
       fg = AppTheme.seedGold;
     } else if (delta > 0) {
-      label = 'En avance de $delta j.';
+      label = context.l10n.planPaceAhead(delta);
       bg = Colors.green.withValues(alpha: 0.12);
       fg = Colors.green.shade700;
     } else {
       final behind = -delta;
-      label = 'En retard de $behind j.';
+      label = context.l10n.planPaceBehind(behind);
       bg = behind <= 3
           ? Colors.orange.withValues(alpha: 0.12)
           : Colors.red.withValues(alpha: 0.10);
@@ -467,12 +469,12 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   Icon(Icons.lock_outline, size: 40,
                       color: cs.onSurface.withValues(alpha: 0.3)),
                   const SizedBox(height: 16),
-                  Text('Connexion requise',
+                  Text(context.l10n.planSignInRequired,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(
-                    'Connectez-vous avec Google pour partager ce plan avec des amis.',
+                    context.l10n.planSignInRequiredBody,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.55),
@@ -488,8 +490,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                         await auth.signInWithGoogle();
                       },
                       icon: const Icon(Icons.login, color: Colors.white),
-                      label: const Text('Se connecter',
-                          style: TextStyle(color: Colors.white)),
+                      label: Text(context.l10n.settingsSignIn,
+                          style: const TextStyle(color: Colors.white)),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppTheme.seedGold,
                         shape: RoundedRectangleBorder(
@@ -533,15 +535,14 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                       child: Icon(Icons.close, color: cs.onSurface, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    Text('Partager avec des amis',
+                    Text(context.l10n.planShareWithFriends,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Créez un groupe depuis votre plan "${plan.title}". '
-                  'Vos amis pourront vous rejoindre et vous suivrez votre progression ensemble.',
+                  context.l10n.planConvertBody(plan.title),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.55),
                         height: 1.5,
@@ -550,7 +551,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 const SizedBox(height: 24),
 
                 // ── Nom du groupe ──────────────────────────────────────
-                Text('Nom du groupe',
+                Text(context.l10n.groupCreateNameLabel,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.6),
                         letterSpacing: 0.4)),
@@ -560,7 +561,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   autofocus: true,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
-                    hintText: 'Ex : Famille, Cellule, Amis…',
+                    hintText: context.l10n.planGroupNameHint,
                     filled: true,
                     fillColor: cs.surfaceContainerLowest,
                     border: OutlineInputBorder(
@@ -601,8 +602,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                               setSheetState(() => isCreating = false);
                               ScaffoldMessenger.of(ctx).showSnackBar(
                                 SnackBar(
-                                    content: Text(groupsProvider.error ??
-                                        'Erreur de création.')),
+                                    content: Text(groupsErrorText(context.l10n,
+                                        groupsProvider.error, context.l10n.groupCreateError))),
                               );
                               groupsProvider.clearError();
                               return;
@@ -617,9 +618,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
                             // Partage le lien d'invitation
                             Share.share(
-                              'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-                              '${AppTheme.joinUrl(group.inviteCode)}',
-                              subject: 'Lire la Bible ensemble',
+                              context.l10n.planShareMessage(plan.title, AppTheme.joinUrl(group.inviteCode)),
+                              subject: context.l10n.planShareSubject,
                             );
                           },
                     icon: isCreating
@@ -632,7 +632,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                         : const Icon(Icons.group_add_outlined,
                             color: Colors.white, size: 20),
                     label: Text(
-                      isCreating ? 'Création…' : 'Créer le groupe et inviter',
+                      isCreating ? context.l10n.planCreating : context.l10n.planCreateAndInvite,
                       style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w600),
                     ),
@@ -655,14 +655,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     final group = context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!);
     if (group == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Groupe non disponible. Réessayez dans un instant.')),
+        SnackBar(content: Text(context.l10n.planGroupUnavailable)),
       );
       return;
     }
     Share.share(
-      'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-      '${AppTheme.joinUrl(group.inviteCode)}',
-      subject: 'Lire la Bible ensemble',
+      context.l10n.planShareMessage(plan.title, AppTheme.joinUrl(group.inviteCode)),
+      subject: context.l10n.planShareSubject,
     );
   }
 
@@ -698,7 +697,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Text('Membres du groupe',
+                    Text(context.l10n.planGroupMembers,
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -748,7 +747,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    isMe ? 'Moi' : m.displayName,
+                                    isMe ? context.l10n.commonMe : m.displayName,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -767,7 +766,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                                         color: cs.outline.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: Text('admin',
+                                      child: Text(context.l10n.groupDetailAdminBadge,
                                           style: TextStyle(
                                               fontSize: 10,
                                               color: cs.onSurface
@@ -812,7 +811,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   String _formatTime(DateTime dt) {
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return 'Lu à $h:$m';
+    return context.l10n.groupDetailReadAt('$h:$m');
   }
 
   void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {
@@ -845,7 +844,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Exporter mon plan',
+                        context.l10n.planExportTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: cs.onSurface,
@@ -857,7 +856,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
 
                   // ── Description ───────────────────────────────────────
                   Text(
-                    'Personnalisez l\'apparence de votre plan de lecture avant de le télécharger au format PDF.',
+                    context.l10n.planExportBody,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.55),
                           height: 1.5,
@@ -869,9 +868,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   _buildExportToggle(
                     context: context,
                     cs: cs,
-                    title: 'Colorer par genre biblique',
-                    subtitle:
-                        'Attribue une couleur spécifique à chaque type de livre comme la Loi, les Prophètes, les Évangiles.',
+                    title: context.l10n.planExportColorsTitle,
+                    subtitle: context.l10n.planExportColorsBody,
                     value: sectionColors,
                     onChanged: (v) => setSheetState(() => sectionColors = v),
                   ),
@@ -881,9 +879,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   _buildExportToggle(
                     context: context,
                     cs: cs,
-                    title: 'Afficher les cases à cocher',
-                    subtitle:
-                        'Pour le suivi papier. Ajoute une case vide à côté de chaque session de lecture.',
+                    title: context.l10n.planExportCheckboxesTitle,
+                    subtitle: context.l10n.planExportCheckboxesBody,
                     value: includeCheckbox,
                     onChanged: (v) => setSheetState(() => includeCheckbox = v),
                   ),
@@ -915,7 +912,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                           : const Icon(Icons.picture_as_pdf_outlined,
                               color: Colors.white, size: 20),
                       label: Text(
-                        isExporting ? 'Génération…' : 'Générer le PDF',
+                        isExporting ? context.l10n.planExportGenerating : context.l10n.planExportGenerate,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,

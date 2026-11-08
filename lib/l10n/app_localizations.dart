@@ -1531,6 +1531,576 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Êtes-vous sûr de vouloir supprimer \"{title}\" ?\n\nCette action est irréversible.'**
   String planCardDeleteConfirm(String title);
+
+  /// No description provided for @homeEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun plan de lecture'**
+  String get homeEmptyTitle;
+
+  /// No description provided for @homeEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre premier plan pour commencer'**
+  String get homeEmptyMessage;
+
+  /// No description provided for @homeEmptyFilter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun plan dans cette catégorie'**
+  String get homeEmptyFilter;
+
+  /// No description provided for @homeMyPlans.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes Plans'**
+  String get homeMyPlans;
+
+  /// No description provided for @homeActivePlans.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 PLAN ACTIF} =1{1 PLAN ACTIF} other{{count} PLANS ACTIFS}}'**
+  String homeActivePlans(int count);
+
+  /// No description provided for @homeStreakDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} j.'**
+  String homeStreakDays(int n);
+
+  /// No description provided for @homeBestStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rec. {n}'**
+  String homeBestStreak(int n);
+
+  /// No description provided for @homeFilterAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get homeFilterAll;
+
+  /// No description provided for @homeFilterInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get homeFilterInProgress;
+
+  /// No description provided for @homeFilterCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminés'**
+  String get homeFilterCompleted;
+
+  /// No description provided for @milestone365.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une année complète de fidélité. Exceptionnel!'**
+  String get milestone365;
+
+  /// No description provided for @milestone100.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cent jours de lecture. Vous êtes un exemple!'**
+  String get milestone100;
+
+  /// No description provided for @milestone60.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux mois sans interruption. Remarquable!'**
+  String get milestone60;
+
+  /// No description provided for @milestone30.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un mois complet de lecture. Bravo!'**
+  String get milestone30;
+
+  /// No description provided for @milestone14.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux semaines consécutives. Continuez!'**
+  String get milestone14;
+
+  /// No description provided for @milestone7.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une semaine complète. Bel élan!'**
+  String get milestone7;
+
+  /// No description provided for @milestoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} jours de streak!'**
+  String milestoneTitle(int n);
+
+  /// No description provided for @navHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get navHome;
+
+  /// No description provided for @navDiscover.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir'**
+  String get navDiscover;
+
+  /// No description provided for @tourSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get tourSkip;
+
+  /// No description provided for @tourFabBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez sur ce bouton pour accéder à la page Découvrir et choisir un modèle de plan.'**
+  String get tourFabBody;
+
+  /// No description provided for @tourDiscoverBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouvez ici tous les modèles disponibles. Continuons pour les explorer.'**
+  String get tourDiscoverBody;
+
+  /// No description provided for @tourSettingsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème clair / sombre, rappels quotidiens, et préférences de lecture.'**
+  String get tourSettingsBody;
+
+  /// No description provided for @tourCustomPlanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan personnalisé'**
+  String get tourCustomPlanTitle;
+
+  /// No description provided for @tourCustomPlanBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un plan sur mesure : choisissez vous-même les livres, la durée, le rythme et les jours de lecture.'**
+  String get tourCustomPlanBody;
+
+  /// No description provided for @tourTemplatesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèles prêts à l\'emploi'**
+  String get tourTemplatesTitle;
+
+  /// No description provided for @tourTemplatesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plans structurés (M\'Cheyne, Horner…) et thématiques (Évangiles, Psaumes…) — choisissez et c\'est parti.'**
+  String get tourTemplatesBody;
+
+  /// No description provided for @discoverSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher...'**
+  String get discoverSearchHint;
+
+  /// No description provided for @discoverSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un plan ou créez le vôtre'**
+  String get discoverSubtitle;
+
+  /// No description provided for @discoverNoResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun plan trouvé pour \"{query}\"'**
+  String discoverNoResults(String query);
+
+  /// No description provided for @discoverStructuredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plans structurés'**
+  String get discoverStructuredTitle;
+
+  /// No description provided for @discoverStructuredSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Structure fixe: choisissez simplement votre date de début'**
+  String get discoverStructuredSubtitle;
+
+  /// No description provided for @discoverThematicTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plans thématiques'**
+  String get discoverThematicTitle;
+
+  /// No description provided for @discoverThematicSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livres ciblés: ajustez la durée et le rythme'**
+  String get discoverThematicSubtitle;
+
+  /// No description provided for @discoverCustomTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un plan personnalisé'**
+  String get discoverCustomTitle;
+
+  /// No description provided for @discoverCustomSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous choisirez vous-mêmes les livres, la durée, le rythme de lecture'**
+  String get discoverCustomSubtitle;
+
+  /// No description provided for @aboutDescriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get aboutDescriptionTitle;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seedaily est une application de génération de plans de lecture biblique personnalisés. Créez votre propre parcours de lecture adapté à votre rythme et vos objectifs spirituels.'**
+  String get aboutDescription;
+
+  /// No description provided for @aboutFeaturesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalités'**
+  String get aboutFeaturesTitle;
+
+  /// No description provided for @aboutFeatureTemplates.
+  ///
+  /// In fr, this message translates to:
+  /// **'11+ modèles de plans prêts à l\'emploi'**
+  String get aboutFeatureTemplates;
+
+  /// No description provided for @aboutFeatureCustom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plans entièrement personnalisables'**
+  String get aboutFeatureCustom;
+
+  /// No description provided for @aboutFeatureReader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecteur biblique intégré (LSG, Darby…)'**
+  String get aboutFeatureReader;
+
+  /// No description provided for @aboutFeatureProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi de progression et streak'**
+  String get aboutFeatureProgress;
+
+  /// No description provided for @aboutFeaturePdf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export PDF et partage'**
+  String get aboutFeaturePdf;
+
+  /// No description provided for @aboutFeatureReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels quotidiens personnalisables'**
+  String get aboutFeatureReminders;
+
+  /// No description provided for @aboutFeatureWidget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Widget écran d\'accueil'**
+  String get aboutFeatureWidget;
+
+  /// No description provided for @aboutLinksTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liens'**
+  String get aboutLinksTitle;
+
+  /// No description provided for @aboutRateApp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Noter l\'application'**
+  String get aboutRateApp;
+
+  /// No description provided for @aboutReportBug.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler un bug'**
+  String get aboutReportBug;
+
+  /// No description provided for @aboutCreditsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédits'**
+  String get aboutCreditsTitle;
+
+  /// No description provided for @aboutCredits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Développé par Yannik KADJIE.\nImage  : Unsplash.\n'**
+  String get aboutCredits;
+
+  /// No description provided for @aboutCopyright.
+  ///
+  /// In fr, this message translates to:
+  /// **'© {year} Seedaily. Tous droits réservés.'**
+  String aboutCopyright(int year);
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {version}'**
+  String aboutVersion(String version);
+
+  /// No description provided for @aboutLinkCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien copié : {url}'**
+  String aboutLinkCopied(String url);
+
+  /// No description provided for @bibleLibraryIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargez une version pour lire directement dans l\'app. Toutes les versions sont en domaine public.'**
+  String get bibleLibraryIntro;
+
+  /// No description provided for @bibleLibraryUse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser'**
+  String get bibleLibraryUse;
+
+  /// No description provided for @bibleLibraryDownloadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de téléchargement : {error}'**
+  String bibleLibraryDownloadError(String error);
+
+  /// No description provided for @bibleLibraryDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cette version ?'**
+  String get bibleLibraryDeleteTitle;
+
+  /// No description provided for @bibleLibraryDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La version \"{name}\" sera supprimée de l\'appareil.'**
+  String bibleLibraryDeleteBody(String name);
+
+  /// No description provided for @readerChapterNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre introuvable.\nVérifiez que la version est bien téléchargée.'**
+  String get readerChapterNotFound;
+
+  /// No description provided for @readerAlreadyRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà lu'**
+  String get readerAlreadyRead;
+
+  /// No description provided for @readerMarkAsRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme lu'**
+  String get readerMarkAsRead;
+
+  /// No description provided for @readerAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get readerAppearance;
+
+  /// No description provided for @readerPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu — \"{book}\"'**
+  String readerPreview(String book);
+
+  /// No description provided for @readerLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger ce chapitre'**
+  String get readerLoadError;
+
+  /// No description provided for @planNotFoundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan introuvable'**
+  String get planNotFoundTitle;
+
+  /// No description provided for @planNotFoundBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce plan n\'existe pas'**
+  String get planNotFoundBody;
+
+  /// No description provided for @planInvite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter'**
+  String get planInvite;
+
+  /// No description provided for @planShareWithFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager avec des amis'**
+  String get planShareWithFriends;
+
+  /// No description provided for @planSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configuration'**
+  String get planSettings;
+
+  /// No description provided for @planExport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get planExport;
+
+  /// No description provided for @planMyProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma progression'**
+  String get planMyProgress;
+
+  /// No description provided for @planPercentComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n}% complété'**
+  String planPercentComplete(int n);
+
+  /// No description provided for @planFriendsReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amis qui lisent'**
+  String get planFriendsReading;
+
+  /// No description provided for @planPaceOnTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes à jour'**
+  String get planPaceOnTrack;
+
+  /// No description provided for @planPaceAhead.
+  ///
+  /// In fr, this message translates to:
+  /// **'En avance de {n} j.'**
+  String planPaceAhead(int n);
+
+  /// No description provided for @planPaceBehind.
+  ///
+  /// In fr, this message translates to:
+  /// **'En retard de {n} j.'**
+  String planPaceBehind(int n);
+
+  /// No description provided for @planSignInRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion requise'**
+  String get planSignInRequired;
+
+  /// No description provided for @planSignInRequiredBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous avec Google pour partager ce plan avec des amis.'**
+  String get planSignInRequiredBody;
+
+  /// No description provided for @planConvertBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un groupe depuis votre plan \"{title}\". Vos amis pourront vous rejoindre et vous suivrez votre progression ensemble.'**
+  String planConvertBody(String title);
+
+  /// No description provided for @planGroupNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex : Famille, Cellule, Amis…'**
+  String get planGroupNameHint;
+
+  /// No description provided for @planShareMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je lis \"{title}\" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n{url}'**
+  String planShareMessage(String title, String url);
+
+  /// No description provided for @planShareSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire la Bible ensemble'**
+  String get planShareSubject;
+
+  /// No description provided for @planCreating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Création…'**
+  String get planCreating;
+
+  /// No description provided for @planCreateAndInvite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le groupe et inviter'**
+  String get planCreateAndInvite;
+
+  /// No description provided for @planGroupUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Groupe non disponible. Réessayez dans un instant.'**
+  String get planGroupUnavailable;
+
+  /// No description provided for @planGroupMembers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membres du groupe'**
+  String get planGroupMembers;
+
+  /// No description provided for @planExportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter mon plan'**
+  String get planExportTitle;
+
+  /// No description provided for @planExportBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnalisez l\'apparence de votre plan de lecture avant de le télécharger au format PDF.'**
+  String get planExportBody;
+
+  /// No description provided for @planExportColorsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Colorer par genre biblique'**
+  String get planExportColorsTitle;
+
+  /// No description provided for @planExportColorsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attribue une couleur spécifique à chaque type de livre comme la Loi, les Prophètes, les Évangiles.'**
+  String get planExportColorsBody;
+
+  /// No description provided for @planExportCheckboxesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher les cases à cocher'**
+  String get planExportCheckboxesTitle;
+
+  /// No description provided for @planExportCheckboxesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour le suivi papier. Ajoute une case vide à côté de chaque session de lecture.'**
+  String get planExportCheckboxesBody;
+
+  /// No description provided for @planExportGenerating.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération…'**
+  String get planExportGenerating;
+
+  /// No description provided for @planExportGenerate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer le PDF'**
+  String get planExportGenerate;
 }
 
 class _AppLocalizationsDelegate

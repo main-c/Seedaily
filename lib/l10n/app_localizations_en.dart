@@ -886,4 +886,343 @@ class AppLocalizationsEn extends AppLocalizations {
   String planCardDeleteConfirm(String title) {
     return 'Are you sure you want to delete \"$title\"?\n\nThis action cannot be undone.';
   }
+
+  @override
+  String get homeEmptyTitle => 'No reading plans';
+
+  @override
+  String get homeEmptyMessage => 'Create your first plan to get started';
+
+  @override
+  String get homeEmptyFilter => 'No plans in this category';
+
+  @override
+  String get homeMyPlans => 'My Plans';
+
+  @override
+  String homeActivePlans(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ACTIVE PLANS',
+      one: '1 ACTIVE PLAN',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeStreakDays(int n) {
+    return '$n d.';
+  }
+
+  @override
+  String homeBestStreak(int n) {
+    return 'Best $n';
+  }
+
+  @override
+  String get homeFilterAll => 'All';
+
+  @override
+  String get homeFilterInProgress => 'In progress';
+
+  @override
+  String get homeFilterCompleted => 'Completed';
+
+  @override
+  String get milestone365 => 'A full year of faithfulness. Exceptional!';
+
+  @override
+  String get milestone100 => 'One hundred days of reading. You are an example!';
+
+  @override
+  String get milestone60 => 'Two months without a break. Remarkable!';
+
+  @override
+  String get milestone30 => 'A full month of reading. Well done!';
+
+  @override
+  String get milestone14 => 'Two weeks in a row. Keep going!';
+
+  @override
+  String get milestone7 => 'A full week. Great momentum!';
+
+  @override
+  String milestoneTitle(int n) {
+    return '$n-day streak!';
+  }
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navDiscover => 'Discover';
+
+  @override
+  String get tourSkip => 'Skip';
+
+  @override
+  String get tourFabBody =>
+      'Tap this button to open the Discover page and choose a plan template.';
+
+  @override
+  String get tourDiscoverBody =>
+      'All available templates are here. Let\'s keep going and explore them.';
+
+  @override
+  String get tourSettingsBody =>
+      'Light / dark theme, daily reminders and reading preferences.';
+
+  @override
+  String get tourCustomPlanTitle => 'Custom plan';
+
+  @override
+  String get tourCustomPlanBody =>
+      'Create a tailor-made plan: choose the books, duration, pace and reading days yourself.';
+
+  @override
+  String get tourTemplatesTitle => 'Ready-to-use templates';
+
+  @override
+  String get tourTemplatesBody =>
+      'Structured plans (M\'Cheyne, Horner…) and thematic ones (Gospels, Psalms…) — pick one and off you go.';
+
+  @override
+  String get discoverSearchHint => 'Search...';
+
+  @override
+  String get discoverSubtitle => 'Choose a plan or create your own';
+
+  @override
+  String discoverNoResults(String query) {
+    return 'No plans found for \"$query\"';
+  }
+
+  @override
+  String get discoverStructuredTitle => 'Structured plans';
+
+  @override
+  String get discoverStructuredSubtitle =>
+      'Fixed structure: just choose your start date';
+
+  @override
+  String get discoverThematicTitle => 'Thematic plans';
+
+  @override
+  String get discoverThematicSubtitle =>
+      'Targeted books: adjust the duration and pace';
+
+  @override
+  String get discoverCustomTitle => 'Create a custom plan';
+
+  @override
+  String get discoverCustomSubtitle =>
+      'You\'ll choose the books, the duration and the reading pace yourself';
+
+  @override
+  String get aboutDescriptionTitle => 'Description';
+
+  @override
+  String get aboutDescription =>
+      'Seedaily is an app that creates personalized Bible reading plans. Build your own reading journey suited to your pace and your spiritual goals.';
+
+  @override
+  String get aboutFeaturesTitle => 'Features';
+
+  @override
+  String get aboutFeatureTemplates => '11+ ready-to-use plan templates';
+
+  @override
+  String get aboutFeatureCustom => 'Fully customizable plans';
+
+  @override
+  String get aboutFeatureReader => 'Built-in Bible reader (LSG, KJV…)';
+
+  @override
+  String get aboutFeatureProgress => 'Progress tracking and streaks';
+
+  @override
+  String get aboutFeaturePdf => 'PDF export and sharing';
+
+  @override
+  String get aboutFeatureReminders => 'Customizable daily reminders';
+
+  @override
+  String get aboutFeatureWidget => 'Home screen widget';
+
+  @override
+  String get aboutLinksTitle => 'Links';
+
+  @override
+  String get aboutRateApp => 'Rate the app';
+
+  @override
+  String get aboutReportBug => 'Report a bug';
+
+  @override
+  String get aboutCreditsTitle => 'Credits';
+
+  @override
+  String get aboutCredits => 'Developed by Yannik KADJIE.\nImages: Unsplash.\n';
+
+  @override
+  String aboutCopyright(int year) {
+    return '© $year Seedaily. All rights reserved.';
+  }
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String aboutLinkCopied(String url) {
+    return 'Link copied: $url';
+  }
+
+  @override
+  String get bibleLibraryIntro =>
+      'Download a version to read right in the app. All versions are in the public domain.';
+
+  @override
+  String get bibleLibraryUse => 'Use';
+
+  @override
+  String bibleLibraryDownloadError(String error) {
+    return 'Download error: $error';
+  }
+
+  @override
+  String get bibleLibraryDeleteTitle => 'Delete this version?';
+
+  @override
+  String bibleLibraryDeleteBody(String name) {
+    return 'The \"$name\" version will be removed from the device.';
+  }
+
+  @override
+  String get readerChapterNotFound =>
+      'Chapter not found.\nCheck that the version is downloaded.';
+
+  @override
+  String get readerAlreadyRead => 'Already read';
+
+  @override
+  String get readerMarkAsRead => 'Mark as read';
+
+  @override
+  String get readerAppearance => 'Appearance';
+
+  @override
+  String readerPreview(String book) {
+    return 'Preview — \"$book\"';
+  }
+
+  @override
+  String get readerLoadError => 'Unable to load this chapter';
+
+  @override
+  String get planNotFoundTitle => 'Plan not found';
+
+  @override
+  String get planNotFoundBody => 'This plan doesn\'t exist';
+
+  @override
+  String get planInvite => 'Invite';
+
+  @override
+  String get planShareWithFriends => 'Share with friends';
+
+  @override
+  String get planSettings => 'Settings';
+
+  @override
+  String get planExport => 'Export';
+
+  @override
+  String get planMyProgress => 'My progress';
+
+  @override
+  String planPercentComplete(int n) {
+    return '$n% complete';
+  }
+
+  @override
+  String get planFriendsReading => 'Friends reading';
+
+  @override
+  String get planPaceOnTrack => 'You\'re on track';
+
+  @override
+  String planPaceAhead(int n) {
+    return '$n d. ahead';
+  }
+
+  @override
+  String planPaceBehind(int n) {
+    return '$n d. behind';
+  }
+
+  @override
+  String get planSignInRequired => 'Sign-in required';
+
+  @override
+  String get planSignInRequiredBody =>
+      'Sign in with Google to share this plan with friends.';
+
+  @override
+  String planConvertBody(String title) {
+    return 'Create a group from your plan \"$title\". Your friends can join you and you\'ll follow your progress together.';
+  }
+
+  @override
+  String get planGroupNameHint => 'E.g. Family, Small group, Friends…';
+
+  @override
+  String planShareMessage(String title, String url) {
+    return 'I\'m reading \"$title\" on Seedaily and I\'d love for us to read it together 🙏\n\n$url';
+  }
+
+  @override
+  String get planShareSubject => 'Read the Bible together';
+
+  @override
+  String get planCreating => 'Creating…';
+
+  @override
+  String get planCreateAndInvite => 'Create the group and invite';
+
+  @override
+  String get planGroupUnavailable =>
+      'Group unavailable. Try again in a moment.';
+
+  @override
+  String get planGroupMembers => 'Group members';
+
+  @override
+  String get planExportTitle => 'Export my plan';
+
+  @override
+  String get planExportBody =>
+      'Customize how your reading plan looks before downloading it as a PDF.';
+
+  @override
+  String get planExportColorsTitle => 'Color by biblical genre';
+
+  @override
+  String get planExportColorsBody =>
+      'Gives each type of book its own color, such as the Law, the Prophets, the Gospels.';
+
+  @override
+  String get planExportCheckboxesTitle => 'Show checkboxes';
+
+  @override
+  String get planExportCheckboxesBody =>
+      'For tracking on paper. Adds an empty box next to each reading session.';
+
+  @override
+  String get planExportGenerating => 'Generating…';
+
+  @override
+  String get planExportGenerate => 'Generate the PDF';
 }

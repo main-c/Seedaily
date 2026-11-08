@@ -519,5 +519,215 @@
         "type": "String"
       }
     }
-  }
+  },
+  "homeEmptyTitle": "Aucun plan de lecture",
+  "homeEmptyMessage": "Créez votre premier plan pour commencer",
+  "homeEmptyFilter": "Aucun plan dans cette catégorie",
+  "homeMyPlans": "Mes Plans",
+  "homeActivePlans": "{count, plural, =0{0 PLAN ACTIF} =1{1 PLAN ACTIF} other{{count} PLANS ACTIFS}}",
+  "@homeActivePlans": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeStreakDays": "{n} j.",
+  "@homeStreakDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBestStreak": "Rec. {n}",
+  "@homeBestStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFilterAll": "Tous",
+  "homeFilterInProgress": "En cours",
+  "homeFilterCompleted": "Terminés",
+  "milestone365": "Une année complète de fidélité. Exceptionnel!",
+  "milestone100": "Cent jours de lecture. Vous êtes un exemple!",
+  "milestone60": "Deux mois sans interruption. Remarquable!",
+  "milestone30": "Un mois complet de lecture. Bravo!",
+  "milestone14": "Deux semaines consécutives. Continuez!",
+  "milestone7": "Une semaine complète. Bel élan!",
+  "milestoneTitle": "{n} jours de streak!",
+  "@milestoneTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navHome": "Accueil",
+  "navDiscover": "Découvrir",
+  "tourSkip": "Passer",
+  "tourFabBody": "Appuyez sur ce bouton pour accéder à la page Découvrir et choisir un modèle de plan.",
+  "tourDiscoverBody": "Retrouvez ici tous les modèles disponibles. Continuons pour les explorer.",
+  "tourSettingsBody": "Thème clair / sombre, rappels quotidiens, et préférences de lecture.",
+  "tourCustomPlanTitle": "Plan personnalisé",
+  "tourCustomPlanBody": "Créez un plan sur mesure : choisissez vous-même les livres, la durée, le rythme et les jours de lecture.",
+  "tourTemplatesTitle": "Modèles prêts à l'emploi",
+  "tourTemplatesBody": "Plans structurés (M'Cheyne, Horner…) et thématiques (Évangiles, Psaumes…) — choisissez et c'est parti.",
+  "discoverSearchHint": "Rechercher...",
+  "discoverSubtitle": "Choisissez un plan ou créez le vôtre",
+  "discoverNoResults": "Aucun plan trouvé pour \"{query}\"",
+  "@discoverNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverStructuredTitle": "Plans structurés",
+  "discoverStructuredSubtitle": "Structure fixe: choisissez simplement votre date de début",
+  "discoverThematicTitle": "Plans thématiques",
+  "discoverThematicSubtitle": "Livres ciblés: ajustez la durée et le rythme",
+  "discoverCustomTitle": "Créer un plan personnalisé",
+  "discoverCustomSubtitle": "Vous choisirez vous-mêmes les livres, la durée, le rythme de lecture",
+  "aboutDescriptionTitle": "Description",
+  "aboutDescription": "Seedaily est une application de génération de plans de lecture biblique personnalisés. Créez votre propre parcours de lecture adapté à votre rythme et vos objectifs spirituels.",
+  "aboutFeaturesTitle": "Fonctionnalités",
+  "aboutFeatureTemplates": "11+ modèles de plans prêts à l'emploi",
+  "aboutFeatureCustom": "Plans entièrement personnalisables",
+  "aboutFeatureReader": "Lecteur biblique intégré (LSG, Darby…)",
+  "aboutFeatureProgress": "Suivi de progression et streak",
+  "aboutFeaturePdf": "Export PDF et partage",
+  "aboutFeatureReminders": "Rappels quotidiens personnalisables",
+  "aboutFeatureWidget": "Widget écran d'accueil",
+  "aboutLinksTitle": "Liens",
+  "aboutRateApp": "Noter l'application",
+  "aboutReportBug": "Signaler un bug",
+  "aboutCreditsTitle": "Crédits",
+  "aboutCredits": "Développé par Yannik KADJIE.\nImage  : Unsplash.\n",
+  "aboutCopyright": "© {year} Seedaily. Tous droits réservés.",
+  "@aboutCopyright": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutLinkCopied": "Lien copié : {url}",
+  "@aboutLinkCopied": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "bibleLibraryIntro": "Téléchargez une version pour lire directement dans l'app. Toutes les versions sont en domaine public.",
+  "bibleLibraryUse": "Utiliser",
+  "bibleLibraryDownloadError": "Erreur de téléchargement : {error}",
+  "@bibleLibraryDownloadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "bibleLibraryDeleteTitle": "Supprimer cette version ?",
+  "bibleLibraryDeleteBody": "La version \"{name}\" sera supprimée de l'appareil.",
+  "@bibleLibraryDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "readerChapterNotFound": "Chapitre introuvable.\nVérifiez que la version est bien téléchargée.",
+  "readerAlreadyRead": "Déjà lu",
+  "readerMarkAsRead": "Marquer comme lu",
+  "readerAppearance": "Apparence",
+  "readerPreview": "Aperçu — \"{book}\"",
+  "@readerPreview": {
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "readerLoadError": "Impossible de charger ce chapitre",
+  "planNotFoundTitle": "Plan introuvable",
+  "planNotFoundBody": "Ce plan n'existe pas",
+  "planInvite": "Inviter",
+  "planShareWithFriends": "Partager avec des amis",
+  "planSettings": "Configuration",
+  "planExport": "Exporter",
+  "planMyProgress": "Ma progression",
+  "planPercentComplete": "{n}% complété",
+  "@planPercentComplete": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "planFriendsReading": "Amis qui lisent",
+  "planPaceOnTrack": "Vous êtes à jour",
+  "planPaceAhead": "En avance de {n} j.",
+  "@planPaceAhead": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "planPaceBehind": "En retard de {n} j.",
+  "@planPaceBehind": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "planSignInRequired": "Connexion requise",
+  "planSignInRequiredBody": "Connectez-vous avec Google pour partager ce plan avec des amis.",
+  "planConvertBody": "Créez un groupe depuis votre plan \"{title}\". Vos amis pourront vous rejoindre et vous suivrez votre progression ensemble.",
+  "@planConvertBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "planGroupNameHint": "Ex : Famille, Cellule, Amis…",
+  "planShareMessage": "Je lis \"{title}\" sur Seedaily et j'aimerais qu'on le lise ensemble 🙏\n\n{url}",
+  "@planShareMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "planShareSubject": "Lire la Bible ensemble",
+  "planCreating": "Création…",
+  "planCreateAndInvite": "Créer le groupe et inviter",
+  "planGroupUnavailable": "Groupe non disponible. Réessayez dans un instant.",
+  "planGroupMembers": "Membres du groupe",
+  "planExportTitle": "Exporter mon plan",
+  "planExportBody": "Personnalisez l'apparence de votre plan de lecture avant de le télécharger au format PDF.",
+  "planExportColorsTitle": "Colorer par genre biblique",
+  "planExportColorsBody": "Attribue une couleur spécifique à chaque type de livre comme la Loi, les Prophètes, les Évangiles.",
+  "planExportCheckboxesTitle": "Afficher les cases à cocher",
+  "planExportCheckboxesBody": "Pour le suivi papier. Ajoute une case vide à côté de chaque session de lecture.",
+  "planExportGenerating": "Génération…",
+  "planExportGenerate": "Générer le PDF"
 }

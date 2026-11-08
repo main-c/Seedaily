@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   static String get appVersion => AppTheme.appVersion;
-  static const String appDescription =
-      'Seedaily est une application de génération de plans de lecture biblique personnalisés. '
-      'Créez votre propre parcours de lecture adapté à votre rythme et vos objectifs spirituels.';
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('À propos'),
+        title: Text(l10n.settingsAbout),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -29,9 +28,9 @@ class AboutScreen extends StatelessWidget {
           // Description
           _buildSection(
             context,
-            title: 'Description',
+            title: l10n.aboutDescriptionTitle,
             child: Text(
-              appDescription,
+              l10n.aboutDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
@@ -43,16 +42,16 @@ class AboutScreen extends StatelessWidget {
           // Fonctionnalités
           _buildSection(
             context,
-            title: 'Fonctionnalités',
+            title: l10n.aboutFeaturesTitle,
             child: Column(
               children: [
-                _buildFeatureItem(context, icon: Icons.auto_awesome_outlined, text: '11+ modèles de plans prêts à l\'emploi'),
-                _buildFeatureItem(context, icon: Icons.tune_outlined, text: 'Plans entièrement personnalisables'),
-                _buildFeatureItem(context, icon: Icons.menu_book_outlined, text: 'Lecteur biblique intégré (LSG, Darby…)'),
-                _buildFeatureItem(context, icon: Icons.track_changes_outlined, text: 'Suivi de progression et streak'),
-                _buildFeatureItem(context, icon: Icons.picture_as_pdf_outlined, text: 'Export PDF et partage'),
-                _buildFeatureItem(context, icon: Icons.notifications_outlined, text: 'Rappels quotidiens personnalisables'),
-                _buildFeatureItem(context, icon: Icons.widgets_outlined, text: 'Widget écran d\'accueil'),
+                _buildFeatureItem(context, icon: Icons.auto_awesome_outlined, text: l10n.aboutFeatureTemplates),
+                _buildFeatureItem(context, icon: Icons.tune_outlined, text: l10n.aboutFeatureCustom),
+                _buildFeatureItem(context, icon: Icons.menu_book_outlined, text: l10n.aboutFeatureReader),
+                _buildFeatureItem(context, icon: Icons.track_changes_outlined, text: l10n.aboutFeatureProgress),
+                _buildFeatureItem(context, icon: Icons.picture_as_pdf_outlined, text: l10n.aboutFeaturePdf),
+                _buildFeatureItem(context, icon: Icons.notifications_outlined, text: l10n.aboutFeatureReminders),
+                _buildFeatureItem(context, icon: Icons.widgets_outlined, text: l10n.aboutFeatureWidget),
               ],
             ),
           ),
@@ -61,7 +60,7 @@ class AboutScreen extends StatelessWidget {
           // Liens utiles
           _buildSection(
             context,
-            title: 'Liens',
+            title: l10n.aboutLinksTitle,
             child: Column(
               children: [
                 // _buildLinkItem(
@@ -79,13 +78,13 @@ class AboutScreen extends StatelessWidget {
                 _buildLinkItem(
                   context,
                   icon: Icons.star_outline,
-                  title: 'Noter l\'application',
+                  title: l10n.aboutRateApp,
                   onTap: () => _showUrlAction(context, AppTheme.playStoreUrl),
                 ),
                 _buildLinkItem(
                   context,
                   icon: Icons.bug_report_outlined,
-                  title: 'Signaler un bug',
+                  title: l10n.aboutReportBug,
                   onTap: () => _showUrlAction(context, 'mailto:yannik.kadjie@gmail.app'),
                 ),
               ],
@@ -96,10 +95,9 @@ class AboutScreen extends StatelessWidget {
           // Crédits
           _buildSection(
             context,
-            title: 'Crédits',
+            title: l10n.aboutCreditsTitle,
             child: Text(
-              'Développé par Yannik KADJIE.\n'
-              'Image  : Unsplash.\n',
+              l10n.aboutCredits,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
@@ -111,7 +109,7 @@ class AboutScreen extends StatelessWidget {
           // Copyright
           Center(
             child: Text(
-              '© ${DateTime.now().year} Seedaily. Tous droits réservés.',
+              l10n.aboutCopyright(DateTime.now().year),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -180,7 +178,7 @@ class AboutScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              'Version $appVersion',
+              context.l10n.aboutVersion(appVersion),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.seedGold,
                     fontWeight: FontWeight.w600,
@@ -295,9 +293,9 @@ class AboutScreen extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: url));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Lien copié : $url'),
+        content: Text(context.l10n.aboutLinkCopied(url)),
         action: SnackBarAction(
-          label: 'OK',
+          label: context.l10n.commonOk,
           onPressed: () {},
         ),
       ),

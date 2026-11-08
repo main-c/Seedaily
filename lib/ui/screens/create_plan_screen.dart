@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../domain/models.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final GlobalKey? customPlanBtnKey;
@@ -99,7 +100,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     child: _isSearching
                         ? const SizedBox.shrink()
                         : Text(
-                            'Découvrir',
+                            context.l10n.navDiscover,
                             key: const ValueKey('title'),
                             style: Theme.of(context)
                                 .textTheme
@@ -131,7 +132,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                       color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                 decoration: InputDecoration(
-                                  hintText: 'Rechercher...',
+                                  hintText: context.l10n.discoverSearchHint,
                                   hintStyle: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                                     fontSize: 14,
@@ -174,7 +175,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: Text(
-                  'Choisissez un plan ou créez le vôtre',
+                  context.l10n.discoverSubtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
@@ -194,7 +195,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: Text(
-                        'Aucun plan trouvé pour "$_query"',
+                        context.l10n.discoverNoResults(_query),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
@@ -207,8 +208,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   if (fixedPlans.isNotEmpty) ...[
                     _SectionHeader(
                       key: widget.templateSectionKey,
-                      title: 'Plans structurés',
-                      subtitle: 'Structure fixe: choisissez simplement votre date de début',
+                      title: context.l10n.discoverStructuredTitle,
+                      subtitle: context.l10n.discoverStructuredSubtitle,
                     ),
                     const SizedBox(height: 10),
                     ...fixedPlans.map((t) => _PlanCard(
@@ -221,8 +222,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   // ── Section : Plans thématiques ────────────────────────
                   if (thematicPlans.isNotEmpty) ...[
                     _SectionHeader(
-                      title: 'Plans thématiques',
-                      subtitle: 'Livres ciblés: ajustez la durée et le rythme',
+                      title: context.l10n.discoverThematicTitle,
+                      subtitle: context.l10n.discoverThematicSubtitle,
                     ),
                     const SizedBox(height: 10),
                     ...thematicPlans.map((t) => _PlanCard(
@@ -279,7 +280,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Créer un plan personnalisé',
+                    context.l10n.discoverCustomTitle,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: cs.onSurface,
                           fontWeight: FontWeight.bold,
@@ -287,7 +288,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Vous choisirez vous-mêmes les livres, la durée, le rythme de lecture',
+                    context.l10n.discoverCustomSubtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.6),
                         ),
