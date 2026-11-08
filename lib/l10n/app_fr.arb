@@ -729,5 +729,115 @@
   "planExportCheckboxesTitle": "Afficher les cases à cocher",
   "planExportCheckboxesBody": "Pour le suivi papier. Ajoute une case vide à côté de chaque session de lecture.",
   "planExportGenerating": "Génération…",
-  "planExportGenerate": "Générer le PDF"
+  "planExportGenerate": "Générer le PDF",
+  "customizeMyPlanTitle": "Mon plan {year}",
+  "@customizeMyPlanTitle": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "customizeSelectBook": "Veuillez sélectionner au moins un livre biblique",
+  "customizeEnableRemindersTitle": "Activer les rappels ?",
+  "customizeEnableRemindersBody": "Reçois un rappel quotidien pour ne jamais oublier ta lecture.",
+  "customizeEnable": "Activer",
+  "customizeUpdateError": "Erreur lors de la mise à jour du plan: {error}",
+  "@customizeUpdateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "customizeCreateError": "Erreur lors de la création du plan: {error}",
+  "@customizeCreateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "customizeEditTitle": "Modifier le plan",
+  "customizeTitle": "Personnaliser le plan",
+  "customizePreview": "APERÇU DU PLAN",
+  "customizeTabBooks": "Livres",
+  "customizeTabDistribution": "Distribution",
+  "customizeSaveChanges": "Enregistrer les modifications",
+  "customizeCreatePlan": "Créer le plan",
+  "customizeCustomSubtitle": "Choisissez vos livres, l'ordre et la durée",
+  "customizePeriodPreset": "{days, select, 15{15 j} 30{1 mois} 45{45 j} 90{3 mois} 180{6 mois} 365{1 an} other{{days} j}}",
+  "@customizePeriodPreset": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "customizeByDuration": "Par durée",
+  "customizeByChaptersPerDay": "Par chapitres/jour",
+  "customizeChaptersPerDay": "Chapitres par jour",
+  "customizeEstimatedDuration": "Durée estimée",
+  "customizeTotalChapters": "{count, plural, =1{1 chapitre au total} other{{count} chapitres au total}}",
+  "@customizeTotalChapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customizeReadingPeriod": "Période de lecture",
+  "customizeStart": "Début",
+  "customizeEndComputed": "Fin (calculée)",
+  "customizeEnd": "Fin",
+  "customizeTotalDays": "{count, plural, =1{1 jour au total} other{{count} jours au total}}",
+  "@customizeTotalDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customizeReadingDays": "Jours de lecture",
+  "weekdayLetterMon": "L",
+  "weekdayLetterTue": "M",
+  "weekdayLetterWed": "M",
+  "weekdayLetterThu": "J",
+  "weekdayLetterFri": "V",
+  "weekdayLetterSat": "S",
+  "weekdayLetterSun": "D",
+  "customizeDisplayFormat": "Format d'affichage",
+  "customizeFormatList": "Liste",
+  "customizeFormatCalendar": "Calendrier",
+  "customizeFormatWeek": "Semaine",
+  "customizeFormatBook": "Livre",
+  "customizeBooksUnavailable": "La sélection des livres n'est pas disponible pour ce plan.",
+  "customizeBookSelection": "Sélection des livres",
+  "orderCanonical": "Canonique",
+  "orderChronological": "Chronologique",
+  "orderHebrew": "Hébreu",
+  "orderHebrewTanakh": "Hébreu (Tanakh)",
+  "orderCanonicalDesc": "Genèse → Apocalypse",
+  "orderChronologicalDesc": "Ordre historique des événements",
+  "orderHebrewDesc": "Ordre traditionnel du Tanakh",
+  "customizeReadingOrder": "Ordre de lecture",
+  "customizeIncludedBooks": "Livres inclus",
+  "customizeFixedBooks": "Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.",
+  "customizeDistributionUnavailable": "Les options de distribution ne sont pas disponibles pour ce plan.",
+  "customizeContentOptions": "Options de contenu",
+  "customizeIncludePsalms": "Inclure les Psaumes",
+  "customizeIncludePsalmsSubtitle": "Un chapitre par jour",
+  "customizeIncludeProverbs": "Inclure les Proverbes",
+  "customizeIncludeProverbsSubtitle": "Lecture de sagesse quotidienne",
+  "customizeOtNtTitle": "Alternance AT/NT",
+  "customizeOtNtToggle": "Alterner AT et NT",
+  "customizeOtNtSubtitle": "Lectures parallèles des deux testaments",
+  "customizeAdvancedOptions": "Options avancées",
+  "customizeReverse": "Lecture inversée",
+  "customizeReverseSubtitle": "Lire les livres en ordre inverse",
+  "customizeGroupCreateError": "Erreur de création du groupe.",
+  "inviteSheetTitle": "Deux valent mieux qu'un !",
+  "inviteSheetBody": "La lecture de la Bible est encore meilleure en groupe.\nInvite tes proches à te rejoindre dans ce plan !",
+  "inviteSheetInvite": "Inviter mes amis",
+  "inviteSheetSolo": "Continuer seul(e)"
 }

@@ -2101,6 +2101,414 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Générer le PDF'**
   String get planExportGenerate;
+
+  /// No description provided for @customizeMyPlanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan {year}'**
+  String customizeMyPlanTitle(int year);
+
+  /// No description provided for @customizeSelectBook.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner au moins un livre biblique'**
+  String get customizeSelectBook;
+
+  /// No description provided for @customizeEnableRemindersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les rappels ?'**
+  String get customizeEnableRemindersTitle;
+
+  /// No description provided for @customizeEnableRemindersBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçois un rappel quotidien pour ne jamais oublier ta lecture.'**
+  String get customizeEnableRemindersBody;
+
+  /// No description provided for @customizeEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer'**
+  String get customizeEnable;
+
+  /// No description provided for @customizeUpdateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la mise à jour du plan: {error}'**
+  String customizeUpdateError(String error);
+
+  /// No description provided for @customizeCreateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la création du plan: {error}'**
+  String customizeCreateError(String error);
+
+  /// No description provided for @customizeEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le plan'**
+  String get customizeEditTitle;
+
+  /// No description provided for @customizeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnaliser le plan'**
+  String get customizeTitle;
+
+  /// No description provided for @customizePreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'APERÇU DU PLAN'**
+  String get customizePreview;
+
+  /// No description provided for @customizeTabBooks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livres'**
+  String get customizeTabBooks;
+
+  /// No description provided for @customizeTabDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distribution'**
+  String get customizeTabDistribution;
+
+  /// No description provided for @customizeSaveChanges.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get customizeSaveChanges;
+
+  /// No description provided for @customizeCreatePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le plan'**
+  String get customizeCreatePlan;
+
+  /// No description provided for @customizeCustomSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez vos livres, l\'ordre et la durée'**
+  String get customizeCustomSubtitle;
+
+  /// No description provided for @customizePeriodPreset.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days, select, 15{15 j} 30{1 mois} 45{45 j} 90{3 mois} 180{6 mois} 365{1 an} other{{days} j}}'**
+  String customizePeriodPreset(String days);
+
+  /// No description provided for @customizeByDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par durée'**
+  String get customizeByDuration;
+
+  /// No description provided for @customizeByChaptersPerDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par chapitres/jour'**
+  String get customizeByChaptersPerDay;
+
+  /// No description provided for @customizeChaptersPerDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitres par jour'**
+  String get customizeChaptersPerDay;
+
+  /// No description provided for @customizeEstimatedDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée estimée'**
+  String get customizeEstimatedDuration;
+
+  /// No description provided for @customizeTotalChapters.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 chapitre au total} other{{count} chapitres au total}}'**
+  String customizeTotalChapters(int count);
+
+  /// No description provided for @customizeReadingPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période de lecture'**
+  String get customizeReadingPeriod;
+
+  /// No description provided for @customizeStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Début'**
+  String get customizeStart;
+
+  /// No description provided for @customizeEndComputed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin (calculée)'**
+  String get customizeEndComputed;
+
+  /// No description provided for @customizeEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin'**
+  String get customizeEnd;
+
+  /// No description provided for @customizeTotalDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 jour au total} other{{count} jours au total}}'**
+  String customizeTotalDays(int count);
+
+  /// No description provided for @customizeReadingDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours de lecture'**
+  String get customizeReadingDays;
+
+  /// No description provided for @weekdayLetterMon.
+  ///
+  /// In fr, this message translates to:
+  /// **'L'**
+  String get weekdayLetterMon;
+
+  /// No description provided for @weekdayLetterTue.
+  ///
+  /// In fr, this message translates to:
+  /// **'M'**
+  String get weekdayLetterTue;
+
+  /// No description provided for @weekdayLetterWed.
+  ///
+  /// In fr, this message translates to:
+  /// **'M'**
+  String get weekdayLetterWed;
+
+  /// No description provided for @weekdayLetterThu.
+  ///
+  /// In fr, this message translates to:
+  /// **'J'**
+  String get weekdayLetterThu;
+
+  /// No description provided for @weekdayLetterFri.
+  ///
+  /// In fr, this message translates to:
+  /// **'V'**
+  String get weekdayLetterFri;
+
+  /// No description provided for @weekdayLetterSat.
+  ///
+  /// In fr, this message translates to:
+  /// **'S'**
+  String get weekdayLetterSat;
+
+  /// No description provided for @weekdayLetterSun.
+  ///
+  /// In fr, this message translates to:
+  /// **'D'**
+  String get weekdayLetterSun;
+
+  /// No description provided for @customizeDisplayFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format d\'affichage'**
+  String get customizeDisplayFormat;
+
+  /// No description provided for @customizeFormatList.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste'**
+  String get customizeFormatList;
+
+  /// No description provided for @customizeFormatCalendar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calendrier'**
+  String get customizeFormatCalendar;
+
+  /// No description provided for @customizeFormatWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine'**
+  String get customizeFormatWeek;
+
+  /// No description provided for @customizeFormatBook.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livre'**
+  String get customizeFormatBook;
+
+  /// No description provided for @customizeBooksUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La sélection des livres n\'est pas disponible pour ce plan.'**
+  String get customizeBooksUnavailable;
+
+  /// No description provided for @customizeBookSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection des livres'**
+  String get customizeBookSelection;
+
+  /// No description provided for @orderCanonical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canonique'**
+  String get orderCanonical;
+
+  /// No description provided for @orderChronological.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chronologique'**
+  String get orderChronological;
+
+  /// No description provided for @orderHebrew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hébreu'**
+  String get orderHebrew;
+
+  /// No description provided for @orderHebrewTanakh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hébreu (Tanakh)'**
+  String get orderHebrewTanakh;
+
+  /// No description provided for @orderCanonicalDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Genèse → Apocalypse'**
+  String get orderCanonicalDesc;
+
+  /// No description provided for @orderChronologicalDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre historique des événements'**
+  String get orderChronologicalDesc;
+
+  /// No description provided for @orderHebrewDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre traditionnel du Tanakh'**
+  String get orderHebrewDesc;
+
+  /// No description provided for @customizeReadingOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre de lecture'**
+  String get customizeReadingOrder;
+
+  /// No description provided for @customizeIncludedBooks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livres inclus'**
+  String get customizeIncludedBooks;
+
+  /// No description provided for @customizeFixedBooks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.'**
+  String get customizeFixedBooks;
+
+  /// No description provided for @customizeDistributionUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les options de distribution ne sont pas disponibles pour ce plan.'**
+  String get customizeDistributionUnavailable;
+
+  /// No description provided for @customizeContentOptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Options de contenu'**
+  String get customizeContentOptions;
+
+  /// No description provided for @customizeIncludePsalms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure les Psaumes'**
+  String get customizeIncludePsalms;
+
+  /// No description provided for @customizeIncludePsalmsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un chapitre par jour'**
+  String get customizeIncludePsalmsSubtitle;
+
+  /// No description provided for @customizeIncludeProverbs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure les Proverbes'**
+  String get customizeIncludeProverbs;
+
+  /// No description provided for @customizeIncludeProverbsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture de sagesse quotidienne'**
+  String get customizeIncludeProverbsSubtitle;
+
+  /// No description provided for @customizeOtNtTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alternance AT/NT'**
+  String get customizeOtNtTitle;
+
+  /// No description provided for @customizeOtNtToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alterner AT et NT'**
+  String get customizeOtNtToggle;
+
+  /// No description provided for @customizeOtNtSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lectures parallèles des deux testaments'**
+  String get customizeOtNtSubtitle;
+
+  /// No description provided for @customizeAdvancedOptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Options avancées'**
+  String get customizeAdvancedOptions;
+
+  /// No description provided for @customizeReverse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture inversée'**
+  String get customizeReverse;
+
+  /// No description provided for @customizeReverseSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire les livres en ordre inverse'**
+  String get customizeReverseSubtitle;
+
+  /// No description provided for @customizeGroupCreateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de création du groupe.'**
+  String get customizeGroupCreateError;
+
+  /// No description provided for @inviteSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux valent mieux qu\'un !'**
+  String get inviteSheetTitle;
+
+  /// No description provided for @inviteSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture de la Bible est encore meilleure en groupe.\nInvite tes proches à te rejoindre dans ce plan !'**
+  String get inviteSheetBody;
+
+  /// No description provided for @inviteSheetInvite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter mes amis'**
+  String get inviteSheetInvite;
+
+  /// No description provided for @inviteSheetSolo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer seul(e)'**
+  String get inviteSheetSolo;
 }
 
 class _AppLocalizationsDelegate

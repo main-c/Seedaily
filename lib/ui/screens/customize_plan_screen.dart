@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
+import '../../l10n/error_texts.dart';
+import '../../l10n/l10n.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
@@ -52,7 +54,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   /// Le template associé au plan
   late ReadingPlanTemplate _template;
 
-  final _dateFormat = DateFormat('dd MMMM yyyy', 'fr_FR');
+  final _dateFormat = DateFormat('dd MMMM yyyy');
 
   @override
   void initState() {
@@ -103,7 +105,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final year = DateTime.now().year;
     final defaultOptions = _getDefaultOptions(templateId);
     final isCustomEntry = templateId == 'canonical-plan' && !widget.isEditMode;
-    final title = isCustomEntry ? 'Mon plan $year' : '${_template.title} $year';
+    final title = isCustomEntry ? appL10n.customizeMyPlanTitle(year) : '${_template.title} $year';
 
     return _generator.generate(
       templateId: templateId,
@@ -260,8 +262,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   Future<void> _savePlan() async {
     if (_workingPlan.options.content.selectedBooks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner au moins un livre biblique'),
+        SnackBar(
+          content: Text(context.l10n.customizeSelectBook),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -311,21 +313,21 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               showDialog<void>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Activer les rappels ?'),
-                  content: const Text(
-                    'Reçois un rappel quotidien pour ne jamais oublier ta lecture.',
+                  title: Text(context.l10n.customizeEnableRemindersTitle),
+                  content: Text(
+                    context.l10n.customizeEnableRemindersBody,
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Plus tard'),
+                      child: Text(context.l10n.updateLater),
                     ),
                     FilledButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         settings.setNotificationsEnabled(true);
                       },
-                      child: const Text('Activer'),
+                      child: Text(context.l10n.customizeEnable),
                     ),
                   ],
                 ),
@@ -340,8 +342,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           SnackBar(
             content: Text(
               widget.isEditMode
-                  ? 'Erreur lors de la mise à jour du plan: $e'
-                  : 'Erreur lors de la création du plan: $e',
+                  ? context.l10n.customizeUpdateError('$e')
+                  : context.l10n.customizeCreateError('$e'),
             ),
             backgroundColor: AppTheme.error,
           ),
@@ -365,7 +367,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           onPressed: () => context.pop(),
         ),
         title: Text(
-            widget.isEditMode ? 'Modifier le plan' : 'Personnaliser le plan'),
+            widget.isEditMode ? context.l10n.customizeEditTitle : context.l10n.customizeTitle),
       ),
       body: NestedScrollView(
         physics: const ClampingScrollPhysics(),
@@ -383,7 +385,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'APERÇU DU PLAN',
+                          context.l10n.customizePreview,
                           style:
                               Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -419,9 +421,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   indicatorWeight: 3,
                   tabs: _isFixedPlan
                       ? const []
-                      : const [
-                          Tab(text: 'Livres'),
-                          Tab(text: 'Distribution'),
+                      : [
+                          Tab(text: context.l10n.customizeTabBooks),
+                          Tab(text: context.l10n.customizeTabDistribution),
                         ],
                 ),
               ),
@@ -463,8 +465,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               ),
               child: Text(
                 widget.isEditMode
-                    ? 'Enregistrer les modifications'
-                    : 'Créer le plan',
+                    ? context.l10n.customizeSaveChanges
+                    : context.l10n.customizeCreatePlan,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -535,7 +537,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               children: [
                 Text(
                   _workingPlan.templateId == 'canonical-plan' && !widget.isEditMode
-                      ? 'Plan personnalisé'
+                      ? context.l10n.tourCustomPlanTitle
                       : _template.title,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.seedGold,
@@ -545,7 +547,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 const SizedBox(height: 4),
                 Text(
                   _workingPlan.templateId == 'canonical-plan' && !widget.isEditMode
-                      ? 'Choisissez vos livres, l\'ordre et la durée'
+                      ? context.l10n.customizeCustomSubtitle
                       : _template.description,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -633,7 +635,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 ),
               ),
               child: Text(
-                preset.label,
+                context.l10n.customizePeriodPreset('${preset.days}'),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -670,10 +672,10 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       ),
       child: Row(
         children: [
-          _buildModeButton('Par durée', !_chaptersPerDayMode, () {
+          _buildModeButton(context.l10n.customizeByDuration, !_chaptersPerDayMode, () {
             setState(() => _chaptersPerDayMode = false);
           }),
-          _buildModeButton('Par chapitres/jour', _chaptersPerDayMode, () {
+          _buildModeButton(context.l10n.customizeByChaptersPerDay, _chaptersPerDayMode, () {
             setState(() => _chaptersPerDayMode = true);
             // Application immédiate : le plan se met à jour dès le switch
             _regeneratePlan(
@@ -736,7 +738,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Chapitres par jour',
+                    context.l10n.customizeChaptersPerDay,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w500,
@@ -803,7 +805,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Durée estimée',
+                    context.l10n.customizeEstimatedDuration,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w500,
@@ -818,7 +820,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '$totalDays jours',
+                      context.l10n.dayCount(totalDays),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppTheme.seedGold,
@@ -832,7 +834,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          '$totalChapters chapitres au total',
+          context.l10n.customizeTotalChapters(totalChapters),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
@@ -851,7 +853,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Période de lecture'),
+          _buildSectionTitle(context.l10n.customizeReadingPeriod),
           const SizedBox(height: 12),
           if (!_isFixedPlan) ...[
             _buildModeToggle(),
@@ -873,7 +875,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Début',
+                      context.l10n.customizeStart,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
@@ -888,7 +890,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                           initialDate: startDate,
                           firstDate: now.subtract(const Duration(days: 365)),
                           lastDate: now.add(const Duration(days: 1825)),
-                          locale: const Locale('fr', 'FR'),
+                          locale: Localizations.localeOf(context),
                         );
 
                         if (selected != null && mounted) {
@@ -960,7 +962,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _chaptersPerDayMode ? 'Fin (calculée)' : 'Fin',
+                      _chaptersPerDayMode ? context.l10n.customizeEndComputed : context.l10n.customizeEnd,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w500,
@@ -976,7 +978,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
                                 initialDate: endDate,
                                 firstDate: startDate.add(const Duration(days: 1)),
                                 lastDate: startDate.add(const Duration(days: 3650)),
-                                locale: const Locale('fr', 'FR'),
+                                locale: Localizations.localeOf(context),
                               );
 
                               if (selected != null && mounted) {
@@ -1040,7 +1042,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           const SizedBox(height: 8),
           // Résumé durée
           Text(
-            '${_workingPlan.options.schedule.totalDays} jours au total',
+            context.l10n.customizeTotalDays(_workingPlan.options.schedule.totalDays),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -1060,18 +1062,18 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Jours de lecture'),
+          _buildSectionTitle(context.l10n.customizeReadingDays),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              {'key': 'mon', 'label': 'L', 'fullLabel': 'LUN'},
-              {'key': 'tue', 'label': 'M', 'fullLabel': 'MAR'},
-              {'key': 'wed', 'label': 'M', 'fullLabel': 'MER'},
-              {'key': 'thu', 'label': 'J', 'fullLabel': 'JEU'},
-              {'key': 'fri', 'label': 'V', 'fullLabel': 'VEN'},
-              {'key': 'sat', 'label': 'S', 'fullLabel': 'SAM'},
-              {'key': 'sun', 'label': 'D', 'fullLabel': 'DIM'},
+              {'key': 'mon', 'label': context.l10n.weekdayLetterMon, 'fullLabel': 'LUN'},
+              {'key': 'tue', 'label': context.l10n.weekdayLetterTue, 'fullLabel': 'MAR'},
+              {'key': 'wed', 'label': context.l10n.weekdayLetterWed, 'fullLabel': 'MER'},
+              {'key': 'thu', 'label': context.l10n.weekdayLetterThu, 'fullLabel': 'JEU'},
+              {'key': 'fri', 'label': context.l10n.weekdayLetterFri, 'fullLabel': 'VEN'},
+              {'key': 'sat', 'label': context.l10n.weekdayLetterSat, 'fullLabel': 'SAM'},
+              {'key': 'sun', 'label': context.l10n.weekdayLetterSun, 'fullLabel': 'DIM'},
             ].map((day) {
               final isSelected = readingDays.contains(day['key']);
               return GestureDetector(
@@ -1129,7 +1131,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Format d\'affichage'),
+          _buildSectionTitle(context.l10n.customizeDisplayFormat),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
@@ -1139,13 +1141,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
             padding: const EdgeInsets.all(4),
             child: Row(
               children: [
-                _buildFormatButton(OutputFormat.list, 'Liste', Icons.list),
+                _buildFormatButton(OutputFormat.list, context.l10n.customizeFormatList, Icons.list),
                 _buildFormatButton(
-                    OutputFormat.calendar, 'Calendrier', Icons.calendar_month),
+                    OutputFormat.calendar, context.l10n.customizeFormatCalendar, Icons.calendar_month),
                 _buildFormatButton(
-                    OutputFormat.weekly, 'Semaine', Icons.view_week),
+                    OutputFormat.weekly, context.l10n.customizeFormatWeek, Icons.view_week),
                 _buildFormatButton(
-                    OutputFormat.byBook, 'Livre', Icons.menu_book),
+                    OutputFormat.byBook, context.l10n.customizeFormatBook, Icons.menu_book),
               ],
             ),
           ),
@@ -1209,11 +1211,11 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   Widget _buildBooksTab() {
     // Plans fixes : sélection de livres non disponible
     if (_isFixedPlan) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Text(
-            'La sélection des livres n\'est pas disponible pour ce plan.',
+            context.l10n.customizeBooksUnavailable,
             textAlign: TextAlign.center,
           ),
         ),
@@ -1232,7 +1234,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildSectionTitle('Sélection des livres'),
+            _buildSectionTitle(context.l10n.customizeBookSelection),
             _buildOrderFilterButton(),
           ],
         ),
@@ -1269,10 +1271,10 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   Widget _buildOrderFilterButton() {
     final currentOrder = _workingPlan.options.order.type;
     final label = switch (currentOrder) {
-      OrderType.canonical => 'Canonique',
-      OrderType.chronological => 'Chronologique',
-      OrderType.jewish => 'Hébreu',
-      _ => 'Canonique',
+      OrderType.canonical => context.l10n.orderCanonical,
+      OrderType.chronological => context.l10n.orderChronological,
+      OrderType.jewish => context.l10n.orderHebrew,
+      _ => context.l10n.orderCanonical,
     };
 
     return GestureDetector(
@@ -1304,9 +1306,9 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
   void _showOrderBottomSheet() {
     final options = [
-      (OrderType.canonical, 'Canonique', 'Genèse → Apocalypse', Icons.sort),
-      (OrderType.chronological, 'Chronologique', 'Ordre historique des événements', Icons.history),
-      (OrderType.jewish, 'Hébreu (Tanakh)', 'Ordre traditionnel du Tanakh', Icons.star_outline),
+      (OrderType.canonical, context.l10n.orderCanonical, context.l10n.orderCanonicalDesc, Icons.sort),
+      (OrderType.chronological, context.l10n.orderChronological, context.l10n.orderChronologicalDesc, Icons.history),
+      (OrderType.jewish, context.l10n.orderHebrewTanakh, context.l10n.orderHebrewDesc, Icons.star_outline),
     ];
 
     showModalBottomSheet<void>(
@@ -1324,7 +1326,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ordre de lecture',
+                  context.l10n.customizeReadingOrder,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -1426,7 +1428,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildSectionTitle('Livres inclus'),
+            _buildSectionTitle(context.l10n.customizeIncludedBooks),
             _buildOrderFilterButton(),
           ],
         ),
@@ -1447,7 +1449,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.',
+                  context.l10n.customizeFixedBooks,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
@@ -1492,7 +1494,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Les options de distribution ne sont pas disponibles pour ce plan.',
+            context.l10n.customizeDistributionUnavailable,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -1507,13 +1509,13 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     return ListView(
       padding: const EdgeInsets.all(16).copyWith(bottom: 100),
       children: [
-        _buildSectionTitle('Options de contenu'),
+        _buildSectionTitle(context.l10n.customizeContentOptions),
         const SizedBox(height: 16),
         if (_showDailyPsalmProverb)
           _buildOptionCard(
             icon: Icons.auto_stories,
-            title: 'Inclure les Psaumes',
-            subtitle: 'Un chapitre par jour',
+            title: context.l10n.customizeIncludePsalms,
+            subtitle: context.l10n.customizeIncludePsalmsSubtitle,
             value: distribution.dailyPsalm != DailyPsalmMode.none,
             onChanged: (value) {
               _regeneratePlan(
@@ -1531,8 +1533,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
         if (_showDailyPsalmProverb)
           _buildOptionCard(
             icon: Icons.lightbulb_outline,
-            title: 'Inclure les Proverbes',
-            subtitle: 'Lecture de sagesse quotidienne',
+            title: context.l10n.customizeIncludeProverbs,
+            subtitle: context.l10n.customizeIncludeProverbsSubtitle,
             value: distribution.dailyProverb != DailyProverbMode.none,
             onChanged: (value) {
               _regeneratePlan(
@@ -1550,12 +1552,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           ),
         if (_showOtNtOverlap) ...[
           const SizedBox(height: 24),
-          _buildSectionTitle('Alternance AT/NT'),
+          _buildSectionTitle(context.l10n.customizeOtNtTitle),
           const SizedBox(height: 16),
           _buildOptionCard(
             icon: Icons.swap_horiz,
-            title: 'Alterner AT et NT',
-            subtitle: 'Lectures parallèles des deux testaments',
+            title: context.l10n.customizeOtNtToggle,
+            subtitle: context.l10n.customizeOtNtSubtitle,
             value: distribution.otNtOverlap == OtNtOverlapMode.alternate,
             onChanged: (value) {
               _regeneratePlan(
@@ -1574,12 +1576,12 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
           ),
         ],
         const SizedBox(height: 24),
-        _buildSectionTitle('Options avancées'),
+        _buildSectionTitle(context.l10n.customizeAdvancedOptions),
         const SizedBox(height: 16),
         _buildOptionCard(
           icon: Icons.flip,
-          title: 'Lecture inversée',
-          subtitle: 'Lire les livres en ordre inverse',
+          title: context.l10n.customizeReverse,
+          subtitle: context.l10n.customizeReverseSubtitle,
           value: distribution.reverse,
           onChanged: (value) {
             _regeneratePlan(
@@ -1678,8 +1680,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
   Future<void> _saveGroupPlan() async {
     if (_workingPlan.options.content.selectedBooks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner au moins un livre biblique'),
+        SnackBar(
+          content: Text(context.l10n.customizeSelectBook),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -1719,7 +1721,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                groupsProvider.error ?? 'Erreur de création du groupe.')),
+                groupsErrorText(context.l10n, groupsProvider.error, context.l10n.customizeGroupCreateError))),
       );
       groupsProvider.clearError();
       return;
@@ -1730,9 +1732,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     // Partage le lien d'invitation
     final inviteCode = group.inviteCode;
     await Share.share(
-      'Je lis "$planTitle" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-      '${AppTheme.joinUrl(inviteCode)}',
-      subject: 'Lire la Bible ensemble',
+      context.l10n.planShareMessage(planTitle, AppTheme.joinUrl(inviteCode)),
+      subject: context.l10n.planShareSubject,
     );
 
     if (!mounted) return;
@@ -1813,7 +1814,7 @@ class _ReadingTogetherModal extends StatelessWidget {
 
           // Titre
           Text(
-            'Deux valent mieux qu\'un !',
+            context.l10n.inviteSheetTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: cs.onSurface,
@@ -1824,8 +1825,7 @@ class _ReadingTogetherModal extends StatelessWidget {
 
           // Sous-titre
           Text(
-            'La lecture de la Bible est encore meilleure en groupe.\n'
-            'Invite tes proches à te rejoindre dans ce plan !',
+            context.l10n.inviteSheetBody,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   height: 1.55,
@@ -1841,9 +1841,9 @@ class _ReadingTogetherModal extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onInvite,
               icon: const Icon(Icons.people_outline, size: 20),
-              label: const Text(
-                'Inviter mes amis',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              label: Text(
+                context.l10n.inviteSheetInvite,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.seedGold,
@@ -1859,7 +1859,7 @@ class _ReadingTogetherModal extends StatelessWidget {
           TextButton(
             onPressed: onSolo,
             child: Text(
-              'Continuer seul(e)',
+              context.l10n.inviteSheetSolo,
               style: TextStyle(
                 color: cs.onSurface.withValues(alpha: 0.5),
                 fontSize: 15,

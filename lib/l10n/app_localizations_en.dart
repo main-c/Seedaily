@@ -1225,4 +1225,250 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planExportGenerate => 'Generate the PDF';
+
+  @override
+  String customizeMyPlanTitle(int year) {
+    return 'My plan $year';
+  }
+
+  @override
+  String get customizeSelectBook => 'Please select at least one Bible book';
+
+  @override
+  String get customizeEnableRemindersTitle => 'Turn on reminders?';
+
+  @override
+  String get customizeEnableRemindersBody =>
+      'Get a daily reminder so you never forget your reading.';
+
+  @override
+  String get customizeEnable => 'Turn on';
+
+  @override
+  String customizeUpdateError(String error) {
+    return 'Error while updating the plan: $error';
+  }
+
+  @override
+  String customizeCreateError(String error) {
+    return 'Error while creating the plan: $error';
+  }
+
+  @override
+  String get customizeEditTitle => 'Edit the plan';
+
+  @override
+  String get customizeTitle => 'Customize the plan';
+
+  @override
+  String get customizePreview => 'PLAN PREVIEW';
+
+  @override
+  String get customizeTabBooks => 'Books';
+
+  @override
+  String get customizeTabDistribution => 'Distribution';
+
+  @override
+  String get customizeSaveChanges => 'Save changes';
+
+  @override
+  String get customizeCreatePlan => 'Create the plan';
+
+  @override
+  String get customizeCustomSubtitle =>
+      'Choose your books, the order and the duration';
+
+  @override
+  String customizePeriodPreset(String days) {
+    String _temp0 = intl.Intl.selectLogic(
+      days,
+      {
+        '15': '15 d',
+        '30': '1 month',
+        '45': '45 d',
+        '90': '3 months',
+        '180': '6 months',
+        '365': '1 year',
+        'other': '$days d',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeByDuration => 'By duration';
+
+  @override
+  String get customizeByChaptersPerDay => 'By chapters/day';
+
+  @override
+  String get customizeChaptersPerDay => 'Chapters per day';
+
+  @override
+  String get customizeEstimatedDuration => 'Estimated duration';
+
+  @override
+  String customizeTotalChapters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters in total',
+      one: '1 chapter in total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeReadingPeriod => 'Reading period';
+
+  @override
+  String get customizeStart => 'Start';
+
+  @override
+  String get customizeEndComputed => 'End (calculated)';
+
+  @override
+  String get customizeEnd => 'End';
+
+  @override
+  String customizeTotalDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days in total',
+      one: '1 day in total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeReadingDays => 'Reading days';
+
+  @override
+  String get weekdayLetterMon => 'M';
+
+  @override
+  String get weekdayLetterTue => 'T';
+
+  @override
+  String get weekdayLetterWed => 'W';
+
+  @override
+  String get weekdayLetterThu => 'T';
+
+  @override
+  String get weekdayLetterFri => 'F';
+
+  @override
+  String get weekdayLetterSat => 'S';
+
+  @override
+  String get weekdayLetterSun => 'S';
+
+  @override
+  String get customizeDisplayFormat => 'Display format';
+
+  @override
+  String get customizeFormatList => 'List';
+
+  @override
+  String get customizeFormatCalendar => 'Calendar';
+
+  @override
+  String get customizeFormatWeek => 'Week';
+
+  @override
+  String get customizeFormatBook => 'Book';
+
+  @override
+  String get customizeBooksUnavailable =>
+      'Book selection isn\'t available for this plan.';
+
+  @override
+  String get customizeBookSelection => 'Book selection';
+
+  @override
+  String get orderCanonical => 'Canonical';
+
+  @override
+  String get orderChronological => 'Chronological';
+
+  @override
+  String get orderHebrew => 'Hebrew';
+
+  @override
+  String get orderHebrewTanakh => 'Hebrew (Tanakh)';
+
+  @override
+  String get orderCanonicalDesc => 'Genesis → Revelation';
+
+  @override
+  String get orderChronologicalDesc => 'Historical order of events';
+
+  @override
+  String get orderHebrewDesc => 'Traditional order of the Tanakh';
+
+  @override
+  String get customizeReadingOrder => 'Reading order';
+
+  @override
+  String get customizeIncludedBooks => 'Included books';
+
+  @override
+  String get customizeFixedBooks =>
+      'This plan\'s books are fixed. You can adjust the duration and the reading days.';
+
+  @override
+  String get customizeDistributionUnavailable =>
+      'Distribution options aren\'t available for this plan.';
+
+  @override
+  String get customizeContentOptions => 'Content options';
+
+  @override
+  String get customizeIncludePsalms => 'Include Psalms';
+
+  @override
+  String get customizeIncludePsalmsSubtitle => 'One chapter a day';
+
+  @override
+  String get customizeIncludeProverbs => 'Include Proverbs';
+
+  @override
+  String get customizeIncludeProverbsSubtitle => 'Daily wisdom reading';
+
+  @override
+  String get customizeOtNtTitle => 'OT/NT alternation';
+
+  @override
+  String get customizeOtNtToggle => 'Alternate OT and NT';
+
+  @override
+  String get customizeOtNtSubtitle => 'Parallel readings of both testaments';
+
+  @override
+  String get customizeAdvancedOptions => 'Advanced options';
+
+  @override
+  String get customizeReverse => 'Reverse reading';
+
+  @override
+  String get customizeReverseSubtitle => 'Read the books in reverse order';
+
+  @override
+  String get customizeGroupCreateError => 'Error creating the group.';
+
+  @override
+  String get inviteSheetTitle => 'Two are better than one!';
+
+  @override
+  String get inviteSheetBody =>
+      'Reading the Bible is even better together.\nInvite your loved ones to join you in this plan!';
+
+  @override
+  String get inviteSheetInvite => 'Invite my friends';
+
+  @override
+  String get inviteSheetSolo => 'Continue alone';
 }

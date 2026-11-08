@@ -1231,4 +1231,252 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get planExportGenerate => 'Générer le PDF';
+
+  @override
+  String customizeMyPlanTitle(int year) {
+    return 'Mon plan $year';
+  }
+
+  @override
+  String get customizeSelectBook =>
+      'Veuillez sélectionner au moins un livre biblique';
+
+  @override
+  String get customizeEnableRemindersTitle => 'Activer les rappels ?';
+
+  @override
+  String get customizeEnableRemindersBody =>
+      'Reçois un rappel quotidien pour ne jamais oublier ta lecture.';
+
+  @override
+  String get customizeEnable => 'Activer';
+
+  @override
+  String customizeUpdateError(String error) {
+    return 'Erreur lors de la mise à jour du plan: $error';
+  }
+
+  @override
+  String customizeCreateError(String error) {
+    return 'Erreur lors de la création du plan: $error';
+  }
+
+  @override
+  String get customizeEditTitle => 'Modifier le plan';
+
+  @override
+  String get customizeTitle => 'Personnaliser le plan';
+
+  @override
+  String get customizePreview => 'APERÇU DU PLAN';
+
+  @override
+  String get customizeTabBooks => 'Livres';
+
+  @override
+  String get customizeTabDistribution => 'Distribution';
+
+  @override
+  String get customizeSaveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get customizeCreatePlan => 'Créer le plan';
+
+  @override
+  String get customizeCustomSubtitle =>
+      'Choisissez vos livres, l\'ordre et la durée';
+
+  @override
+  String customizePeriodPreset(String days) {
+    String _temp0 = intl.Intl.selectLogic(
+      days,
+      {
+        '15': '15 j',
+        '30': '1 mois',
+        '45': '45 j',
+        '90': '3 mois',
+        '180': '6 mois',
+        '365': '1 an',
+        'other': '$days j',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeByDuration => 'Par durée';
+
+  @override
+  String get customizeByChaptersPerDay => 'Par chapitres/jour';
+
+  @override
+  String get customizeChaptersPerDay => 'Chapitres par jour';
+
+  @override
+  String get customizeEstimatedDuration => 'Durée estimée';
+
+  @override
+  String customizeTotalChapters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapitres au total',
+      one: '1 chapitre au total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeReadingPeriod => 'Période de lecture';
+
+  @override
+  String get customizeStart => 'Début';
+
+  @override
+  String get customizeEndComputed => 'Fin (calculée)';
+
+  @override
+  String get customizeEnd => 'Fin';
+
+  @override
+  String customizeTotalDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours au total',
+      one: '1 jour au total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customizeReadingDays => 'Jours de lecture';
+
+  @override
+  String get weekdayLetterMon => 'L';
+
+  @override
+  String get weekdayLetterTue => 'M';
+
+  @override
+  String get weekdayLetterWed => 'M';
+
+  @override
+  String get weekdayLetterThu => 'J';
+
+  @override
+  String get weekdayLetterFri => 'V';
+
+  @override
+  String get weekdayLetterSat => 'S';
+
+  @override
+  String get weekdayLetterSun => 'D';
+
+  @override
+  String get customizeDisplayFormat => 'Format d\'affichage';
+
+  @override
+  String get customizeFormatList => 'Liste';
+
+  @override
+  String get customizeFormatCalendar => 'Calendrier';
+
+  @override
+  String get customizeFormatWeek => 'Semaine';
+
+  @override
+  String get customizeFormatBook => 'Livre';
+
+  @override
+  String get customizeBooksUnavailable =>
+      'La sélection des livres n\'est pas disponible pour ce plan.';
+
+  @override
+  String get customizeBookSelection => 'Sélection des livres';
+
+  @override
+  String get orderCanonical => 'Canonique';
+
+  @override
+  String get orderChronological => 'Chronologique';
+
+  @override
+  String get orderHebrew => 'Hébreu';
+
+  @override
+  String get orderHebrewTanakh => 'Hébreu (Tanakh)';
+
+  @override
+  String get orderCanonicalDesc => 'Genèse → Apocalypse';
+
+  @override
+  String get orderChronologicalDesc => 'Ordre historique des événements';
+
+  @override
+  String get orderHebrewDesc => 'Ordre traditionnel du Tanakh';
+
+  @override
+  String get customizeReadingOrder => 'Ordre de lecture';
+
+  @override
+  String get customizeIncludedBooks => 'Livres inclus';
+
+  @override
+  String get customizeFixedBooks =>
+      'Les livres de ce plan sont fixes. Vous pouvez ajuster la durée et les jours de lecture.';
+
+  @override
+  String get customizeDistributionUnavailable =>
+      'Les options de distribution ne sont pas disponibles pour ce plan.';
+
+  @override
+  String get customizeContentOptions => 'Options de contenu';
+
+  @override
+  String get customizeIncludePsalms => 'Inclure les Psaumes';
+
+  @override
+  String get customizeIncludePsalmsSubtitle => 'Un chapitre par jour';
+
+  @override
+  String get customizeIncludeProverbs => 'Inclure les Proverbes';
+
+  @override
+  String get customizeIncludeProverbsSubtitle =>
+      'Lecture de sagesse quotidienne';
+
+  @override
+  String get customizeOtNtTitle => 'Alternance AT/NT';
+
+  @override
+  String get customizeOtNtToggle => 'Alterner AT et NT';
+
+  @override
+  String get customizeOtNtSubtitle => 'Lectures parallèles des deux testaments';
+
+  @override
+  String get customizeAdvancedOptions => 'Options avancées';
+
+  @override
+  String get customizeReverse => 'Lecture inversée';
+
+  @override
+  String get customizeReverseSubtitle => 'Lire les livres en ordre inverse';
+
+  @override
+  String get customizeGroupCreateError => 'Erreur de création du groupe.';
+
+  @override
+  String get inviteSheetTitle => 'Deux valent mieux qu\'un !';
+
+  @override
+  String get inviteSheetBody =>
+      'La lecture de la Bible est encore meilleure en groupe.\nInvite tes proches à te rejoindre dans ce plan !';
+
+  @override
+  String get inviteSheetInvite => 'Inviter mes amis';
+
+  @override
+  String get inviteSheetSolo => 'Continuer seul(e)';
 }
