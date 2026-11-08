@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import 'day_card_widget.dart';
 import 'today_card_widget.dart';
 
@@ -104,7 +105,7 @@ class _ListViewWidgetState extends State<ListViewWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.days.isEmpty) {
-      return const Center(child: Text('Aucun jour de lecture'));
+      return Center(child: Text(context.l10n.noReadingDays));
     }
 
     final outOfSequenceDates = _computeOutOfSequenceDates();

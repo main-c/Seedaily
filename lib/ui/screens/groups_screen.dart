@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../domain/group_models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
@@ -35,9 +36,10 @@ class _SignInPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Groupes'),
+        title: Text(l10n.groupsTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -59,7 +61,7 @@ class _SignInPrompt extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Lecture en groupe',
+                l10n.groupsSignInTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: cs.onSurface,
@@ -68,8 +70,7 @@ class _SignInPrompt extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Lisez avec vos proches et votre communauté. '
-                'Connectez-vous pour créer ou rejoindre un groupe.',
+                l10n.groupsSignInBody,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.6),
                       height: 1.5,
@@ -91,7 +92,7 @@ class _SignInPrompt extends StatelessWidget {
                         )
                       : Image.asset('assets/icons/google_icon.png', width: 18, height: 18),
                   label: Text(
-                      isLoading ? 'Connexion…' : 'Continuer avec Google'),
+                      isLoading ? l10n.groupsSigningIn : l10n.groupsContinueWithGoogle),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.deepNavy,
                     foregroundColor: Colors.white,
@@ -118,15 +119,16 @@ class _GroupsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GroupsProvider>(
       builder: (context, groups, _) {
+        final l10n = context.l10n;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Groupes'),
+            title: Text(l10n.groupsTitle),
             backgroundColor: Colors.transparent,
             elevation: 0,
             actions: [
               IconButton(
                 icon: const Icon(Icons.person_add_outlined),
-                tooltip: 'Rejoindre un groupe',
+                tooltip: l10n.groupJoinTitle,
                 onPressed: () => context.push('/groups/join'),
               ),
             ],
@@ -136,10 +138,9 @@ class _GroupsList extends StatelessWidget {
               : groups.groups.isEmpty
                   ? EmptyState(
                       icon: Icons.groups_outlined,
-                      title: 'Aucun groupe pour l\'instant',
-                      message:
-                          'Choisissez un plan dans Découvrir, puis sélectionnez "Avec des amis" pour lire avec votre communauté.',
-                      actionLabel: 'Découvrir des plans',
+                      title: l10n.groupsEmptyTitle,
+                      message: l10n.groupsEmptyMessage,
+                      actionLabel: l10n.groupsEmptyAction,
                       onAction: () =>
                           mainShellKey.currentState?.navigateToIndex(1),
                     )
@@ -152,7 +153,7 @@ class _GroupsList extends StatelessWidget {
                   backgroundColor: AppTheme.seedGold,
                   foregroundColor: Colors.white,
                   icon: const Icon(Icons.explore_outlined),
-                  label: const Text('Nouveau plan de groupe'),
+                  label: Text(l10n.groupsNewGroupPlan),
                 )
               : null,
         );
@@ -257,7 +258,7 @@ class _GroupCard extends StatelessWidget {
                       children: [
                         const Icon(Icons.groups, size: 12, color: Colors.white),
                         const SizedBox(width: 4),
-                        Text('Groupe',
+                        Text(context.l10n.groupsBadge,
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -278,7 +279,7 @@ class _GroupCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${(pct * 100).toStringAsFixed(0)} %',
+                      context.l10n.percent((pct * 100).round()),
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -321,7 +322,7 @@ class _GroupCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Jour $elapsed sur $totalDays',
+                    context.l10n.dayOfTotal(elapsed, totalDays),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.45)),
                   ),

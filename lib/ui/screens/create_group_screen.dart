@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
@@ -8,6 +9,8 @@ import '../../domain/models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
+import '../../l10n/error_texts.dart';
+import '../../l10n/l10n.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -81,7 +84,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     if (!_formKey.currentState!.validate() || _selectedTemplate == null) {
       if (_selectedTemplate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Choisissez un plan pour le groupe.')),
+          SnackBar(content: Text(context.l10n.groupCreatePickPlan)),
         );
       }
       return;
@@ -113,7 +116,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     if (group == null) {
       setState(() => _isCreating = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(groupsProvider.error ?? 'Erreur de création.')),
+        SnackBar(content: Text(groupsErrorText(context.l10n, groupsProvider.error, context.l10n.groupCreateError))),
       );
       groupsProvider.clearError();
       return;
@@ -130,10 +133,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final templates = context.read<PlansProvider>().templates;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Créer un groupe'),
+        title: Text(l10n.groupCreateTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -145,7 +149,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           child: ListView(
             padding: const EdgeInsets.all(20),
           children: [
-            Text('Nom du groupe',
+            Text(l10n.groupCreateNameLabel,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
                     letterSpacing: 0.4)),
@@ -153,7 +157,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             TextFormField(
               controller: _nameCtrl,
               decoration: InputDecoration(
-                hintText: 'Ex : Famille Martin, Cellule Alpha…',
+                hintText: l10n.groupCreateNameHint,
                 filled: true,
                 fillColor: cs.surface,
                 border: OutlineInputBorder(
@@ -161,12 +165,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     borderSide: BorderSide.none),
               ),
               validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Donnez un nom.' : null,
+                  (v == null || v.trim().isEmpty) ? l10n.groupCreateNameRequired : null,
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: 28),
 
-            Text('Plan de lecture',
+            Text(l10n.groupCreatePlanLabel,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
                     letterSpacing: 0.4)),
@@ -178,7 +182,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             ),
             const SizedBox(height: 28),
 
-            Text('Date de début',
+            Text(l10n.groupCreateStartDateLabel,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
                     letterSpacing: 0.4)),
@@ -198,9 +202,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                           size: 20, color: AppTheme.seedGold),
                       const SizedBox(width: 12),
                       Text(
-                        '${_startDate.day.toString().padLeft(2, '0')}/'
-                        '${_startDate.month.toString().padLeft(2, '0')}/'
-                        '${_startDate.year}',
+                        DateFormat.yMd().format(_startDate),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const Spacer(),
@@ -230,8 +232,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Créer le groupe',
-                        style: TextStyle(
+                    : Text(l10n.groupCreateSubmit,
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),

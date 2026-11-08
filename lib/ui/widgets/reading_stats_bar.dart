@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 
 /// Widget représentant une barre de statistiques pour un plan de lecture
 /// Affiche : nombre de jours, livres, chapitres, progression
@@ -60,21 +61,21 @@ class ReadingStatsBar extends StatelessWidget {
                 context,
                 icon: Icons.calendar_today,
                 value: '$totalDays',
-                label: 'jours',
+                label: context.l10n.statDaysLabel(totalDays),
               ),
               _buildDivider(context),
               _buildStatItem(
                 context,
                 icon: Icons.menu_book,
                 value: '$bookCount',
-                label: 'livres',
+                label: context.l10n.statBooksLabel(bookCount),
               ),
               _buildDivider(context),
               _buildStatItem(
                 context,
                 icon: Icons.article,
                 value: '$totalChapters',
-                label: 'chapitres',
+                label: context.l10n.statChaptersLabel(totalChapters),
               ),
               if (avgChaptersPerDay != null) ...[
                 _buildDivider(context),
@@ -82,7 +83,7 @@ class ReadingStatsBar extends StatelessWidget {
                   context,
                   icon: Icons.trending_up,
                   value: avgChaptersPerDay!.toStringAsFixed(1),
-                  label: 'chap/jour',
+                  label: context.l10n.statChaptersPerDay,
                 ),
               ],
             ],
@@ -107,7 +108,7 @@ class ReadingStatsBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'PROGRESSION TOTALE',
+              context.l10n.statTotalProgress,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
@@ -124,14 +125,14 @@ class ReadingStatsBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${(progress * 100).toInt()}% Terminé',
+              context.l10n.statPercentDone((progress * 100).toInt()),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
             ),
             Text(
-              '$completedDays/$totalDays jours',
+              context.l10n.statDaysFraction(completedDays!, totalDays),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w500,
@@ -165,7 +166,7 @@ class ReadingStatsBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Progression',
+              context.l10n.statProgress,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
@@ -194,7 +195,7 @@ class ReadingStatsBar extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '$completedDays / $totalDays jours complétés',
+          context.l10n.statDaysCompleted(completedDays!, totalDays),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),

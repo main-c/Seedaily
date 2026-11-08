@@ -4,10 +4,10 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../domain/models.dart';
+import '../l10n/l10n.dart';
 import 'analytics_service.dart';
 
 const String _appName = 'Seedaily';
-const String _appTagline = 'Générez vos plans de lecture biblique';
 const String _appUrl = 'seedaily.app';
 
 class ExportService {
@@ -195,7 +195,7 @@ class ExportService {
   // ── Page de couverture ────────────────────────────────────────────────────────
 
   pw.Widget _buildCoverPage(GeneratedPlan plan, pw.ImageProvider? logo) {
-    final fmt = DateFormat('d MMMM yyyy', 'fr_FR');
+    final fmt = DateFormat('d MMMM yyyy');
     final hasRange = plan.days.isNotEmpty;
     final startDate = hasRange ? fmt.format(plan.days.first.date) : '';
     final endDate = hasRange ? fmt.format(plan.days.last.date) : '';
@@ -225,7 +225,7 @@ class ExportService {
                     ),
                   ),
                   pw.Text(
-                    _appTagline,
+                    appL10n.pdfTagline,
                     style: pw.TextStyle(fontSize: 9, color: _mutedColor),
                   ),
                 ],
@@ -251,7 +251,7 @@ class ExportService {
             ),
             pw.SizedBox(height: 6),
             pw.Text(
-              '${plan.days.length} jours de lecture',
+              appL10n.pdfReadingDays(plan.days.length),
               style: pw.TextStyle(fontSize: 9, color: _mutedColor),
             ),
           ],
@@ -263,7 +263,7 @@ class ExportService {
               borderRadius: pw.BorderRadius.all(pw.Radius.circular(8)),
             ),
             child: pw.Text(
-              'Généré avec $_appName · $_appUrl',
+              appL10n.pdfGeneratedWith('$_appName · $_appUrl'),
               style: pw.TextStyle(fontSize: 9, color: _mutedColor),
             ),
           ),
@@ -277,7 +277,7 @@ class ExportService {
   // Droite : "Seedaily" en or muet
 
   pw.Widget _buildPageHeader(GeneratedPlan plan, DateTime month) {
-    final monthLabel = DateFormat('MMMM yyyy', 'fr_FR').format(month);
+    final monthLabel = DateFormat('MMMM yyyy').format(month);
     final monthCap = monthLabel[0].toUpperCase() + monthLabel.substring(1);
 
     return pw.Row(
@@ -297,7 +297,7 @@ class ExportService {
             ),
             pw.SizedBox(height: 2),
             pw.Text(
-              'Plan de Lecture - $monthCap',
+              appL10n.pdfMonthTitle(monthCap),
               style: pw.TextStyle(fontSize: _subtitleFontSize, color: _mutedColor),
             ),
           ],
@@ -349,7 +349,7 @@ class ExportService {
     bool includeCheckbox = true,
   }) {
     // Lundi = 0 … Dimanche = 6
-    const weekDays = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
+    final weekDays = appL10n.pdfWeekDays.split(',');
 
     final firstDay = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
@@ -586,13 +586,13 @@ class ExportService {
 
   pw.Widget _buildLegend(Set<String> presentGenres) {
     final allItems = [
-      ('gospels',    'Évangiles & Actes', _bgGospelsActs),
-      ('epistles',   'Épîtres',           _bgEpistles),
-      ('revelation', 'Apocalypse',        _bgRevelation),
-      ('law',        'Loi / Torah',       _bgLaw),
-      ('history',    'Historiques',       _bgHistory),
-      ('wisdom',     'Sapientiaux',       _bgWisdom),
-      ('prophets',   'Prophètes',         _bgProphets),
+      ('gospels',    appL10n.pdfGenreGospelsActs, _bgGospelsActs),
+      ('epistles',   appL10n.pdfGenreEpistles,    _bgEpistles),
+      ('revelation', appL10n.pdfGenreRevelation,  _bgRevelation),
+      ('law',        appL10n.pdfGenreLaw,         _bgLaw),
+      ('history',    appL10n.pdfGenreHistory,     _bgHistory),
+      ('wisdom',     appL10n.pdfGenreWisdom,      _bgWisdom),
+      ('prophets',   appL10n.pdfGenreProphets,    _bgProphets),
     ];
 
     final items = allItems.where((i) => presentGenres.contains(i.$1)).toList();

@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+
 class BibleVersion {
   final String id;
   final String name;
@@ -68,6 +70,20 @@ class BibleVersion {
 
   bool get isEnglish => id == 'kjv' || id == 'asv';
 
+  /// Description dans la langue de l'app.
+  String get localizedDescription {
+    final l10n = appL10n;
+    return switch (id) {
+      'lsg' => l10n.bibleVersionLsgDescription,
+      'martin' => l10n.bibleVersionMartinDescription,
+      'ostervald' => l10n.bibleVersionOstervaldDescription,
+      'epee' => l10n.bibleVersionEpeeDescription,
+      'kjv' => l10n.bibleVersionKjvDescription,
+      'asv' => l10n.bibleVersionAsvDescription,
+      _ => description,
+    };
+  }
+
   static BibleVersion? fromId(String id) {
     try {
       return available.firstWhere((v) => v.id == id);
@@ -106,6 +122,12 @@ class BibleVersion {
     'Hébreux': 'Hebrews', 'Jacques': 'James', '1 Pierre': '1 Peter',
     '2 Pierre': '2 Peter', '1 Jean': '1 John', '2 Jean': '2 John',
     '3 Jean': '3 John', 'Jude': 'Jude', 'Apocalypse': 'Revelation',
+    // Nom utilisé par BibleData (minuscule) + deutérocanoniques.
+    'Cantique des cantiques': 'Song of Solomon',
+    'Tobit': 'Tobit', 'Judith': 'Judith', 'Sagesse': 'Wisdom',
+    'Siracide': 'Sirach', 'Baruch': 'Baruch', '1 Maccabées': '1 Maccabees',
+    '2 Maccabées': '2 Maccabees', 'Additions à Esther': 'Additions to Esther',
+    'Additions à Daniel': 'Additions to Daniel',
   };
 }
 

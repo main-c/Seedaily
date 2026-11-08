@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/models.dart';
+import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
 import '../services/groups_service.dart';
 import '../services/notification_service.dart';
@@ -245,7 +246,7 @@ class PlansProvider with ChangeNotifier {
       await _groupsService!.markDaysCaughtUp(
         groupId: plan.groupId!,
         userId: _currentUserId!,
-        displayName: _currentUserDisplayName ?? 'Membre',
+        displayName: _currentUserDisplayName ?? appL10n.commonMember,
         dayIndexes: indexes,
       );
     }
@@ -277,7 +278,7 @@ class PlansProvider with ChangeNotifier {
               await _groupsService!.markDayComplete(
                 groupId: plan.groupId!,
                 userId: _currentUserId!,
-                displayName: _currentUserDisplayName ?? 'Membre',
+                displayName: _currentUserDisplayName ?? appL10n.commonMember,
                 dayIndex: dayIndex,
               );
             } else {
@@ -346,6 +347,12 @@ class PlansProvider with ChangeNotifier {
       debugPrint('Erreur lors de la mise à jour du jour: $e');
       rethrow;
     }
+  }
+
+  /// Appelé quand la langue change : textes des rappels et du widget.
+  Future<void> refreshLocalizedOutputs() async {
+    await _rescheduleSmartNotifications();
+    await _updateWidget();
   }
 
   GeneratedPlan? getPlanById(String planId) {

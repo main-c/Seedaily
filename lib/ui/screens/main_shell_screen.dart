@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/plans_provider.dart';
 import 'home_screen.dart';
@@ -93,13 +94,14 @@ class MainShellScreenState extends State<MainShellScreen> {
           color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Text(
-          'Passer',
-          style: TextStyle(color: Colors.white, fontSize: 14),
+        child: Text(
+          context.l10n.tourSkip,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
         ),
       );
 
   void _launchHomeTour(BuildContext ctx) {
+    final l10n = ctx.l10n;
     TutorialCoachMark(
       targets: [
         TargetFocus(
@@ -110,9 +112,8 @@ class MainShellScreenState extends State<MainShellScreen> {
             TargetContent(
               align: ContentAlign.top,
               child: _TourContent(
-                title: 'Créer un plan',
-                body:
-                    'Appuyez sur ce bouton pour accéder à la page Découvrir et choisir un modèle de plan.',
+                title: l10n.notifActionCreatePlan,
+                body: l10n.tourFabBody,
               ),
             ),
           ],
@@ -126,9 +127,8 @@ class MainShellScreenState extends State<MainShellScreen> {
             TargetContent(
               align: ContentAlign.top,
               child: _TourContent(
-                title: 'Découvrir',
-                body:
-                    'Retrouvez ici tous les modèles disponibles. Continuons pour les explorer.',
+                title: l10n.navDiscover,
+                body: l10n.tourDiscoverBody,
               ),
             ),
           ],
@@ -142,9 +142,8 @@ class MainShellScreenState extends State<MainShellScreen> {
             TargetContent(
               align: ContentAlign.top,
               child: _TourContent(
-                title: 'Réglages',
-                body:
-                    'Thème clair / sombre, rappels quotidiens, et préférences de lecture.',
+                title: l10n.settingsTitle,
+                body: l10n.tourSettingsBody,
               ),
             ),
           ],
@@ -167,6 +166,7 @@ class MainShellScreenState extends State<MainShellScreen> {
   }
 
   void _launchDiscoverTour(BuildContext ctx) {
+    final l10n = ctx.l10n;
     TutorialCoachMark(
       targets: [
         TargetFocus(
@@ -178,9 +178,8 @@ class MainShellScreenState extends State<MainShellScreen> {
             TargetContent(
               align: ContentAlign.bottom,
               child: _TourContent(
-                title: 'Plan personnalisé',
-                body:
-                    'Créez un plan sur mesure : choisissez vous-même les livres, la durée, le rythme et les jours de lecture.',
+                title: l10n.tourCustomPlanTitle,
+                body: l10n.tourCustomPlanBody,
               ),
             ),
           ],
@@ -194,9 +193,8 @@ class MainShellScreenState extends State<MainShellScreen> {
             TargetContent(
               align: ContentAlign.bottom,
               child: _TourContent(
-                title: 'Modèles prêts à l\'emploi',
-                body:
-                    'Plans structurés (M\'Cheyne, Horner…) et thématiques (Évangiles, Psaumes…) — choisissez et c\'est parti.',
+                title: l10n.tourTemplatesTitle,
+                body: l10n.tourTemplatesBody,
               ),
             ),
           ],
@@ -255,21 +253,21 @@ class MainShellScreenState extends State<MainShellScreen> {
                   index: 0,
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'Accueil',
+                  label: context.l10n.navHome,
                 ),
                 _buildNavItem(
                   itemKey: _keyTabDiscover,
                   index: 1,
                   icon: Icons.explore_outlined,
                   activeIcon: Icons.explore,
-                  label: 'Découvrir',
+                  label: context.l10n.navDiscover,
                 ),
                 _buildNavItem(
                   itemKey: _keyTabSettings,
                   index: 2,
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
-                  label: 'Réglages',
+                  label: context.l10n.settingsTitle,
                 ),
               ],
             ),

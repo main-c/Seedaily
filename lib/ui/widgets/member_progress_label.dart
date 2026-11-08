@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/group_models.dart';
+import '../../l10n/l10n.dart';
 
 /// « En retard de 3 j · 8 % », « À jour · 12 % » ou « En avance de 2 j · 15 % »,
 /// suivi de l'heure de lecture du jour si le membre a lu.
@@ -12,15 +13,16 @@ class MemberProgressLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final behind = status.daysBehind;
-    final pct = '${(status.progress * 100).round()} %';
+    final l10n = context.l10n;
+    final pct = l10n.memberPercent((status.progress * 100).round());
     final rhythm = behind > 0
-        ? 'En retard de $behind j'
+        ? l10n.memberBehind(behind)
         : behind < 0
-            ? 'En avance de ${-behind} j'
-            : 'À jour';
+            ? l10n.memberAhead(-behind)
+            : l10n.memberOnTrack;
     final at = status.completedAt;
     final time = status.hasCompleted && at != null
-        ? ' · lu à ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}'
+        ? ' · ${l10n.memberReadAt('${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}')}'
         : '';
 
     return Text(

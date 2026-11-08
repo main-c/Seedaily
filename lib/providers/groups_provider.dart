@@ -8,19 +8,22 @@ import '../domain/models.dart';
 import '../services/groups_service.dart';
 import '../services/plan_snapshot_service.dart';
 
+// Code d'erreur, traduit par l'UI.
+enum GroupsError { load, create, invalidCode, join, leave, delete, notify }
+
 class GroupsProvider extends ChangeNotifier {
   final GroupsService _service = GroupsService();
   static const _uuid = Uuid();
 
   List<Group> _groups = [];
   bool _isLoading = false;
-  String? _error;
+  GroupsError? _error;
   StreamSubscription<List<Group>>? _groupsSub;
   String? _initializedForUserId;
 
   List<Group> get groups => _groups;
   bool get isLoading => _isLoading;
-  String? get error => _error;
+  GroupsError? get error => _error;
   bool get hasGroups => _groups.isNotEmpty;
 
   // ── Initialisation ────────────────────────────────────────────────────────
@@ -38,7 +41,7 @@ class GroupsProvider extends ChangeNotifier {
       },
       onError: (e) {
         debugPrint('watchUserGroups failed: $e');
-        _error = 'Impossible de charger les groupes.';
+        _error = GroupsError.load;
         notifyListeners();
       },
     );
@@ -77,7 +80,7 @@ class GroupsProvider extends ChangeNotifier {
       _setLoading(false);
       return group;
     } catch (e) {
-      _error = 'Impossible de créer le groupe. Réessayez.';
+      _error = GroupsError.create;
       _setLoading(false);
       return null;
     }
@@ -102,7 +105,7 @@ class GroupsProvider extends ChangeNotifier {
       );
 
       if (group == null) {
-        _error = 'Code invalide ou groupe introuvable.';
+        _error = GroupsError.invalidCode;
         _setLoading(false);
         return null;
       }
@@ -137,7 +140,7 @@ class GroupsProvider extends ChangeNotifier {
       return (group: group, plan: plan);
     } catch (e, st) {
       debugPrint('joinGroup failed: $e\n$st');
-      _error = 'Impossible de rejoindre le groupe. Réessayez.';
+      _error = GroupsError.join;
       _setLoading(false);
       return null;
     }
@@ -182,7 +185,7 @@ class GroupsProvider extends ChangeNotifier {
     try {
       await _service.leaveGroup(groupId: groupId, userId: userId);
     } catch (_) {
-      _error = 'Impossible de quitter le groupe.';
+      _error = GroupsError.leave;
       notifyListeners();
     }
   }
@@ -191,7 +194,7 @@ class GroupsProvider extends ChangeNotifier {
     try {
       await _service.deleteGroup(groupId);
     } catch (_) {
-      _error = 'Impossible de supprimer le groupe.';
+      _error = GroupsError.delete;
       notifyListeners();
     }
   }
@@ -214,7 +217,7 @@ class GroupsProvider extends ChangeNotifier {
           groupId: groupId, userId: userId, enabled: enabled);
     } catch (e) {
       debugPrint('setNotifyOnMemberProgress failed: $e');
-      _error = 'Impossible de modifier les notifications.';
+      _error = GroupsError.notify;
       notifyListeners();
     }
   }

@@ -33,7 +33,8 @@ class SeedailyWidget : AppWidgetProvider() {
             R.id.day_0, R.id.day_1, R.id.day_2,
             R.id.day_3, R.id.day_4, R.id.day_5, R.id.day_6
         )
-        private val DAY_LABELS = listOf("L", "M", "M", "J", "V", "S", "D")
+        // Libellés par défaut (FR) si l'app n'a pas encore envoyé les textes traduits.
+        private const val DEFAULT_DAY_LABELS = "LMMJVSD"
 
         fun updateWidget(
             context: Context,
@@ -53,6 +54,11 @@ class SeedailyWidget : AppWidgetProvider() {
                 val isRead      = prefs.getBoolean("widget_is_read", false)
                 val weekDays    = prefs.getString("widget_week_days", "0000000") ?: "0000000"
                 val isToday     = prefs.getBoolean("widget_is_today", true)
+                // Textes traduits envoyés depuis Dart (langue de l'app, pas de l'appareil)
+                fun text(key: String, fallback: String) =
+                    prefs.getString(key, null)?.takeIf { it.isNotEmpty() } ?: fallback
+                val dayLabels = text("widget_day_labels", DEFAULT_DAY_LABELS)
+                    .takeIf { it.length == 7 } ?: DEFAULT_DAY_LABELS
 
                 // Flame icon — set programmatically to avoid VectorDrawable XML inflation issues
                 try {
@@ -63,13 +69,17 @@ class SeedailyWidget : AppWidgetProvider() {
 
                 // Streak
                 views.setTextViewText(R.id.widget_streak_count, streak.toString())
+                views.setTextViewText(R.id.widget_streak_label, text("widget_streak_label", "jours"))
+                views.setTextViewText(R.id.widget_badge_read, text("widget_badge_read", "Lu"))
+                views.setTextViewText(R.id.widget_empty, text("widget_empty", "Ouvre Seedaily pour commencer"))
 
                 // Message
                 views.setTextViewText(R.id.widget_message, message ?: "Prêt pour ta lecture du jour ?")
 
                 // Section title + Passage
                 if (!passage.isNullOrEmpty()) {
-                    val sectionTitle = if (isToday) "Pour aujourd'hui" else "Prochain passage"
+                    val sectionTitle = if (isToday) text("widget_section_today", "Pour aujourd'hui")
+                        else text("widget_section_next", "Prochain passage")
                     views.setTextViewText(R.id.widget_section_title, sectionTitle)
                     views.setViewVisibility(R.id.widget_section_title, View.VISIBLE)
                     views.setTextViewText(R.id.widget_passage, passage)
@@ -87,7 +97,7 @@ class SeedailyWidget : AppWidgetProvider() {
                 // Tracker hebdomadaire — text color encodes alpha, no setFloat needed
                 for (i in DAY_IDS.indices) {
                     val completed = i < weekDays.length && weekDays[i] == '1'
-                    views.setTextViewText(DAY_IDS[i], if (completed) "✓" else DAY_LABELS[i])
+                    views.setTextViewText(DAY_IDS[i], if (completed) "✓" else dayLabels[i].toString())
                     views.setTextColor(DAY_IDS[i], if (completed) GOLD else DAY_INACTIVE)
                 }
 

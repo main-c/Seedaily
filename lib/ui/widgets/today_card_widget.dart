@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import '../../providers/bible_reader_provider.dart';
 import '../screens/bible_reader_screen.dart';
 
@@ -87,7 +88,7 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
   @override
   Widget build(BuildContext context) {
     final formattedDate =
-        DateFormat('d MMMM', 'fr_FR').format(widget.day.date);
+        DateFormat.MMMMd().format(widget.day.date);
     final passages = widget.day.passages;
     final completedCount = _completedPassages.length;
     final totalCount = passages.length;
@@ -126,7 +127,7 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                'LECTURE DU JOUR',
+                context.l10n.todayCardTitle,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -150,7 +151,7 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
             // Passages individuels
             if (passages.isEmpty)
               Text(
-                'Aucune lecture',
+                context.l10n.todayCardNoReading,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -269,7 +270,7 @@ class _TodayCardWidgetState extends State<TodayCardWidget> {
                           color: Colors.white.withValues(alpha: 0.45)),
                       const SizedBox(width: 5),
                       Text(
-                        'Ajouter une Bible pour lire',
+                        context.l10n.dayAddBibleToRead,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withValues(alpha: 0.45),
@@ -375,7 +376,7 @@ class _ProgressButton extends StatelessWidget {
                                 size: 18, color: textColor),
                             const SizedBox(width: 8),
                             Text(
-                              'Lecture complète',
+                              context.l10n.todayCardComplete,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
@@ -394,7 +395,7 @@ class _ProgressButton extends StatelessWidget {
                                 size: 16, color: textColor),
                             const SizedBox(width: 8),
                             Text(
-                              completedCount > 0 ? 'Continuer la lecture' : 'Lire',
+                              completedCount > 0 ? context.l10n.todayCardContinue : context.l10n.dayRead,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall

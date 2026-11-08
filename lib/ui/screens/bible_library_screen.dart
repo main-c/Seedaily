@@ -2,6 +2,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../../domain/bible_reader_models.dart';
 import '../../providers/bible_reader_provider.dart';
 
@@ -51,7 +52,7 @@ class _BibleLibraryScreenState extends State<BibleLibraryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bibliothèque biblique'),
+        title: Text(context.l10n.settingsBibleLibrary),
         elevation: 0,
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
@@ -64,7 +65,7 @@ class _BibleLibraryScreenState extends State<BibleLibraryScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'Téléchargez une version pour lire directement dans l\'app. Toutes les versions sont en domaine public.',
+                  context.l10n.bibleLibraryIntro,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
@@ -204,7 +205,7 @@ class _VersionCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      version.description,
+                      version.localizedDescription,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: cs.onSurface.withValues(alpha: 0.55),
                           ),
@@ -240,7 +241,7 @@ class _VersionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${(progress * 100).toInt()} %',
+                    context.l10n.percent((progress * 100).toInt()),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.5),
                         ),
@@ -278,7 +279,7 @@ class _VersionCard extends StatelessWidget {
                 foregroundColor: AppTheme.seedGold,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
-              child: const Text('Utiliser'),
+              child: Text(context.l10n.bibleLibraryUse),
             ),
           IconButton(
             icon: Icon(Icons.delete_outline,
@@ -306,7 +307,7 @@ class _VersionCard extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur de téléchargement : $e'),
+            content: Text(context.l10n.bibleLibraryDownloadError('$e')),
             backgroundColor: AppTheme.error,
           ),
         );
@@ -318,13 +319,13 @@ class _VersionCard extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Supprimer cette version ?'),
+        title: Text(context.l10n.bibleLibraryDeleteTitle),
         content: Text(
-            'La version "${version.name}" sera supprimée de l\'appareil.'),
+            context.l10n.bibleLibraryDeleteBody(version.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -333,7 +334,7 @@ class _VersionCard extends StatelessWidget {
             },
             style:
                 FilledButton.styleFrom(backgroundColor: AppTheme.error),
-            child: const Text('Supprimer'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),

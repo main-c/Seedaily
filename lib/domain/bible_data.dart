@@ -1,3 +1,6 @@
+import '../l10n/l10n.dart';
+import 'bible_reader_models.dart';
+
 class BibleBook {
   final String name;
   final int chapters;
@@ -778,6 +781,11 @@ class BibleData {
         jewishOrder: null,
         genre: 'history'),
   ];
+
+  /// Nom affiché selon la langue de l'app. Le nom français reste l'identifiant
+  /// (Hive, snapshot Firestore, fichiers de plans) : ne jamais le remplacer.
+  static String displayName(String frenchName) =>
+      BibleVersion.localizedBookName(frenchName, english: isEnglishLocale);
 
   static BibleBook? getBook(String name) {
     try {

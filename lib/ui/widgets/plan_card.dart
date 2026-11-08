@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/models.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 
 class PlanImages {
   static const List<String> defaultImages = [
@@ -46,24 +47,25 @@ class PlanCard extends StatelessWidget {
     // Déterminer le statut du plan basé sur le delta jours lus vs jours attendus
     final delta = plan.onTrackDelta;
     final expected = plan.expectedCompletedDays;
+    final l10n = context.l10n;
     String statusText;
     Color statusColor;
     if (isCompleted) {
-      statusText = 'Terminé';
+      statusText = l10n.planCardDone;
       statusColor = AppTheme.success;
     } else if (expected == 0) {
       // Plan pas encore commencé
-      statusText = '$streak j. de suite';
+      statusText = l10n.planCardStreakShort(streak);
       statusColor = AppTheme.seedGold;
     } else if (delta == 0) {
-      statusText = 'À jour';
+      statusText = l10n.planCardOnTrack;
       statusColor = AppTheme.success;
     } else if (delta > 0) {
-      statusText = '+$delta j. d\'avance';
+      statusText = l10n.planCardAhead(delta);
       statusColor = AppTheme.success;
     } else {
       final behind = -delta;
-      statusText = '$behind j. de retard';
+      statusText = l10n.planCardBehind(behind);
       statusColor = behind <= 3 ? Colors.orange.shade700 : AppTheme.error;
     }
 
@@ -145,7 +147,7 @@ class PlanCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '$streak jours',
+                            l10n.dayCount(streak),
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -169,13 +171,13 @@ class PlanCard extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.50),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.groups, size: 12, color: Colors.white),
-                          SizedBox(width: 4),
-                          Text('Groupe',
-                              style: TextStyle(
+                          const Icon(Icons.groups, size: 12, color: Colors.white),
+                          const SizedBox(width: 4),
+                          Text(l10n.groupsBadge,
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600)),
@@ -290,7 +292,7 @@ class PlanCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progression',
+                        l10n.statProgress,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
@@ -335,7 +337,7 @@ class PlanCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Jour $currentDay/$totalDays',
+                              l10n.dayFraction(currentDay, totalDays),
                               style: Theme.of(context)
                                   .textTheme
                                   .labelSmall
@@ -350,7 +352,7 @@ class PlanCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Fin : ${_formatShortDate(endDate)}',
+                              l10n.planCardEnd(_formatShortDate(l10n, endDate)),
                               style: Theme.of(context)
                                   .textTheme
                                   .labelSmall
@@ -376,7 +378,7 @@ class PlanCard extends StatelessWidget {
                           elevation: 0,
                         ),
                         child: Text(
-                          isCompleted ? 'Revoir' : 'Continuer',
+                          isCompleted ? l10n.planCardReview : l10n.commonContinue,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -394,23 +396,9 @@ class PlanCard extends StatelessWidget {
     );
   }
 
-  String _formatShortDate(DateTime date) {
-    final months = [
-      '',
-      'Jan.',
-      'Fév.',
-      'Mar.',
-      'Avr.',
-      'Mai',
-      'Jun.',
-      'Jul.',
-      'Aoû.',
-      'Sep.',
-      'Oct.',
-      'Nov.',
-      'Déc.'
-    ];
-    return '${date.day} ${months[date.month]}';
+  String _formatShortDate(AppLocalizations l10n, DateTime date) {
+    final months = l10n.planCardShortMonths.split(',');
+    return l10n.shortDayMonth(date.day, months[date.month - 1]);
   }
 
   void _showOptionsMenu(BuildContext context) {
@@ -442,9 +430,9 @@ class PlanCard extends StatelessWidget {
                   Icons.delete_outline,
                   color: AppTheme.error,
                 ),
-                title: const Text(
-                  'Supprimer le plan',
-                  style: TextStyle(color: AppTheme.error),
+                title: Text(
+                  context.l10n.planCardDeletePlan,
+                  style: const TextStyle(color: AppTheme.error),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -454,7 +442,7 @@ class PlanCard extends StatelessWidget {
 
               ListTile(
                 leading: const Icon(Icons.cancel_outlined),
-                title: const Text('Annuler'),
+                title: Text(context.l10n.commonCancel),
                 onTap: () => Navigator.pop(context),
               ),
 
@@ -470,16 +458,16 @@ class PlanCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer le plan'),
+        title: Text(context.l10n.planCardDeletePlan),
         content: Text(
           plan.isGroupPlan
-              ? 'Ce plan est partagé avec un groupe : le supprimer vous fera aussi quitter le groupe.\n\nCette action est irréversible.'
-              : 'Êtes-vous sûr de vouloir supprimer "${plan.title}" ?\n\nCette action est irréversible.',
+              ? context.l10n.planCardDeleteGroupConfirm
+              : context.l10n.planCardDeleteConfirm(plan.title),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () {
@@ -489,7 +477,7 @@ class PlanCard extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: AppTheme.error,
             ),
-            child: const Text('Supprimer'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),

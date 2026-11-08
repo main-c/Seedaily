@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import 'today_card_widget.dart';
 
 /// Widget représentant un calendrier mensuel pour la vue d'ensemble du plan
@@ -88,8 +89,8 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.days.isEmpty) {
-      return const Center(
-        child: Text('Aucun jour de lecture'),
+      return Center(
+        child: Text(context.l10n.noReadingDays),
       );
     }
 
@@ -126,7 +127,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                 Expanded(
                   child: Center(
                     child: Text(
-                      DateFormat('MMMM yyyy', 'fr_FR').format(_displayMonth),
+                      DateFormat.yMMMM().format(_displayMonth),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -160,7 +161,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        'aperçu',
+                        context.l10n.calendarPreviewBadge,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: AppTheme.seedGold,
                               fontWeight: FontWeight.w600,
@@ -170,7 +171,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
                     if (!_canNavigateNext) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Créez le plan pour voir tous les mois',
+                        context.l10n.calendarPreviewHint,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontSize: 10,
@@ -190,7 +191,7 @@ class _MonthCalendarWidgetState extends State<MonthCalendarWidget> {
   }
 
   Widget _buildCalendarGrid(BuildContext context, DateTime month) {
-    const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    final weekDays = context.l10n.calendarWeekDaysSundayFirst.split(',');
     final firstDayOfMonth = DateTime(month.year, month.month, 1);
     final firstWeekday = firstDayOfMonth.weekday % 7;
     final lastDayOfMonth = DateTime(month.year, month.month + 1, 0);

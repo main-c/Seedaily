@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../domain/models.dart';
+import '../l10n/l10n.dart';
 
 class WidgetService {
   static const String _appGroupId = 'com.seedaily.app';
@@ -74,6 +75,21 @@ class WidgetService {
       await HomeWidget.saveWidgetData<bool>('widget_is_read', isRead);
       await HomeWidget.saveWidgetData<String>('widget_message', message);
       await HomeWidget.saveWidgetData<String>('widget_week_days', weekTracker);
+      // Libellés traduits envoyés depuis Dart : le widget suit la langue
+      // de l'app, pas celle de l'appareil.
+      final l10n = appL10n;
+      await HomeWidget.saveWidgetData<String>(
+          'widget_streak_label', l10n.widgetStreakLabel(streak));
+      await HomeWidget.saveWidgetData<String>(
+          'widget_badge_read', l10n.widgetBadgeRead);
+      await HomeWidget.saveWidgetData<String>(
+          'widget_section_today', l10n.widgetSectionToday);
+      await HomeWidget.saveWidgetData<String>(
+          'widget_section_next', l10n.widgetSectionNext);
+      await HomeWidget.saveWidgetData<String>(
+          'widget_empty', l10n.widgetEmpty);
+      await HomeWidget.saveWidgetData<String>(
+          'widget_day_labels', l10n.widgetDayLabels);
       await HomeWidget.saveWidgetData<String>(
         'widget_uri',
         targetPlanId.isNotEmpty ? '/plan/$targetPlanId' : '/',
@@ -89,12 +105,13 @@ class WidgetService {
   /// Message contextuel selon la situation du jour
   static String _buildMessage(
       List<GeneratedPlan> plans, int streak, bool isRead) {
-    if (plans.isEmpty) return 'Créez un plan de lecture pour commencer';
-    if (isRead) return 'Lecture du jour terminée. A demain !';
-    if (streak > 30) return 'Incroyable : $streak jours de suite !';
-    if (streak > 7) return '$streak jours de suite. Continuez !';
-    if (streak > 0) return 'Jour $streak. Restez dans le rythme !';
-    return 'Prêt pour ta lecture du jour ?';
+    final l10n = appL10n;
+    if (plans.isEmpty) return l10n.widgetNoPlan;
+    if (isRead) return l10n.widgetReadToday;
+    if (streak > 30) return l10n.widgetStreakAmazing(streak);
+    if (streak > 7) return l10n.widgetStreakGood(streak);
+    if (streak > 0) return l10n.widgetStreakDay(streak);
+    return l10n.widgetReady;
   }
 
   /// Retourne une chaîne de 7 caractères "1"/"0" pour L M M J V S D

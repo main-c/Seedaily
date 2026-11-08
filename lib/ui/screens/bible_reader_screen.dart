@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
+import '../../domain/bible_data.dart';
 import '../../domain/bible_reader_models.dart';
+import '../../l10n/l10n.dart';
 import '../../domain/models.dart';
 import '../../providers/bible_reader_provider.dart';
 import '../../services/bible_reader_service.dart';
@@ -106,7 +108,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     setState(() {
       _currentChapterData = data;
       _loading = false;
-      if (data == null) _error = 'Chapitre introuvable.\nVérifiez que la version est bien téléchargée.';
+      if (data == null) _error = context.l10n.readerChapterNotFound;
     });
   }
 
@@ -430,7 +432,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 size: 26,
               ),
               onPressed: isAlreadyDone ? null : _markPassageAndAdvance,
-              tooltip: isAlreadyDone ? 'Déjà lu' : 'Marquer comme lu',
+              tooltip: isAlreadyDone ? context.l10n.readerAlreadyRead : context.l10n.readerMarkAsRead,
             ),
           ),
         ],
@@ -452,7 +454,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Apparence',
+              Text(context.l10n.readerAppearance,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -494,7 +496,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  'Aperçu — "${_currentPage?.book ?? ''}"',
+                  context.l10n.readerPreview(BibleData.displayName(_currentPage?.book ?? '')),
                   style: GoogleFonts.sourceSerif4(
                     fontSize: provider.fontSize,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -525,7 +527,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     .withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text(
-              _error ?? 'Impossible de charger ce chapitre',
+              _error ?? context.l10n.readerLoadError,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme

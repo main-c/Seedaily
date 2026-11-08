@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 
 class BookSelectorSection extends StatelessWidget {
   final String templateId;
@@ -73,8 +74,8 @@ class BookSelectorSection extends StatelessWidget {
         const SizedBox(height: 16),
         CheckboxListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Inclure les deutérocanoniques'),
-          subtitle: const Text('Livres de la Septante et de la Vulgate'),
+          title: Text(context.l10n.booksIncludeDeuterocanonical),
+          subtitle: Text(context.l10n.booksDeuterocanonicalSubtitle),
           value: includeApocrypha,
           activeColor: AppTheme.seedGold,
           onChanged: (value) {
@@ -106,7 +107,7 @@ class BookSelectorSection extends StatelessWidget {
           if (includeApocrypha) ...deutBooks,
         ]..sort((a, b) => a.chronologicalOrder.compareTo(b.chronologicalOrder));
         return [
-          _SectionLabel(title: 'Ordre chronologique', count: all.length),
+          _SectionLabel(title: context.l10n.booksChronologicalOrder, count: all.length),
           ...all.map((book) => _BookTile(
                 book: book,
                 isSelected: selectedBooks.contains(book.name),
@@ -119,7 +120,7 @@ class BookSelectorSection extends StatelessWidget {
         final sortedOt = [...otBooks]
           ..sort((a, b) => (a.jewishOrder ?? 999).compareTo(b.jewishOrder ?? 999));
         return [
-          _SectionLabel(title: 'Tanakh (Ancien Testament)', count: sortedOt.length),
+          _SectionLabel(title: context.l10n.booksTanakh, count: sortedOt.length),
           ...sortedOt.map((book) => _BookTile(
                 book: book,
                 isSelected: selectedBooks.contains(book.name),
@@ -127,7 +128,7 @@ class BookSelectorSection extends StatelessWidget {
               )),
           if (includeApocrypha) ...[
             const SizedBox(height: 4),
-            _SectionLabel(title: 'Deutérocanoniques', count: deutBooks.length),
+            _SectionLabel(title: context.l10n.booksDeuterocanonical, count: deutBooks.length),
             ...deutBooks.map((book) => _BookTile(
                   book: book,
                   isSelected: selectedBooks.contains(book.name),
@@ -135,7 +136,7 @@ class BookSelectorSection extends StatelessWidget {
                 )),
           ],
           const SizedBox(height: 4),
-          _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
+          _SectionLabel(title: context.l10n.booksNewTestament, count: ntBooks.length),
           ...ntBooks.map((book) => _BookTile(
                 book: book,
                 isSelected: selectedBooks.contains(book.name),
@@ -146,7 +147,7 @@ class BookSelectorSection extends StatelessWidget {
       // Canonique (défaut)
       default:
         return [
-          _SectionLabel(title: 'Ancien Testament', count: otBooks.length),
+          _SectionLabel(title: context.l10n.booksOldTestament, count: otBooks.length),
           ...otBooks.map((book) => _BookTile(
                 book: book,
                 isSelected: selectedBooks.contains(book.name),
@@ -154,7 +155,7 @@ class BookSelectorSection extends StatelessWidget {
               )),
           if (includeApocrypha) ...[
             const SizedBox(height: 4),
-            _SectionLabel(title: 'Deutérocanoniques', count: deutBooks.length),
+            _SectionLabel(title: context.l10n.booksDeuterocanonical, count: deutBooks.length),
             ...deutBooks.map((book) => _BookTile(
                   book: book,
                   isSelected: selectedBooks.contains(book.name),
@@ -162,7 +163,7 @@ class BookSelectorSection extends StatelessWidget {
                 )),
           ],
           const SizedBox(height: 4),
-          _SectionLabel(title: 'Nouveau Testament', count: ntBooks.length),
+          _SectionLabel(title: context.l10n.booksNewTestament, count: ntBooks.length),
           ...ntBooks.map((book) => _BookTile(
                 book: book,
                 isSelected: selectedBooks.contains(book.name),
@@ -196,7 +197,7 @@ class _SelectAllTile extends StatelessWidget {
       child: SwitchListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
-          'Tout sélectionner',
+          context.l10n.booksSelectAll,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -265,7 +266,7 @@ class _BookTile extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                book.name,
+                BibleData.displayName(book.name),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isSelected
                           ? Theme.of(context).colorScheme.onSurface
@@ -277,7 +278,7 @@ class _BookTile extends StatelessWidget {
               ),
             ),
             Text(
-              '${book.chapters} ch.',
+              context.l10n.booksChapterCountShort(book.chapters),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 11,

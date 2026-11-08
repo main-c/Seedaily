@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/empty_state.dart';
 
@@ -51,9 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final uid = context.read<AuthProvider>().uid;
       final groups = context.read<GroupsProvider>();
       if (groups.findByPlanGroupId(plan.groupId!)?.hostId == uid) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Vous êtes l\'admin de ce groupe : supprimez le groupe depuis son écran.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.l10n.homeDeleteGroupPlanHost),
         ));
         return;
       }
@@ -138,9 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: allPlans.isEmpty
                       ? EmptyState(
                           icon: Icons.menu_book_outlined,
-                          title: 'Aucun plan de lecture',
-                          message: 'Créez votre premier plan pour commencer',
-                          actionLabel: 'Créer un plan',
+                          title: context.l10n.homeEmptyTitle,
+                          message: context.l10n.homeEmptyMessage,
+                          actionLabel: context.l10n.notifActionCreatePlan,
                           onAction: _goToDiscover,
                         )
                       : filteredPlans.isEmpty
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(32),
                                 child: Text(
-                                  'Aucun plan dans cette catégorie',
+                                  context.l10n.homeEmptyFilter,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildJoinButton(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Tooltip(
-      message: 'Rejoindre un groupe',
+      message: context.l10n.groupJoinTitle,
       child: InkWell(
         onTap: () => context.push('/groups/join'),
         borderRadius: BorderRadius.circular(24),
@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Icon(Icons.group_add_outlined, size: 18, color: cs.onSurface),
               const SizedBox(width: 6),
               Text(
-                'Rejoindre',
+                context.l10n.groupJoinSubmit,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: cs.onSurface,
                       fontWeight: FontWeight.w600,
@@ -265,14 +265,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mes Plans',
+                    context.l10n.homeMyPlans,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                   ),
                   Text(
-                    '$activePlansCount PLAN${activePlansCount > 1 ? 'S' : ''} ACTIF${activePlansCount > 1 ? 'S' : ''}',
+                    context.l10n.homeActivePlans(activePlansCount),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$totalStreak j.',
+                          context.l10n.homeStreakDays(totalStreak),
                           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -318,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         if (bestStreak > totalStreak)
                           Text(
-                            'Rec. $bestStreak',
+                            context.l10n.homeBestStreak(bestStreak),
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
@@ -347,19 +347,19 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           _buildFilterChip(
-            label: 'Tous',
+            label: context.l10n.homeFilterAll,
             value: 'all',
             isSelected: _selectedFilter == 'all',
           ),
           const SizedBox(width: 8),
           _buildFilterChip(
-            label: 'En cours',
+            label: context.l10n.homeFilterInProgress,
             value: 'in_progress',
             isSelected: _selectedFilter == 'in_progress',
           ),
           const SizedBox(width: 8),
           _buildFilterChip(
-            label: 'Terminés',
+            label: context.l10n.homeFilterCompleted,
             value: 'completed',
             isSelected: _selectedFilter == 'completed',
           ),
@@ -415,13 +415,13 @@ class _MilestoneDialog extends StatelessWidget {
     return '🎯';
   }
 
-  String get _message {
-    if (streakDays >= 365) return 'Une année complète de fidélité. Exceptionnel!';
-    if (streakDays >= 100) return 'Cent jours de lecture. Vous êtes un exemple!';
-    if (streakDays >= 60) return 'Deux mois sans interruption. Remarquable!';
-    if (streakDays >= 30) return 'Un mois complet de lecture. Bravo!';
-    if (streakDays >= 14) return 'Deux semaines consécutives. Continuez!';
-    return 'Une semaine complète. Bel élan!';
+  String _message(AppLocalizations l10n) {
+    if (streakDays >= 365) return l10n.milestone365;
+    if (streakDays >= 100) return l10n.milestone100;
+    if (streakDays >= 60) return l10n.milestone60;
+    if (streakDays >= 30) return l10n.milestone30;
+    if (streakDays >= 14) return l10n.milestone14;
+    return l10n.milestone7;
   }
 
   @override
@@ -437,7 +437,7 @@ class _MilestoneDialog extends StatelessWidget {
             Text(_emoji, style: const TextStyle(fontSize: 56)),
             const SizedBox(height: 16),
             Text(
-              '$streakDays jours de streak!',
+              context.l10n.milestoneTitle(streakDays),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.seedGold,
@@ -446,7 +446,7 @@ class _MilestoneDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              _message,
+              _message(context.l10n),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
@@ -463,7 +463,7 @@ class _MilestoneDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Continuer'),
+                child: Text(context.l10n.commonContinue),
               ),
             ),
           ],

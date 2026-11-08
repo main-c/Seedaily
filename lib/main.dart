@@ -9,11 +9,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/theme.dart';
+import 'l10n/l10n.dart';
 import 'services/groups_service.dart';
 import 'services/storage_service.dart';
 import 'services/plan_generator.dart';
@@ -45,7 +45,7 @@ void main() async {
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
       await initializeDateFormatting('fr_FR', null);
-      Intl.defaultLocale = 'fr_FR';
+      await initializeDateFormatting('en_US', null);
       await Firebase.initializeApp();
 
       await FirebaseAppCheck.instance.activate(
@@ -59,6 +59,11 @@ void main() async {
 
       final storageService = StorageService();
       await storageService.init();
+
+      // Langue résolue avant tout service qui produit du texte.
+      final appLanguage = await storageService.getAppLanguage();
+      applyAppLocale(resolveAppLocale(languageOverride(appLanguage),
+          WidgetsBinding.instance.platformDispatcher.locales));
 
       final notificationService = NotificationService();
       try {
@@ -104,6 +109,7 @@ void main() async {
           planGenerator: planGenerator,
           hasSeenOnboarding: hasSeenOnboarding,
           updateStatus: updateStatus,
+          appLanguage: appLanguage,
         ),
       );
     },
@@ -118,6 +124,7 @@ class SeedailyApp extends StatefulWidget {
   final PlanGenerator planGenerator;
   final bool hasSeenOnboarding;
   final UpdateStatus updateStatus;
+  final String appLanguage;
 
   const SeedailyApp({
     super.key,
@@ -126,20 +133,23 @@ class SeedailyApp extends StatefulWidget {
     required this.planGenerator,
     required this.hasSeenOnboarding,
     required this.updateStatus,
+    this.appLanguage = kLanguageAuto,
   });
 
   @override
   State<SeedailyApp> createState() => _SeedailyAppState();
 }
 
-class _SeedailyAppState extends State<SeedailyApp> {
+class _SeedailyAppState extends State<SeedailyApp> with WidgetsBindingObserver {
   late final GoRouter _router;
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _groupsService = GroupsService();
+  Locale? _lastLocale;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     final initialLocation = _computeInitialLocation();
     final showTour = !widget.hasSeenOnboarding;
@@ -251,27 +261,28 @@ class _SeedailyAppState extends State<SeedailyApp> {
     final ctx = _navigatorKey.currentContext;
     if (ctx == null || !ctx.mounted) return;
 
+    final l10n = ctx.l10n;
     showDialog(
       context: ctx,
       barrierDismissible: status == UpdateStatus.softUpdate,
       builder: (_) => AlertDialog(
         title: Text(status == UpdateStatus.forceUpdate
-            ? 'Mise à jour requise'
-            : 'Mise à jour disponible'),
+            ? l10n.updateRequiredTitle
+            : l10n.updateAvailableTitle),
         content: Text(status == UpdateStatus.forceUpdate
-            ? "Cette version n'est plus supportée. Merci de mettre à jour l'application pour continuer."
-            : 'Une nouvelle version de Seedaily est disponible avec des améliorations.'),
+            ? l10n.updateRequiredBody
+            : l10n.updateAvailableBody),
         actions: [
           if (status == UpdateStatus.softUpdate)
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Plus tard'),
+              child: Text(l10n.updateLater),
             ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(),
             style: FilledButton.styleFrom(backgroundColor: AppTheme.seedGold),
-            child: const Text('Mettre à jour',
-                style: TextStyle(color: Colors.white)),
+            child: Text(l10n.updateNow,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -285,8 +296,33 @@ class _SeedailyAppState extends State<SeedailyApp> {
     return '/';
   }
 
+  // Langue de l'appareil changée : ne compte qu'en mode automatique,
+  // le rebuild recalcule la langue résolue.
+  @override
+  void didChangeLocales(List<Locale>? locales) => setState(() {});
+
+  /// Point d'entrée unique quand la langue résolue change (réglages ou appareil) :
+  /// replanifie les rappels, rafraîchit le widget, enregistre la langue sur Firestore.
+  void _onLanguageChanged(BuildContext context) {
+    context.read<PlansProvider>().refreshLocalizedOutputs();
+    context.read<AuthProvider>().syncLocale();
+  }
+
+  Locale _resolveLocale(BuildContext context, SettingsProvider settings) {
+    final locale = resolveAppLocale(languageOverride(settings.language),
+        WidgetsBinding.instance.platformDispatcher.locales);
+    applyAppLocale(locale);
+    if (_lastLocale != null && _lastLocale != locale) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _onLanguageChanged(context));
+    }
+    _lastLocale = locale;
+    return locale;
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _handleNotificationAction = null;
     _router.dispose();
     super.dispose();
@@ -322,6 +358,7 @@ class _SeedailyAppState extends State<SeedailyApp> {
           create: (_) => SettingsProvider(
             storage: widget.storageService,
             notifications: widget.notificationService,
+            language: widget.appLanguage,
           )..loadSettings(),
         ),
         ChangeNotifierProvider(
@@ -348,15 +385,14 @@ class _SeedailyAppState extends State<SeedailyApp> {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
-          localizationsDelegates: [
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('fr', 'FR'),
-          ],
-          locale: const Locale('fr', 'FR'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: _resolveLocale(context, settings),
           routerConfig: _router,
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../core/theme.dart';
+import '../../l10n/l10n.dart';
 import 'main_shell_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -16,9 +17,10 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Réglages'),
+        title: Text(l10n.settingsTitle),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -26,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // APPARENCE
-          _buildSectionTitle('APPARENCE'),
+          _buildSectionTitle(l10n.settingsSectionAppearance),
           Consumer<SettingsProvider>(
             builder: (context, settings, child) {
               final brightness = MediaQuery.of(context).platformBrightness;
@@ -37,8 +39,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: isDark
                     ? Icons.dark_mode_outlined
                     : Icons.light_mode_outlined,
-                title: 'Mode sombre',
-                subtitle: isDark ? 'Activé' : 'Désactivé',
+                title: l10n.settingsDarkMode,
+                subtitle: isDark ? l10n.settingsOn : l10n.settingsOff,
                 trailing: Switch(
                   value: isDark,
                   onChanged: (value) {
@@ -52,15 +54,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
+          const SizedBox(height: 12),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) {
+              return _buildSettingCard(
+                icon: Icons.language_outlined,
+                title: l10n.settingsLanguage,
+                subtitle: _languageLabel(l10n, settings.language),
+                onTap: () => _pickLanguage(context, settings),
+              );
+            },
+          ),
           const SizedBox(height: 24),
 
           // RAPPELS
-          _buildSectionTitle('RAPPELS'),
+          _buildSectionTitle(l10n.settingsSectionReminders),
           Consumer<SettingsProvider>(
             builder: (context, settings, child) {
               return _buildSettingCard(
                 icon: Icons.notifications_outlined,
-                title: 'Notifications',
+                title: l10n.settingsNotifications,
                 trailing: Switch(
                   value: settings.notificationsEnabled,
                   onChanged: (value) {
@@ -81,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               return _buildSettingCard(
                 icon: Icons.access_time_outlined,
-                title: 'Heure de rappel',
+                title: l10n.settingsReminderTime,
                 subtitle: timeStr,
                 subtitleColor: AppTheme.seedGold,
                 onTap: () async {
@@ -136,20 +149,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // const SizedBox(height: 24),
 
           // BIBLE
-          _buildSectionTitle('BIBLE'),
+          _buildSectionTitle(l10n.settingsSectionBible),
           _buildSettingCard(
             icon: Icons.menu_book_outlined,
-            title: 'Bibliothèque biblique',
-            subtitle: 'Télécharger les versions de la Bible',
+            title: l10n.settingsBibleLibrary,
+            subtitle: l10n.settingsBibleLibrarySubtitle,
             onTap: () => context.push('/bible-library'),
           ),
           const SizedBox(height: 24),
 
           // INFORMATIONS
-          _buildSectionTitle('INFORMATIONS'),
+          _buildSectionTitle(l10n.settingsSectionInfo),
           _buildSettingCard(
             icon: Icons.info_outline,
-            title: 'À propos',
+            title: l10n.settingsAbout,
             subtitle: 'v${AppTheme.appVersion}',
             onTap: () {
               context.push('/about');
@@ -158,8 +171,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8),
           _buildSettingCard(
             icon: Icons.slideshow_outlined,
-            title: 'Revoir l\'introduction',
-            subtitle: 'Rejouer le tutoriel de démarrage',
+            title: l10n.settingsReplayIntro,
+            subtitle: l10n.settingsReplayIntroSubtitle,
             onTap: () {
               mainShellKey.currentState?.startTour(context, force: true);
             },
@@ -174,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // COMPTE
-          _buildSectionTitle('COMPTE'),
+          _buildSectionTitle(l10n.settingsSectionAccount),
           Consumer<AuthProvider>(
             builder: (context, auth, _) {
               final Widget content;
@@ -184,8 +197,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   key: const ValueKey('loading'),
                   child: _buildSettingCard(
                     icon: Icons.login_outlined,
-                    title: 'Connexion en cours…',
-                    subtitle: 'Veuillez patienter',
+                    title: l10n.settingsSigningIn,
+                    subtitle: l10n.settingsPleaseWait,
                     trailing: const SizedBox(
                       width: 20,
                       height: 20,
@@ -199,15 +212,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   key: const ValueKey('signedOut'),
                   child: _buildSettingCard(
                     icon: Icons.login_outlined,
-                    title: 'Se connecter',
-                    subtitle: auth.error ?? 'Pour lire en groupe avec des amis',
+                    title: l10n.settingsSignIn,
+                    subtitle: auth.error != null
+                        ? _authErrorText(l10n, auth.error!)
+                        : l10n.settingsSignInSubtitle,
                     subtitleColor: auth.error != null ? Colors.red.shade600 : null,
                     onTap: () async {
                       final messenger = ScaffoldMessenger.of(context);
                       final ok = await auth.signInWithGoogle();
                       if (!ok && auth.error != null && mounted) {
                         messenger.showSnackBar(
-                          SnackBar(content: Text(auth.error!)),
+                          SnackBar(content: Text(_authErrorText(l10n, auth.error!))),
                         );
                       }
                     },
@@ -232,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 12),
                     _buildSettingCard(
                       icon: Icons.logout,
-                      title: 'Se déconnecter',
+                      title: l10n.settingsSignOut,
                       titleColor: Colors.red.shade600,
                       onTap: () => _confirmSignOut(context, auth),
                     ),
@@ -252,17 +267,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  String _authErrorText(AppLocalizations l10n, AuthError error) =>
+      switch (error) {
+        AuthError.failed => l10n.authErrorFailed,
+        AuthError.network => l10n.authErrorNetwork,
+        AuthError.generic => l10n.authErrorGeneric,
+      };
+
+  // Noms de langue volontairement non traduits (chacun dans sa langue).
+  String _languageLabel(AppLocalizations l10n, String language) =>
+      switch (language) {
+        'fr' => 'Français',
+        'en' => 'English',
+        _ => l10n.settingsLanguageAuto,
+      };
+
+  void _pickLanguage(BuildContext context, SettingsProvider settings) {
+    final l10n = context.l10n;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(l10n.settingsLanguage),
+        children: [
+          for (final language in const [kLanguageAuto, 'fr', 'en'])
+            ListTile(
+              title: Text(_languageLabel(l10n, language)),
+              subtitle: language == kLanguageAuto
+                  ? Text(l10n.settingsLanguageAutoHint)
+                  : null,
+              trailing: settings.language == language
+                  ? const Icon(Icons.check, color: AppTheme.seedGold)
+                  : null,
+              onTap: () {
+                Navigator.pop(dialogContext);
+                settings.setLanguage(language);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
   void _confirmSignOut(BuildContext context, AuthProvider auth) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Se déconnecter ?'),
-        content: const Text(
-            'Vous serez déconnecté de vos groupes de lecture.'),
+        title: Text(l10n.settingsSignOutConfirmTitle),
+        content: Text(l10n.settingsSignOutConfirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler')),
+              child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -270,8 +326,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             style:
                 FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
-            child: const Text('Se déconnecter',
-                style: TextStyle(color: Colors.white)),
+            child: Text(l10n.settingsSignOut,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

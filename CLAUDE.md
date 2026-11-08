@@ -100,7 +100,16 @@ Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 
 ## Localization
 
-French only (`Locale('fr', 'FR')` and `Intl.defaultLocale = 'fr_FR'` hardcoded). All user-facing strings, including Cloud Function notification text, are in French.
+French + English (Flutter gen-l10n). Language = device language by default (`fr*` → French, any other language → English), overridable in Settings ("Automatique / Français / English", Hive `settings` key `app_language`: `auto`|`fr`|`en`, missing = `auto`).
+
+- **Add a string:** add the key to `lib/l10n/app_fr.arb` (template, with `@key` placeholder metadata) and `lib/l10n/app_en.arb`, run `flutter gen-l10n` (also runs on `flutter pub get`/`run`; generated `app_localizations*.dart` are committed). Use ICU plurals for counts and placeholders instead of concatenation.
+- **In widgets:** `context.l10n.key` (`import 'lib/l10n/l10n.dart'`). **Without BuildContext** (notifications, home widget, PDF export, plan generator, providers): `appL10n.key`. `applyAppLocale()` keeps `appL10n`, `isEnglishLocale` and `Intl.defaultLocale` in sync with the resolved locale (set in `main.dart`). Don't pass `'fr_FR'` to `DateFormat`.
+- **Providers keep error codes** (`AuthError`, `GroupsError`); the UI translates them (`lib/l10n/error_texts.dart`, settings screen).
+- **Language change** (Settings or device in auto mode) goes through one place, `_SeedailyAppState._onLanguageChanged` in `main.dart`: reschedules local reminders + refreshes the home widget (`PlansProvider.refreshLocalizedOutputs`) and writes `users/{uid}.locale` (`AuthProvider.syncLocale`, also called on every auth state change).
+- **Bible book names:** the French name stays the identifier (Hive, Firestore snapshot, plan data files). Display with `BibleData.displayName()` (English names in `BibleVersion._frToEn`); `Passage.reference` / `groupConsecutivePassages` / `abbreviateBookName` already localize.
+- **Android home widget:** all its texts (labels, weekday letters) are sent translated from Dart via `home_widget` (`WidgetService`); `SeedailyWidget.kt` only displays them, with French fallbacks. Don't use Android string resources for widget text (they follow the device, not the in-app choice).
+- **Cloud Functions** pick FR/EN push text from `users/{uid}.locale` (missing → French).
+- Not translated: Bible text, user data (saved plan titles, group names), identifiers, analytics event names, logs/comments, `landing/`. Plan titles are stored in the language they were created in.
 
 ## Plan template IDs
 
