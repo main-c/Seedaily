@@ -11,37 +11,82 @@ const fcm = admin.messaging();
 
 // ── Helpers ────────────────────────────────────────────────────
 
-/**
- * Returns the FCM token for a given user, or null if not set.
- * @param {string} userId - The Firebase Auth UID.
- */
-async function getToken(userId: string): Promise<string | null> {
-  const snap = await db.doc(`users/${userId}`).get();
-  return snap.data()?.fcmToken ?? null;
+type Locale = "fr" | "en";
+
+interface Recipient {
+  token: string;
+  locale: Locale;
 }
 
 /**
- * Returns FCM tokens for all members of a group,
+ * Returns the FCM token and language of a user, or null if no token.
+ * `users/{uid}.locale` is written by the app; missing → French.
+ * @param {string} userId - The Firebase Auth UID.
+ */
+async function getRecipient(userId: string): Promise<Recipient | null> {
+  const snap = await db.doc(`users/${userId}`).get();
+  const data = snap.data();
+  const token = data?.fcmToken as string | undefined;
+  if (!token) return null;
+  return {token, locale: data?.locale === "en" ? "en" : "fr"};
+}
+
+/**
+ * Groups recipients' tokens by language.
+ * @param {Recipient[]} recipients - Recipients to group.
+ * @return {Map<Locale, string[]>} Tokens per language.
+ */
+function tokensByLocale(recipients: Recipient[]): Map<Locale, string[]> {
+  const map = new Map<Locale, string[]>();
+  for (const r of recipients) {
+    map.set(r.locale, [...(map.get(r.locale) ?? []), r.token]);
+  }
+  return map;
+}
+
+/**
+ * Returns recipients for all members of a group,
  * optionally excluding one user (e.g. the one who triggered the event).
  * @param {string} groupId - The Firestore group document ID.
  * @param {string} [excludeUserId] - UID to exclude from the result.
  */
-async function getMemberTokens(
+async function getMemberRecipients(
   groupId: string,
   excludeUserId?: string,
-): Promise<string[]> {
+): Promise<Recipient[]> {
   const snap = await db
     .collection(`groups/${groupId}/members`)
     .get();
-  const tokens: string[] = [];
+  const recipients: Recipient[] = [];
   for (const doc of snap.docs) {
     const uid = doc.data().userId as string;
     if (uid === excludeUserId) continue;
-    const token = await getToken(uid);
-    if (token) tokens.push(token);
+    const recipient = await getRecipient(uid);
+    if (recipient) recipients.push(recipient);
   }
-  return tokens;
+  return recipients;
 }
+
+// Textes des notifications, par langue du destinataire.
+const messages = {
+  groupCreatedTitle: {fr: "Groupe créé", en: "Group created"},
+  groupCreatedBody: {
+    fr: (name: string) => `"${name}" est prêt. Partagez le code d'invitation !`,
+    en: (name: string) => `"${name}" is ready. Share the invite code!`,
+  },
+  memberJoined: {
+    fr: (name: string) => `${name} a rejoint le groupe !`,
+    en: (name: string) => `${name} joined the group!`,
+  },
+  progress: {
+    fr: (name: string, day: number) => `${name} a lu le jour ${day} ✓`,
+    en: (name: string, day: number) => `${name} read day ${day} ✓`,
+  },
+  reminder: {
+    fr: "Avez-vous lu votre portion d'aujourd'hui ? 📖",
+    en: "Have you read today's portion? 📖",
+  },
+};
 
 // ── onGroupCreate ──────────────────────────────────────────────
 
@@ -55,14 +100,14 @@ export const onGroupCreate = onDocumentCreated(
     if (!data) return;
 
     const {hostId, name} = data as {hostId: string; name: string};
-    const token = await getToken(hostId);
-    if (!token) return;
+    const host = await getRecipient(hostId);
+    if (!host) return;
 
     await fcm.send({
-      token,
+      token: host.token,
       notification: {
-        title: "Groupe créé",
-        body: `"${name}" est prêt. Partagez le code d'invitation !`,
+        title: messages.groupCreatedTitle[host.locale],
+        body: messages.groupCreatedBody[host.locale](name),
       },
       data: {groupId: event.params.groupId},
       android: {priority: "normal"},
@@ -89,14 +134,14 @@ export const onMemberJoin = onDocumentCreated(
     const group = groupSnap.data();
     if (!group) return;
 
-    const hostToken = await getToken(group.hostId);
-    if (!hostToken) return;
+    const host = await getRecipient(group.hostId);
+    if (!host) return;
 
     await fcm.send({
-      token: hostToken,
+      token: host.token,
       notification: {
         title: group.name,
-        body: `${member.displayName} a rejoint le groupe !`,
+        body: messages.memberJoined[host.locale](member.displayName),
       },
       data: {groupId},
       android: {priority: "normal"},
@@ -126,18 +171,18 @@ export const onProgressCreate = onDocumentCreated(
     const groupName = groupSnap.data()?.name as string | undefined;
     if (!groupName) return;
 
-    const tokens = await getMemberTokens(groupId, userId);
-    if (tokens.length === 0) return;
-
-    await fcm.sendEachForMulticast({
-      tokens,
-      notification: {
-        title: groupName,
-        body: `${displayName} a lu le jour ${dayIndex + 1} ✓`,
-      },
-      data: {groupId},
-      android: {priority: "normal"},
-    });
+    const recipients = await getMemberRecipients(groupId, userId);
+    for (const [locale, tokens] of tokensByLocale(recipients)) {
+      await fcm.sendEachForMulticast({
+        tokens,
+        notification: {
+          title: groupName,
+          body: messages.progress[locale](displayName, dayIndex + 1),
+        },
+        data: {groupId},
+        android: {priority: "normal"},
+      });
+    }
   },
 );
 
@@ -179,24 +224,24 @@ export const scheduledGroupReminder = onSchedule(
         .collection(`groups/${groupId}/members`)
         .get();
 
-      const tokens: string[] = [];
+      const recipients: Recipient[] = [];
       for (const doc of membersSnap.docs) {
         const uid = doc.data().userId as string;
         if (readToday.has(uid)) continue;
-        const token = await getToken(uid);
-        if (token) tokens.push(token);
+        const recipient = await getRecipient(uid);
+        if (recipient) recipients.push(recipient);
       }
 
-      if (tokens.length === 0) continue;
-
-      await fcm.sendEachForMulticast({
-        tokens,
-        notification: {
-          title: groupName,
-          body: "Avez-vous lu votre portion d'aujourd'hui ? 📖",
-        },
-        android: {priority: "normal"},
-      });
+      for (const [locale, tokens] of tokensByLocale(recipients)) {
+        await fcm.sendEachForMulticast({
+          tokens,
+          notification: {
+            title: groupName,
+            body: messages.reminder[locale],
+          },
+          android: {priority: "normal"},
+        });
+      }
     }
   },
 );
