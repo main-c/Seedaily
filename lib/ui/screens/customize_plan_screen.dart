@@ -1699,6 +1699,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     final groupsProvider = context.read<GroupsProvider>();
     final plansProvider = context.read<PlansProvider>();
     final planTitle = _titleController.text;
+    final l10n = context.l10n;
 
     final plan = _generator.generate(
       templateId: _workingPlan.templateId,
@@ -1732,8 +1733,8 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
     // Partage le lien d'invitation
     final inviteCode = group.inviteCode;
     await Share.share(
-      context.l10n.planShareMessage(planTitle, AppTheme.joinUrl(inviteCode)),
-      subject: context.l10n.planShareSubject,
+      l10n.planShareMessage(planTitle, AppTheme.joinUrl(inviteCode)),
+      subject: l10n.planShareSubject,
     );
 
     if (!mounted) return;

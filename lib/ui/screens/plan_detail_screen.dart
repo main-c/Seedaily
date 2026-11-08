@@ -602,8 +602,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                               setSheetState(() => isCreating = false);
                               ScaffoldMessenger.of(ctx).showSnackBar(
                                 SnackBar(
-                                    content: Text(groupsErrorText(context.l10n,
-                                        groupsProvider.error, context.l10n.groupCreateError))),
+                                    content: Text(groupsErrorText(ctx.l10n,
+                                        groupsProvider.error, ctx.l10n.groupCreateError))),
                               );
                               groupsProvider.clearError();
                               return;
@@ -614,12 +614,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                                 plan.id, group.id);
 
                             if (!ctx.mounted) return;
+                            final l10n = ctx.l10n;
                             Navigator.pop(ctx);
 
                             // Partage le lien d'invitation
                             Share.share(
-                              context.l10n.planShareMessage(plan.title, AppTheme.joinUrl(group.inviteCode)),
-                              subject: context.l10n.planShareSubject,
+                              l10n.planShareMessage(plan.title, AppTheme.joinUrl(group.inviteCode)),
+                              subject: l10n.planShareSubject,
                             );
                           },
                     icon: isCreating
