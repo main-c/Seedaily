@@ -308,6 +308,12 @@ class PlansProvider with ChangeNotifier {
     }
   }
 
+  /// Appelé quand la langue change : textes des rappels et du widget.
+  Future<void> refreshLocalizedOutputs() async {
+    await _rescheduleSmartNotifications();
+    await _updateWidget();
+  }
+
   GeneratedPlan? getPlanById(String planId) {
     try {
       return _plans.firstWhere((p) => p.id == planId);

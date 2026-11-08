@@ -12,18 +12,24 @@ class SettingsProvider with ChangeNotifier {
   bool _notifPromptShown = false;
   bool _hasSeenOnboarding = false;
   ThemeMode _themeMode = ThemeMode.system;
+  String _language;
 
   SettingsProvider({
     required StorageService storage,
     required NotificationService notifications,
+    String language = 'auto',
   })  : _storage = storage,
-        _notifications = notifications;
+        _notifications = notifications,
+        _language = language;
 
   DateTime get notificationTime => _notificationTime;
   bool get notificationsEnabled => _notificationsEnabled;
   bool get notifPromptShown => _notifPromptShown;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
   ThemeMode get themeMode => _themeMode;
+
+  /// 'auto' (langue de l'appareil) | 'fr' | 'en'.
+  String get language => _language;
 
   Future<void> loadSettings() async {
     try {
@@ -35,6 +41,8 @@ class SettingsProvider with ChangeNotifier {
       _notificationsEnabled = await _storage.getNotificationsEnabled();
       _notifPromptShown = await _storage.getNotifPromptShown();
       _hasSeenOnboarding = await _storage.getHasSeenOnboarding();
+
+      _language = await _storage.getAppLanguage();
 
       final savedMode = await _storage.getThemeMode();
       _themeMode = switch (savedMode) {
@@ -103,6 +111,14 @@ class SettingsProvider with ChangeNotifier {
     };
     await _storage.saveThemeMode(value);
     AnalyticsService.instance.logThemeChanged(mode: value);
+    notifyListeners();
+  }
+
+  // Les effets (rappels, widget, Firestore) sont gérés dans main.dart
+  // quand la langue résolue change.
+  Future<void> setLanguage(String language) async {
+    _language = language;
+    await _storage.saveAppLanguage(language);
     notifyListeners();
   }
 

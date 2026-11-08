@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../l10n/l10n.dart';
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -46,11 +48,24 @@ class AuthService {
   Future<void> _upsertUserProfile(User user) async {
     final ref = _db.collection('users').doc(user.uid);
     await ref.set({
-      'displayName': user.displayName ?? 'Utilisateur',
+      'displayName': user.displayName ?? appL10n.commonUser,
       'email': user.email,
       'avatarUrl': user.photoURL,
       'lastSeenAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+  // Langue des pushs Cloud Functions ('fr' | 'en'), mise à jour à chaque
+  // démarrage connecté, connexion et changement de langue.
+  Future<void> saveLocale(String uid) async {
+    try {
+      await _db.collection('users').doc(uid).set(
+        {'locale': currentAppLocale.languageCode},
+        SetOptions(merge: true),
+      );
+    } catch (_) {
+      // Non critique — échec silencieux.
+    }
   }
 
   // ── Token FCM ─────────────────────────────────────────────────────────────

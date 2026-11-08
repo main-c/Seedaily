@@ -127,6 +127,15 @@ class StorageService {
     await _settingsBox?.put('theme_mode', mode);
   }
 
+  /// 'auto' | 'fr' | 'en'. Clé absente (anciennes données) = 'auto'.
+  Future<String> getAppLanguage() async {
+    return _settingsBox?.get('app_language', defaultValue: 'auto') ?? 'auto';
+  }
+
+  Future<void> saveAppLanguage(String language) async {
+    await _settingsBox?.put('app_language', language);
+  }
+
   Future<bool> getNotifPromptShown() async {
     return _settingsBox?.get('notif_prompt_shown', defaultValue: false) ?? false;
   }
