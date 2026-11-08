@@ -37,6 +37,7 @@ class GroupsProvider extends ChangeNotifier {
         notifyListeners();
       },
       onError: (e) {
+        debugPrint('watchUserGroups failed: $e');
         _error = 'Impossible de charger les groupes.';
         notifyListeners();
       },
@@ -126,9 +127,16 @@ class GroupsProvider extends ChangeNotifier {
         }
       }
 
+      // Optimistic update : l'écran du groupe s'ouvre sans attendre le listener.
+      if (findById(group.id) == null) {
+        _groups = [group, ..._groups];
+        notifyListeners();
+      }
+
       _setLoading(false);
       return (group: group, plan: plan);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('joinGroup failed: $e\n$st');
       _error = 'Impossible de rejoindre le groupe. Réessayez.';
       _setLoading(false);
       return null;

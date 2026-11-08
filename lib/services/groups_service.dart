@@ -19,6 +19,10 @@ class GroupsService {
   DocumentReference<Map<String, dynamic>> _groupDoc(String groupId) =>
       _groups.doc(groupId);
 
+  // inviteCodes/{code} → { groupId } : seul moyen de trouver un groupe par code.
+  DocumentReference<Map<String, dynamic>> _inviteCodeDoc(String code) =>
+      _db.collection('inviteCodes').doc(code);
+
   CollectionReference<Map<String, dynamic>> _members(String groupId) =>
       _groupDoc(groupId).collection('members');
 
@@ -26,8 +30,8 @@ class GroupsService {
       _groupDoc(groupId).collection('progress');
 
   // ── Créer un groupe ───────────────────────────────────────────────────────
-  // Le inviteCode est généré côté client (6 chars uppercase).
-  // La Cloud Function onGroupCreate le valide et garantit l'unicité en prod.
+  // Le inviteCode est généré côté client (6 chars uppercase). Son unicité est
+  // garantie par l'ID du doc inviteCodes/{code} : s'il existe, le batch échoue.
 
   Future<Group> createGroup({
     required String name,
@@ -60,6 +64,7 @@ class GroupsService {
 
     // Document principal du groupe
     batch.set(_groupDoc(groupId), group.toFirestore());
+    batch.set(_inviteCodeDoc(inviteCode), {'groupId': groupId});
 
     // L'hôte comme premier membre
     final hostMember = GroupMember(
@@ -85,31 +90,26 @@ class GroupsService {
   }) async {
     final code = inviteCode.trim().toUpperCase();
 
-    final query = await _groups
-        .where('inviteCode', isEqualTo: code)
-        .where('status', isEqualTo: 'active')
-        .limit(1)
-        .get();
+    final codeDoc = await _inviteCodeDoc(code).get();
+    final groupId = codeDoc.data()?['groupId'] as String?;
+    if (groupId == null) return null;
 
-    if (query.docs.isEmpty) return null;
+    // Le groupe n'est lisible qu'une fois membre : on crée d'abord la fiche.
+    final memberRef = _members(groupId).doc(userId);
+    if (!(await memberRef.get()).exists) {
+      final member = GroupMember(
+        userId: userId,
+        displayName: displayName,
+        avatarUrl: avatarUrl,
+        role: GroupMemberRole.member,
+        joinedAt: DateTime.now(),
+      );
+      // Les règles vérifient ce code avant d'accepter la fiche.
+      await memberRef.set({...member.toFirestore(), 'inviteCode': code});
+    }
 
-    final groupDoc = query.docs.first;
-    final group = Group.fromFirestore(groupDoc);
-
-    // Vérifie si déjà membre
-    final memberDoc = await _members(group.id).doc(userId).get();
-    if (memberDoc.exists) return group;
-
-    final member = GroupMember(
-      userId: userId,
-      displayName: displayName,
-      avatarUrl: avatarUrl,
-      role: GroupMemberRole.member,
-      joinedAt: DateTime.now(),
-    );
-
-    await _members(group.id).doc(userId).set(member.toFirestore());
-    return group;
+    final groupDoc = await _groupDoc(groupId).get();
+    return groupDoc.exists ? Group.fromFirestore(groupDoc) : null;
   }
 
   // ── Enregistrer la progression d'un membre ────────────────────────────────
@@ -205,11 +205,15 @@ class GroupsService {
   }
 
   Future<void> deleteGroup(String groupId) async {
+    final groupSnap = await _groupDoc(groupId).get();
+    final inviteCode = groupSnap.data()?['inviteCode'] as String?;
     final membersSnap = await _members(groupId).get();
     final progressSnap = await _progress(groupId).get();
+    // Le groupe en dernier : les règles le lisent pour vérifier l'hôte.
     final allRefs = [
       ...membersSnap.docs.map((d) => d.reference),
       ...progressSnap.docs.map((d) => d.reference),
+      if (inviteCode != null) _inviteCodeDoc(inviteCode),
       _groupDoc(groupId),
     ];
     // Firestore batch : max 500 opérations

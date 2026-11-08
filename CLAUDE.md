@@ -4,67 +4,82 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This App Is
 
-Seedaily is a French-language Bible reading plan generator for Android/iOS/Web. Users pick from 11+ plan templates (M'Cheyne, Ligue, Horner, canonical, chronological, etc.), customize reading days and content scope, then track daily progress. Plans are stored locally with PDF export and daily push notifications.
+Seedaily is a French-language Bible reading plan generator for Android/iOS/Web (Flutter). Users pick a plan template, customize it, then track daily progress. Plans live locally (Hive). On top of that, optional online features use Firebase: Google sign-in, shared reading groups (Firestore + Cloud Functions + FCM), and a Bible reader whose versions are downloaded from Firebase Storage.
+
+The repo also contains:
+- `functions/` — Firebase Cloud Functions (TypeScript, Node 24) for group push notifications
+- `landing/` — static marketing site (Vercel), including `join.html` for group invite links
+- `scripts/prepare_bibles.py` — builds the Bible version zips uploaded to Firebase Storage
+- `firestore.rules` — Firestore security rules (deployed via `firebase.json`)
 
 ## Commands
 
 ```bash
-# Install dependencies
+# Flutter app
 flutter pub get
 cd ios && pod install && cd ..
-
-# Run
-flutter run           # debug
-flutter run --release
-
-# Test & lint
+flutter run                     # debug
 flutter test
-flutter test test/plan_generation_mvp_test.dart  # run single test file
+flutter test test/plan_generation_mvp_test.dart   # single test file
+flutter test --plain-name "<test name>"           # single test
 flutter analyze
 dart format .
 
-# Build
 flutter build appbundle --release   # Android
-flutter build ios --release          # iOS
+flutter build ios --release
 flutter build web --release
 
-# Asset generation (after changing icons/splash config)
+# After changing icon/splash config
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create
+
+# Cloud Functions (from functions/)
+npm run lint
+npm run build
+npm run serve                   # local emulator
+firebase deploy --only functions          # predeploy runs lint + build
+firebase deploy --only firestore:rules
+npm run test:rules              # from functions/, Firestore rules tests (emulator, needs Java 21+)
+
+# Bible data (sources expected in scripts/truth_*/FR-Français/*.sqlite)
+python3 scripts/prepare_bibles.py         # outputs scripts/dist/<id>.zip
 ```
 
 ## Architecture
 
-**State management:** Provider with ChangeNotifier. Two providers:
-- `PlansProvider` (`lib/providers/plans_provider.dart`) — owns all plan CRUD, progress tracking, streak calculation
-- `SettingsProvider` (`lib/providers/settings_provider.dart`) — app-wide prefs (theme, notifications)
+**Startup (`lib/main.dart`):** `runZonedGuarded` → Firebase init → App Check (debug provider in debug, Play Integrity in release) → Crashlytics hooks → Hive init → local notifications → home widget → Remote Config update check (`UpdateGateService`, compares `min_version`/`soft_version` to the app version and shows a force/soft update dialog). The native splash is held until all of this finishes.
 
-**Navigation:** GoRouter with routes: `/`, `/plan/:id`, `/customize-plan/:id`, `/edit-plan/:id`, `/about`. Tabs on the home shell use `IndexedStack` so all 3 tabs (Home/Discover/Settings) stay built simultaneously.
+**State (Provider + ChangeNotifier), wired in `main.dart`:**
+- `AuthProvider` — Firebase Auth (Google sign-in only). Signing in upserts `users/{uid}` and stores the FCM token.
+- `PlansProvider` — plan CRUD, progress, streaks. It is a `ChangeNotifierProxyProvider` of `AuthProvider`: once signed in it receives `GroupsService` + user id, so toggling a day on a **group plan** (`plan.groupId != null`) also writes to Firestore.
+- `GroupsProvider` — proxy of `AuthProvider`; subscribes to the user's groups via a `collectionGroup('members')` query, cleared on sign-out.
+- `SettingsProvider` — theme mode, notifications.
+- `BibleReaderProvider` — downloaded versions, selected version, font size.
 
-**Storage:** Hive key-value store with manual JSON serialization (`toJson`/`fromJson`). No network calls — the app is entirely local. Bible data (66 canonical + 7 deuterocanonical books with verse counts) is embedded in `lib/domain/bible_data.dart`. `fromJson()` handles backward-compatible schema migrations (e.g., `OutputOptions` → `DisplayOptions`).
+**Navigation:** GoRouter. Main shell (`/`, tab chosen with `?tab=N`) uses an `IndexedStack`, so all tabs stay built. Other routes: `/plan/:id`, `/customize-plan/:templateId`, `/edit-plan/:planId` (same `CustomizePlanScreen`), `/about`, `/bible-library`, `/groups/create`, `/groups/join`, `/group/:id`, and the deep link `/join/:code` (`seedaily://app/join/CODE`).
 
-**Plan generation core** (`lib/services/plan_generator.dart`): Distributes passages across reading days using a weighted verse-count algorithm. Supports balanced, front-loaded, and back-loaded distribution strategies.
+**Local storage:** Hive boxes `reading_plans` and `settings`, with manual `toJson`/`fromJson`. `fromJson()` handles backward-compatible schema migrations (e.g. `OutputOptions` → `DisplayOptions`), so keep old keys readable when changing models.
 
-**Key domain models** (`lib/domain/`): `GeneratedPlan`, `ReadingDay`, `Passage`, plus enums for all plan options.
+**Plan generation (`lib/services/plan_generator.dart`):** distributes passages across reading days by verse-count weighting (balanced / front-loaded / back-loaded). Structured plans come from fixed data files in `lib/domain/` (`mcheyne_plan_data.dart`, `ligue_plan_data.dart`, `horner_plan_data.dart`, `revolutionary_plan_data.dart`). Book metadata and verse counts (66 canonical + 7 deuterocanonical) are in `bible_data.dart`. Editing a plan regenerates it and restores completion by **date**.
 
-**Services:**
-- `StorageService` — Hive read/write
-- `ExportService` — Dart-native PDF generation with genre-based color coding (Law=brown, History=blue, Wisdom=purple, Prophets=orange, NT=green)
-- `NotificationService` — timezone-aware daily notifications via `flutter_local_notifications`
-- `AnalyticsService` (`lib/services/analytics_service.dart`) — singleton wrapping Firebase Analytics. **Toujours passer par ce wrapper**, jamais appeler `FirebaseAnalytics.instance` directement ailleurs dans le code.
+**Reading groups:**
+- Firestore layout: `groups/{groupId}` (host-owned, holds `inviteCode`, `planMeta`, `planSnapshot`), with subcollections `members/{uid}` and `progress/{progressId}`.
+- The host's plan is serialized into a day-by-day snapshot (`PlanSnapshotService.fromPlan`, capped at 365 days because Horner is infinite). Members rebuild an identical local `GeneratedPlan` from the snapshot (`toPlan`). They don't regenerate it.
+- Invite codes are generated client-side (6 uppercase chars). `inviteCodes/{code}` → `{groupId}` is the only way to find a group by code: groups can't be listed, a group is readable only by its members, and joining requires the member doc to carry the right `inviteCode` (checked by the rules).
+- Cloud Functions (`functions/src/index.ts`) send FCM pushes on group creation, member join, and progress creation, plus a daily scheduled reminder (19:00 UTC).
+- Changing what the client writes usually means updating `firestore.rules` too.
 
-**Firebase (Analytics + Crashlytics):**
-- `google-services.json` dans `android/app/` — ne pas committer si sensible
-- Initialisation dans `main.dart` : `Firebase.initializeApp()` + `FlutterError.onError` + `runZonedGuarded` pour capturer tous les crashes
-- Analytics collecte automatiquement : sessions, `first_open`, `screen_view`, appareils, OS
-- Events custom trackés : `plan_created`, `plan_deleted`, `plan_completed`, `day_completed`, `day_unchecked`, `plan_exported`, `notifications_toggled`, `theme_changed`
-- Pour tester les events en temps réel : `adb shell setprop debug.firebase.analytics.app com.seedaily.app` puis Firebase Console → DebugView
+**Bible reader:** `BibleReaderService` (singleton) downloads `bibles/<id>/<id>.zip` from Firebase Storage, extracts it in an isolate to `<appDocs>/bibles/<id>/` (one JSON file per book, `{book, chapters: [[verses]]}`), and writes a `.complete` marker. Chapters are kept in an in-memory LRU cache (30 entries). Versions (public domain only): `lsg`, `martin`, `ostervald`, `epee`, defined in `lib/domain/bible_reader_models.dart`. Never add copyrighted versions (NEG, TOB, Semeur, BFC).
 
-**Theme:** Material 3, gold/navy/light palette, Lexend font. Defined in `lib/core/theme.dart`. Supports light / dark / system modes via `SettingsProvider.themeMode` → `MaterialApp.router(themeMode: ...)`.
+**Other services:** `ExportService` (Dart-native PDF, colored by genre: Law=brown, History=blue, Wisdom=purple, Prophets=orange, NT=green), `NotificationService` (timezone-aware local notifications with action buttons handled in `main.dart`), `WidgetService` (Android home-screen widget `SeedailyWidget` via `home_widget`, refreshed from `PlansProvider`).
+
+**Analytics:** `AnalyticsService` (`lib/services/analytics_service.dart`) is a singleton wrapping Firebase Analytics. **Toujours passer par ce wrapper**, jamais appeler `FirebaseAnalytics.instance` directement ailleurs. Custom events: `plan_created`, `plan_deleted`, `plan_completed`, `day_completed`, `day_unchecked`, `plan_exported`, `notifications_toggled`, `theme_changed`. Live debugging: `adb shell setprop debug.firebase.analytics.app com.seedaily.app`, then Firebase Console → DebugView.
+
+**Gotcha:** `lib/ui/widgets/plan_detail_screen.dart` is an older file that nothing imports. The live screen is `lib/ui/screens/plan_detail_screen.dart`.
 
 ## Colors — règle absolue
 
-**Ne jamais utiliser les constantes `AppTheme.*` comme couleurs de rendu dans les widgets.** Ces constantes sont figées et cassent le mode sombre.
+**Ne jamais utiliser les constantes `AppTheme.*` comme couleurs de rendu dans les widgets.** Ces constantes sont figées et cassent le mode sombre. Theme: Material 3, Lexend, defined in `lib/core/theme.dart`.
 
 Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 
@@ -83,108 +98,21 @@ Toujours utiliser `Theme.of(context).colorScheme.*` dans les `build()` :
 
 **Règle `context` :** `Theme.of(context)` n'est disponible que dans `build(BuildContext context)`. Pour les méthodes helper d'un `StatelessWidget`, passer `BuildContext context` en paramètre.
 
-**Localization:** French-only (`Locale('fr', 'FR')` hardcoded). All user-facing strings are in French.
+## Localization
 
-## Fonctionnalités v1.2.0
+French only (`Locale('fr', 'FR')` and `Intl.defaultLocale = 'fr_FR'` hardcoded). All user-facing strings, including Cloud Function notification text, are in French.
 
-### Plans disponibles
+## Plan template IDs
 
-**4 plans structurés** (structure fixe, seule la date de début est modifiable)
-- `mcheyne` — M'Cheyne : lecture parallèle AT + NT, 365 jours, intensif
-- `bible-year-ligue` — Ligue : AT + Psaume + Proverbe + NT chaque jour, 365 jours
-- `revolutionary` — Révolutionnaire : 25 jours/mois avec jours de repos, 365 jours
-- `horner` — Horner : lecture en boucle infinie sur 10 listes, durée personnalisable
+- **Structured** (fixed structure, only the start date is editable): `mcheyne`, `bible-year-ligue`, `revolutionary`, `horner` (infinite loop over 10 lists)
+- **Thematic** (fixed books, duration and rhythm editable): `new-testament`, `old-testament`, `gospels`, `psalms`, `proverbs`
+- **Fully customizable**: `canonical-plan`, `chronological-plan`
 
-**5 plans thématiques** (livres figés, durée et rythme modifiables)
-- `new-testament` — Nouveau Testament (27 livres, ~90 jours)
-- `old-testament` — Ancien Testament (39 livres, ~365 jours)
-- `gospels` — Évangiles (Mt, Mc, Lc, Jn, ~30 jours)
-- `psalms` — Psaumes (150 chapitres, ~150 jours)
-- `proverbs` — Proverbes (31 chapitres, ~31 jours)
+## Backlog — Balance adaptative (priorité haute)
 
-**2 plans entièrement personnalisables**
-- `canonical-plan` — ordre canonique traditionnel
-- `chronological-plan` — ordre chronologique/historique
+Le plan ajuste dynamiquement la charge des jours restants selon le comportement du lecteur :
+- **En retard** → redistribuer les passages manquants sur les jours suivants (+1 chapitre/jour progressivement)
+- **En avance** → proposer d'accélérer pour finir plus tôt
+- **Inactif** (3+ jours) → réduire temporairement la charge
 
-### Personnalisation d'un plan
-
-- Sélection des livres individuels (filtres AT / NT / Apocryphes)
-- Ordre : canonique, chronologique, juif, inversé
-- Psaumes quotidiens : aucun / un par jour / séquentiel
-- Proverbes quotidiens : aucun / un par jour / selon le jour du mois
-- Chevauchement AT/NT : séquentiel ou alterné
-- Distribution : équilibrée, progressive, dégressive
-- Date de début, durée totale, jours de lecture (Lun–Dim)
-
-### Vues de lecture (plan detail)
-
-- **Liste** — défilement vertical de tous les jours
-- **Calendrier** — grille mensuelle avec navigation mois par mois
-- **Hebdomadaire** — jours groupés par semaine avec image de fond
-- **Par livre** — regroupement par livre biblique
-
-### Suivi de progression
-
-- Cases à cocher par jour
-- Pourcentage de complétion + barre de progression
-- Streak courant (jours consécutifs)
-- Statut : en avance / dans les temps / en retard / terminé
-- Filtres accueil : Tous / En cours / Terminés
-
-### Paramètres
-
-- Thème : clair / sombre / système
-- Notifications quotidiennes : activer/désactiver + heure personnalisable
-
-### Export & partage
-
-- Export PDF avec code couleur par genre biblique (Loi=marron, Histoire=bleu, Sagesse=violet, Prophètes=orange, NT=vert)
-- Options : statistiques incluses, cases à cocher incluses
-- Partage via le système natif
-
-### Gestion des plans
-
-- Créer, modifier (régénère en préservant les jours complétés), supprimer
-- Réinitialiser la progression
-
-## Features à implémenter (backlog)
-
-### Lecteur biblique intégré — versions multiples (priorité haute)
-
-Objectif : inclure le texte de la Bible directement dans l'app (plusieurs versions), pour que l'utilisateur lise sans quitter l'app.
-
-**Versions disponibles en domaine public (français) :**
-- Louis Segond 1910 (LSG) — la plus répandue, domaine public
-- Darby — fidèle au texte source, domaine public
-- Martin 1744 — domaine public
-- Ostervald 1744 — domaine public
-
-**Architecture envisagée :**
-- Fichiers JSON par version bundlés dans `assets/bible/` (~4-6 MB/version)
-- Structure : `{ "version": "LSG", "books": [{ "name": "Genèse", "chapters": [["1:1 Au commencement...", "1:2 ..."], [...]] }] }`
-- Service `BibleReaderService` qui charge le fichier JSON en mémoire à la demande (lazy load)
-- Sélecteur de version dans les Paramètres (`SettingsProvider.bibleVersion`)
-- Les `DayCard` affichent le texte des passages si une version est chargée
-
-**UI envisagée :**
-- Onglet "Lire" ou bottom sheet qui s'ouvre depuis un passage → affiche le texte chapitre complet avec highlight des versets du plan
-- Si aucune version chargée → bouton "Ajouter une Bible" → liste des versions disponibles
-- Option téléchargement (vs bundle complet selon taille acceptable)
-
-**Contraintes :**
-- Ne pas bundler les versions sous copyright (NEG, TOB, Semeur, BFC)
-- Taille APK : 4 versions × 5 MB ≈ +20 MB — à évaluer si on bundle tout ou si on propose le téléchargement à la demande
-
-### Balance adaptative (priorité haute)
-
-Idée : le plan ajuste dynamiquement la charge de lecture des jours restants selon le comportement du lecteur.
-
-- **Lecteur en retard** (jours non complétés, streak cassé) → redistribuer les passages manquants sur les prochains jours avec +1 chapitre/jour progressivement, sans écraser
-- **Lecteur en avance** → proposer d'accélérer (+1 ch/jour) pour finir plus tôt
-- **Lecteur inactif** (3+ jours sans lire) → réduire temporairement la charge pour faciliter le retour
-
-**Implémentation envisagée :**
-- Fonction dans `PlansProvider` qui recalcule la distribution des jours restants à chaque ouverture d'un plan
-- Basée sur : `currentDayIndex`, jours complétés, jours en retard, streak actuel
-- Deux niveaux : statique (front-loaded / back-loaded généré une fois) + dynamique (recalcul en temps réel)
-- Le `balance` field dans `DistributionOptions` existe déjà dans les modèles, le générateur ne l'utilise pas encore
+Piste : une fonction dans `PlansProvider` qui recalcule les jours restants à l'ouverture d'un plan (à partir de `currentDayIndex`, des jours complétés et du streak). Le champ `balance` de `DistributionOptions` existe déjà mais le générateur ne l'utilise pas encore. Attention aux plans de groupe : leurs jours sont indexés via le snapshot partagé (`dayIndex`), donc les redistribuer localement désynchroniserait la progression du groupe.

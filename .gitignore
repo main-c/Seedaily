@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .vercel
+
+# Remotion (vidéos promo)
+/node_modules/
+/videos/
