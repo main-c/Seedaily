@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:seedaily/ui/screens/main_shell_screen.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../core/share_invite.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
@@ -1729,11 +1729,7 @@ class _CustomizePlanScreenState extends State<CustomizePlanScreen>
 
     // Partage le lien d'invitation
     final inviteCode = group.inviteCode;
-    await Share.share(
-      'Je lis "$planTitle" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-      '${AppTheme.joinUrl(inviteCode)}',
-      subject: 'Lire la Bible ensemble',
-    );
+    await shareGroupInvite(planTitle, inviteCode);
 
     if (!mounted) return;
     context.go('/plan/${plan.id}');

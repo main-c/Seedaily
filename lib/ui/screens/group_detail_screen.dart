@@ -8,6 +8,7 @@ import '../../domain/group_models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
+import '../widgets/member_progress_label.dart';
 import '../widgets/plan_card.dart';
 
 class GroupDetailScreen extends StatefulWidget {
@@ -74,30 +75,18 @@ class _GroupDetailBody extends StatelessWidget {
         builder: (context, membersSnap) {
           final members = membersSnap.data ?? [];
           return StreamBuilder<List<GroupProgress>>(
-            stream: context.read<GroupsProvider>().watchTodayProgress(group.id),
+            stream: context.read<GroupsProvider>().watchProgress(group.id),
             builder: (context, progressSnap) {
-              final todayProgress = progressSnap.data ?? [];
-              final completedUserIds =
-                  todayProgress.map((p) => p.userId).toSet();
-
-              final statuses = members.map((m) => GroupDayStatus(
-                    member: m,
-                    hasCompleted: completedUserIds.contains(m.userId),
-                    completedAt: todayProgress
-                        .where((p) => p.userId == m.userId)
-                        .map((p) => p.completedAt)
-                        .firstOrNull,
-                  )).toList();
-
-              statuses.sort((a, b) {
-                if (a.member.isHost != b.member.isHost) {
-                  return a.member.isHost ? -1 : 1;
-                }
-                if (a.hasCompleted != b.hasCompleted) {
-                  return a.hasCompleted ? -1 : 1;
-                }
-                return 0;
-              });
+              final todayDayIndex = group.todayDayIndex;
+              final statuses = GroupDayStatus.compute(
+                members: members,
+                progress: progressSnap.data ?? [],
+                todayDayIndex: todayDayIndex,
+                expectedDays: group.expectedCompletedDays,
+                totalDays: group.planMeta.totalDays,
+              );
+              final readCount = statuses.where((s) => s.hasCompleted).length;
+              final me = members.where((m) => m.userId == auth.uid).firstOrNull;
 
               return SafeArea(
                 top: false,
@@ -108,15 +97,18 @@ class _GroupDetailBody extends StatelessWidget {
                     SliverAppBar(
                       expandedHeight: 200,
                       pinned: true,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surface,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurface,
+                      // Titre et icônes en blanc sur la photo ; replié, la
+                      // barre prend le bleu nuit pour que le blanc reste lisible.
+                      backgroundColor: AppTheme.deepNavy,
+                      foregroundColor: Colors.white,
+                      systemOverlayStyle: SystemUiOverlayStyle.light,
                       title: Text(group.name,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700)),
+                              ?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
                       actions: [
                         IconButton(
                           icon: const Icon(Icons.share_outlined),
@@ -128,8 +120,23 @@ class _GroupDetailBody extends StatelessWidget {
                           onSelected: (v) {
                             if (v == 'delete') _confirmDelete(context);
                             if (v == 'leave') _confirmLeave(context, auth.uid!);
+                            if (v == 'notify' && me != null) {
+                              context
+                                  .read<GroupsProvider>()
+                                  .setNotifyOnMemberProgress(
+                                    groupId: group.id,
+                                    userId: me.userId,
+                                    enabled: !me.notifyOnMemberProgress,
+                                  );
+                            }
                           },
                           itemBuilder: (_) => [
+                            if (me != null)
+                              CheckedPopupMenuItem(
+                                value: 'notify',
+                                checked: me.notifyOnMemberProgress,
+                                child: const Text('Notifier les lectures'),
+                              ),
                             if (isHost)
                               const PopupMenuItem(
                                   value: 'delete',
@@ -173,16 +180,18 @@ class _GroupDetailBody extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            // Dégradé pour lisibilité du titre
+                            // Voile sombre en haut : lisibilité du titre et des icônes
                             const DecoratedBox(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
+                                    Colors.black54,
                                     Colors.transparent,
                                     Colors.black26,
                                   ],
+                                  stops: [0.0, 0.55, 1.0],
                                 ),
                               ),
                             ),
@@ -196,6 +205,10 @@ class _GroupDetailBody extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                         child: _PlanSummaryCard(group: group),
                       ),
+                    ),
+                    // ── Lecture du jour : lire et cocher sans quitter le groupe
+                    SliverToBoxAdapter(
+                      child: _TodayReadingCard(groupId: group.id),
                     ),
                     // ── Titre section membres ────────────────────────────────
                     SliverToBoxAdapter(
@@ -218,7 +231,9 @@ class _GroupDetailBody extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                '${completedUserIds.length}/${members.length}',
+                                todayDayIndex == null
+                                    ? 'Pas de lecture'
+                                    : '$readCount/${members.length}',
                                 style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -368,6 +383,84 @@ class _GroupDetailBody extends StatelessWidget {
 
 // ── Carte résumé plan ─────────────────────────────────────────────────────────
 
+/// Passage du jour du plan local de ce groupe, avec « Marquer comme lu »
+/// et « Ouvrir le plan ». Rien si le plan local n'existe pas.
+class _TodayReadingCard extends StatelessWidget {
+  final String groupId;
+  const _TodayReadingCard({required this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final plans = context.watch<PlansProvider>();
+    final plan = plans.plans.where((p) => p.groupId == groupId).firstOrNull;
+    if (plan == null) return const SizedBox.shrink();
+
+    final now = DateTime.now();
+    final day = plan.days
+        .where((d) =>
+            d.date.year == now.year &&
+            d.date.month == now.month &&
+            d.date.day == now.day)
+        .firstOrNull;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Lecture du jour',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text(
+              day == null
+                  ? 'Pas de lecture prévue aujourd\'hui.'
+                  : day.passages.map((p) => p.reference).join(' · '),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.8)),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (day != null)
+                  FilledButton.icon(
+                    onPressed: () =>
+                        plans.toggleDayCompletion(plan.id, day.date),
+                    icon: Icon(day.completed
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked),
+                    label: Text(day.completed ? 'Lu' : 'Marquer comme lu'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: day.completed
+                          ? AppTheme.seedGold.withValues(alpha: 0.15)
+                          : AppTheme.seedGold,
+                      foregroundColor:
+                          day.completed ? AppTheme.seedGold : Colors.white,
+                    ),
+                  ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => context.push('/plan/${plan.id}'),
+                  child: const Text('Ouvrir le plan'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _PlanSummaryCard extends StatelessWidget {
   final Group group;
   const _PlanSummaryCard({required this.group});
@@ -507,12 +600,7 @@ class _MemberTile extends StatelessWidget {
                     ],
                   ],
                 ),
-                if (done && status.completedAt != null)
-                  Text(
-                    _formatTime(status.completedAt!),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.4)),
-                  ),
+                MemberProgressLabel(status: status),
               ],
             ),
           ),
@@ -524,11 +612,5 @@ class _MemberTile extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return 'Lu à $h:$m';
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../core/theme.dart';
 import '../widgets/plan_card.dart';
@@ -39,6 +40,28 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _plansProvider?.removeListener(_onProviderChange);
     super.dispose();
+  }
+
+  // Supprimer un plan de groupe = quitter le groupe, sinon le membre reste
+  // « en retard » chez les autres et reçoit encore les rappels.
+  // L'admin doit supprimer le groupe depuis son écran.
+  Future<void> _deletePlan(GeneratedPlan plan) async {
+    final plans = context.read<PlansProvider>();
+    if (plan.isGroupPlan) {
+      final uid = context.read<AuthProvider>().uid;
+      final groups = context.read<GroupsProvider>();
+      if (groups.findByPlanGroupId(plan.groupId!)?.hostId == uid) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Vous êtes l\'admin de ce groupe : supprimez le groupe depuis son écran.'),
+        ));
+        return;
+      }
+      if (uid != null) {
+        await groups.leaveGroup(groupId: plan.groupId!, userId: uid);
+      }
+    }
+    await plans.deletePlan(plan.id);
   }
 
   void _onProviderChange() {
@@ -147,9 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return PlanCard(
                                     plan: plan,
                                     onTap: () => context.push('/plan/${plan.id}'),
-                                    onDelete: () async {
-                                      await plansProvider.deletePlan(plan.id);
-                                    },
+                                    onDelete: () => _deletePlan(plan),
                                   );
                                 },
                               ),

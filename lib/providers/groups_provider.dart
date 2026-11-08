@@ -201,8 +201,23 @@ class GroupsProvider extends ChangeNotifier {
   Stream<List<GroupMember>> watchMembers(String groupId) =>
       _service.watchMembers(groupId);
 
-  Stream<List<GroupProgress>> watchTodayProgress(String groupId) =>
-      _service.watchTodayProgress(groupId);
+  Stream<List<GroupProgress>> watchProgress(String groupId) =>
+      _service.watchProgress(groupId);
+
+  Future<void> setNotifyOnMemberProgress({
+    required String groupId,
+    required String userId,
+    required bool enabled,
+  }) async {
+    try {
+      await _service.setNotifyOnMemberProgress(
+          groupId: groupId, userId: userId, enabled: enabled);
+    } catch (e) {
+      debugPrint('setNotifyOnMemberProgress failed: $e');
+      _error = 'Impossible de modifier les notifications.';
+      notifyListeners();
+    }
+  }
 
   Future<Group?> getGroup(String groupId) => _service.getGroup(groupId);
 

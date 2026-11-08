@@ -472,7 +472,9 @@ class PlanCard extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Supprimer le plan'),
         content: Text(
-          'Êtes-vous sûr de vouloir supprimer "${plan.title}" ?\n\nCette action est irréversible.',
+          plan.isGroupPlan
+              ? 'Ce plan est partagé avec un groupe : le supprimer vous fera aussi quitter le groupe.\n\nCette action est irréversible.'
+              : 'Êtes-vous sûr de vouloir supprimer "${plan.title}" ?\n\nCette action est irréversible.',
         ),
         actions: [
           TextButton(

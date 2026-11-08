@@ -77,6 +77,29 @@ class GroupsService {
     batch.set(_members(groupId).doc(hostId), hostMember.toFirestore());
 
     await batch.commit();
+
+    // Plan solo déjà commencé : on publie les jours déjà lus, sinon l'hôte
+    // apparaît « en retard » pour le groupe. Batch séparé : les règles
+    // vérifient qu'il est membre, ce qui n'est vrai qu'après le premier.
+    final read = [
+      for (final d in snapshot)
+        if (plan.days[d.dayIndex].completed) d.dayIndex,
+    ];
+    for (var i = 0; i < read.length; i += 500) {
+      final progressBatch = _db.batch();
+      for (final dayIndex in read.skip(i).take(500)) {
+        progressBatch.set(
+          _progress(groupId).doc(GroupProgress.docId(hostId, dayIndex)),
+          GroupProgress(
+            userId: hostId,
+            displayName: hostDisplayName,
+            dayIndex: dayIndex,
+            completedAt: DateTime.now(),
+          ).toFirestore(),
+        );
+      }
+      await progressBatch.commit();
+    }
     return group;
   }
 
@@ -113,6 +136,35 @@ class GroupsService {
   }
 
   // ── Enregistrer la progression d'un membre ────────────────────────────────
+
+  // Rattrapage à l'arrivée dans un groupe déjà commencé. `catchUp: true`
+  // empêche la Cloud Function d'envoyer une notification par jour.
+  Future<void> markDaysCaughtUp({
+    required String groupId,
+    required String userId,
+    required String displayName,
+    required List<int> dayIndexes,
+  }) async {
+    for (var i = 0; i < dayIndexes.length; i += 500) {
+      final batch = _db.batch();
+      for (final dayIndex in dayIndexes.skip(i).take(500)) {
+        batch.set(
+          _progress(groupId).doc(GroupProgress.docId(userId, dayIndex)),
+          {
+            ...GroupProgress(
+              userId: userId,
+              displayName: displayName,
+              dayIndex: dayIndex,
+              completedAt: DateTime.now(),
+            ).toFirestore(),
+            'catchUp': true,
+          },
+        );
+      }
+      await batch.commit();
+    }
+  }
+
 
   Future<void> markDayComplete({
     required String groupId,
@@ -168,19 +220,22 @@ class GroupsService {
         );
   }
 
-  // Progression du jour courant pour tous les membres d'un groupe.
-  Stream<List<GroupProgress>> watchTodayProgress(String groupId) {
-    final today = DateTime.now();
-    final startOfDay = DateTime(today.year, today.month, today.day);
-    final endOfDay = startOfDay.add(const Duration(days: 1));
-
-    return _progress(groupId)
-        .where('completedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-        .where('completedAt', isLessThan: Timestamp.fromDate(endOfDay))
-        .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => GroupProgress.fromFirestore(d)).toList());
+  // Toute la progression du groupe : sert au « lu aujourd'hui » (par jour du
+  // plan, pas par date de coche) et au retard de chaque membre.
+  // shortcut: lit tous les docs (membres × jours lus), OK pour de petits
+  // groupes ; au-delà de ~20 membres, tenir un compteur par membre côté Functions.
+  Stream<List<GroupProgress>> watchProgress(String groupId) {
+    return _progress(groupId).snapshots().map(
+        (snap) => snap.docs.map((d) => GroupProgress.fromFirestore(d)).toList());
   }
+
+  // Le membre active/coupe les notifications de lecture des autres.
+  Future<void> setNotifyOnMemberProgress({
+    required String groupId,
+    required String userId,
+    required bool enabled,
+  }) =>
+      _members(groupId).doc(userId).update({'notifyOnMemberProgress': enabled});
 
   // Tous les progrès d'un membre (pour reconstruire la progression locale).
   Future<Set<int>> getMemberCompletedDays({
@@ -196,6 +251,12 @@ class GroupsService {
   }
 
   // ── Quitter / supprimer ───────────────────────────────────────────────────
+
+  // Lecture serveur (pas le cache) : sert à confirmer qu'on n'est plus membre.
+  Future<bool> isMember(String groupId, String userId) async =>
+      (await _members(groupId).doc(userId).get(const GetOptions(source: Source.server)))
+          .exists;
+
 
   Future<void> leaveGroup({
     required String groupId,

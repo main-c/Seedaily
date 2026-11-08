@@ -124,6 +124,19 @@ class Group {
     }).length;
   }
 
+  // Index du jour du plan prévu aujourd'hui, null s'il n'y en a pas
+  // (plan pas commencé, terminé, ou jour sans lecture).
+  int? get todayDayIndex {
+    final now = DateTime.now();
+    return planSnapshot
+        .where((d) =>
+            d.date.year == now.year &&
+            d.date.month == now.month &&
+            d.date.day == now.day)
+        .firstOrNull
+        ?.dayIndex;
+  }
+
   Map<String, dynamic> toFirestore() => {
         'name': name,
         'hostId': hostId,
@@ -244,12 +257,54 @@ class GroupProgress {
 
 class GroupDayStatus {
   final GroupMember member;
-  final bool hasCompleted;
+  final bool hasCompleted; // a lu le jour du plan prévu aujourd'hui
   final DateTime? completedAt;
+  final int completedDays; // jours lus au total
+  final int expectedDays; // jours prévus jusqu'à aujourd'hui inclus
+  final int totalDays;
 
   const GroupDayStatus({
     required this.member,
     required this.hasCompleted,
     this.completedAt,
+    this.completedDays = 0,
+    this.expectedDays = 0,
+    this.totalDays = 0,
   });
+
+  /// > 0 : en retard de N jours, < 0 : en avance, 0 : à jour.
+  int get daysBehind => expectedDays - completedDays;
+  double get progress => totalDays > 0 ? completedDays / totalDays : 0;
+
+  /// Statut de chaque membre à partir de toute la progression du groupe.
+  /// [todayDayIndex] est null quand aucune lecture n'est prévue aujourd'hui.
+  /// Tri : hôte d'abord, puis ceux qui ont lu.
+  static List<GroupDayStatus> compute({
+    required List<GroupMember> members,
+    required List<GroupProgress> progress,
+    required int? todayDayIndex,
+    required int expectedDays,
+    required int totalDays,
+  }) {
+    final statuses = members.map((m) {
+      final mine = progress.where((p) => p.userId == m.userId);
+      final today = todayDayIndex == null
+          ? null
+          : mine.where((p) => p.dayIndex == todayDayIndex).firstOrNull;
+      return GroupDayStatus(
+        member: m,
+        hasCompleted: today != null,
+        completedAt: today?.completedAt,
+        completedDays: mine.map((p) => p.dayIndex).toSet().length,
+        expectedDays: expectedDays,
+        totalDays: totalDays,
+      );
+    }).toList();
+    statuses.sort((a, b) {
+      if (a.member.isHost != b.member.isHost) return a.member.isHost ? -1 : 1;
+      if (a.hasCompleted != b.hasCompleted) return a.hasCompleted ? -1 : 1;
+      return 0;
+    });
+    return statuses;
+  }
 }

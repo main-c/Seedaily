@@ -21,12 +21,12 @@ async function getToken(userId: string): Promise<string | null> {
 }
 
 /**
- * Returns FCM tokens for all members of a group,
- * optionally excluding one user (e.g. the one who triggered the event).
+ * Returns FCM tokens of the group members who accept reading notifications
+ * (notifyOnMemberProgress not false), excluding the one who read.
  * @param {string} groupId - The Firestore group document ID.
  * @param {string} [excludeUserId] - UID to exclude from the result.
  */
-async function getMemberTokens(
+async function getProgressRecipientTokens(
   groupId: string,
   excludeUserId?: string,
 ): Promise<string[]> {
@@ -37,6 +37,7 @@ async function getMemberTokens(
   for (const doc of snap.docs) {
     const uid = doc.data().userId as string;
     if (uid === excludeUserId) continue;
+    if (doc.data().notifyOnMemberProgress === false) continue;
     const token = await getToken(uid);
     if (token) tokens.push(token);
   }
@@ -121,12 +122,29 @@ export const onProgressCreate = onDocumentCreated(
       displayName: string;
       dayIndex: number;
     };
+    // Rattrapage d'un nouveau membre : pas de notification par jour.
+    if (progress.catchUp === true) return;
 
     const groupSnap = await db.doc(`groups/${groupId}`).get();
     const groupName = groupSnap.data()?.name as string | undefined;
     if (!groupName) return;
 
-    const tokens = await getMemberTokens(groupId, userId);
+    // Une seule notification par jour lu : décocher puis recocher
+    // recrée le doc de progression mais ne renvoie rien.
+    const memberRef = db.doc(`groups/${groupId}/members/${userId}`);
+    const firstTime = await db.runTransaction(async (tx) => {
+      const member = await tx.get(memberRef);
+      if (!member.exists) return false;
+      const notified = (member.data()?.notifiedDays ?? []) as number[];
+      if (notified.includes(dayIndex)) return false;
+      tx.update(memberRef, {
+        notifiedDays: admin.firestore.FieldValue.arrayUnion(dayIndex),
+      });
+      return true;
+    });
+    if (!firstTime) return;
+
+    const tokens = await getProgressRecipientTokens(groupId, userId);
     if (tokens.length === 0) return;
 
     await fcm.sendEachForMulticast({
@@ -144,17 +162,16 @@ export const onProgressCreate = onDocumentCreated(
 // ── scheduledGroupReminder ─────────────────────────────────────
 
 /**
- * Daily reminder at 19:00 UTC for group members who haven't read yet.
+ * Daily reminder at 19:00 UTC for group members who haven't read
+ * today's day of the plan (not just "checked something today").
  */
 export const scheduledGroupReminder = onSchedule(
   {schedule: "0 19 * * *", timeZone: "UTC"},
   async () => {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = now.getMonth();
-    const d = now.getDate();
-    const start = new Date(y, m, d, 0, 0, 0);
-    const end = new Date(y, m, d, 23, 59, 59);
+    // Snapshot dates are the host's local dates ("2026-11-08T00:00:00.000").
+    // shortcut: compares with today's UTC date, right for UTC-5…UTC+4 at
+    // 19:00 UTC; use each group's timezone if users go beyond that.
+    const today = new Date().toISOString().slice(0, 10);
 
     const groupsSnap = await db
       .collection("groups")
@@ -164,11 +181,14 @@ export const scheduledGroupReminder = onSchedule(
     for (const groupDoc of groupsSnap.docs) {
       const groupId = groupDoc.id;
       const groupName = groupDoc.data().name as string;
+      const snapshot = (groupDoc.data().planSnapshot ?? []) as
+        {d: number; dt: string}[];
+      const todayDay = snapshot.find((day) => day.dt.slice(0, 10) === today);
+      if (!todayDay) continue; // pas de lecture prévue aujourd'hui
 
       const progressSnap = await db
         .collection(`groups/${groupId}/progress`)
-        .where("completedAt", ">=", start)
-        .where("completedAt", "<=", end)
+        .where("dayIndex", "==", todayDay.d)
         .get();
 
       const readToday = new Set(
@@ -195,6 +215,7 @@ export const scheduledGroupReminder = onSchedule(
           title: groupName,
           body: "Avez-vous lu votre portion d'aujourd'hui ? 📖",
         },
+        data: {groupId},
         android: {priority: "normal"},
       });
     }

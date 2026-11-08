@@ -8,7 +8,7 @@ import {
   assertSucceeds,
 } from "@firebase/rules-unit-testing";
 import {
-  doc, getDoc, setDoc, deleteDoc, collection, collectionGroup, getDocs, query, where,
+  doc, getDoc, setDoc, updateDoc, deleteDoc, collection, collectionGroup, getDocs, query, where,
   writeBatch,
 } from "firebase/firestore";
 
@@ -121,4 +121,16 @@ test("un membre quitte, mais ne peut pas supprimer les autres", async () => {
   await join(as("bob"), "bob");
   await assertFails(deleteDoc(doc(as("bob"), "groups", GROUP, "members", "alice")));
   await assertSucceeds(deleteDoc(doc(as("bob"), "groups", GROUP, "members", "bob")));
+});
+
+test("un membre coupe ses notifications, sans toucher au reste", async () => {
+  await join(as("alice"), "alice");
+  await join(as("bob"), "bob");
+  const db = as("alice");
+  const mine = doc(db, "groups", GROUP, "members", "alice");
+  await assertSucceeds(updateDoc(mine, {notifyOnMemberProgress: false}));
+  await assertFails(updateDoc(mine, {role: "host"}));
+  await assertFails(updateDoc(mine, {notifyOnMemberProgress: "non"}));
+  await assertFails(updateDoc(doc(db, "groups", GROUP, "members", "bob"),
+    {notifyOnMemberProgress: false}));
 });

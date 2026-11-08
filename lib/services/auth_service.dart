@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -31,7 +33,7 @@ class AuthService {
 
     // Firestore writes are non-critical: auth succeeds even if they fail.
     try { await _upsertUserProfile(user); } catch (_) {}
-    await _storeFcmToken(user.uid);
+    // Le jeton FCM est enregistré par AuthProvider via authStateChanges.
     return user;
   }
 
@@ -56,7 +58,11 @@ class AuthService {
   // ── Token FCM ─────────────────────────────────────────────────────────────
   // Stocke le token sur users/{uid} pour que Cloud Functions puisse envoyer des pushs.
 
-  Future<void> _storeFcmToken(String uid) async {
+  // Appelée à chaque démarrage connecté (pas seulement à la connexion) :
+  // sinon un jeton renouvelé par Firebase n'est jamais enregistré.
+  StreamSubscription<String>? _tokenRefreshSub;
+
+  Future<void> storeFcmToken(String uid) async {
     try {
       final token = await _messaging.getToken();
       if (token == null) return;
@@ -66,7 +72,8 @@ class AuthService {
       );
 
       // Rafraîchit automatiquement si le token change.
-      _messaging.onTokenRefresh.listen((newToken) {
+      await _tokenRefreshSub?.cancel();
+      _tokenRefreshSub = _messaging.onTokenRefresh.listen((newToken) {
         _db.collection('users').doc(uid).update({'fcmToken': newToken});
       });
     } catch (_) {

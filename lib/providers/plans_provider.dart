@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/models.dart';
@@ -224,6 +225,33 @@ class PlansProvider with ChangeNotifier {
     }
   }
 
+  /// Marque comme lus tous les jours passés non lus d'un plan de groupe
+  /// (nouveau membre qui « rattrape » le groupe). Retourne le nombre de jours.
+  Future<int> catchUpGroupPlan(String planId) async {
+    final plan = _plans.firstWhere((p) => p.id == planId);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final indexes = [
+      for (var i = 0; i < plan.days.length; i++)
+        if (!plan.days[i].completed && plan.days[i].date.isBefore(today)) i,
+    ];
+    if (indexes.isEmpty) return 0;
+    for (final i in indexes) {
+      plan.days[i].completed = true;
+    }
+    await _storage.savePlan(plan);
+    notifyListeners();
+    if (plan.isGroupPlan && _groupsService != null && _currentUserId != null) {
+      await _groupsService!.markDaysCaughtUp(
+        groupId: plan.groupId!,
+        userId: _currentUserId!,
+        displayName: _currentUserDisplayName ?? 'Membre',
+        dayIndexes: indexes,
+      );
+    }
+    return indexes.length;
+  }
+
   Future<void> toggleDayCompletion(String planId, DateTime date) async {
     try {
       final plan = _plans.firstWhere((p) => p.id == planId);
@@ -244,19 +272,31 @@ class PlansProvider with ChangeNotifier {
         if (plan.isGroupPlan &&
             _groupsService != null &&
             _currentUserId != null) {
-          if (newValue) {
-            await _groupsService!.markDayComplete(
-              groupId: plan.groupId!,
-              userId: _currentUserId!,
-              displayName: _currentUserDisplayName ?? 'Membre',
-              dayIndex: dayIndex,
-            );
-          } else {
-            await _groupsService!.unmarkDayComplete(
-              groupId: plan.groupId!,
-              userId: _currentUserId!,
-              dayIndex: dayIndex,
-            );
+          try {
+            if (newValue) {
+              await _groupsService!.markDayComplete(
+                groupId: plan.groupId!,
+                userId: _currentUserId!,
+                displayName: _currentUserDisplayName ?? 'Membre',
+                dayIndex: dayIndex,
+              );
+            } else {
+              await _groupsService!.unmarkDayComplete(
+                groupId: plan.groupId!,
+                userId: _currentUserId!,
+                dayIndex: dayIndex,
+              );
+            }
+          } on FirebaseException catch (e) {
+            // Refus + plus membre (groupe supprimé par l'hôte) : le plan
+            // redevient solo, la progression locale est gardée. Tout autre
+            // refus (ex. App Check) remonte comme avant.
+            if (e.code != 'permission-denied' ||
+                await _groupsService!.isMember(plan.groupId!, _currentUserId!)) {
+              rethrow;
+            }
+            await _storage.savePlan(plan.copyWith(clearGroup: true));
+            await loadPlans();
           }
         }
 

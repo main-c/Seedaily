@@ -1,16 +1,18 @@
 import '../domain/group_models.dart';
 import '../domain/models.dart';
 
-// Limite Horner : durée infinie → on cap à 365 jours dans le snapshot.
-// Au-delà le pattern est cyclique, reconstructible si besoin.
-const int _maxSnapshotDays = 365;
+// Horner n'a pas de fin : on ne partage que ses 365 premiers jours.
+// Les autres plans sont copiés en entier (1189 jours ≈ 150 Ko, sous la
+// limite de 1 Mo d'un document Firestore).
+const int _maxHornerSnapshotDays = 365;
 
 class PlanSnapshotService {
   // ── Sérialisation : GeneratedPlan → List<SnapshotDay> ─────────────────────
   // Appelée par le host au moment de créer un groupe.
   static List<SnapshotDay> fromPlan(GeneratedPlan plan) {
-    final days = plan.days.length > _maxSnapshotDays
-        ? plan.days.sublist(0, _maxSnapshotDays)
+    final days = plan.templateId == 'horner' &&
+            plan.days.length > _maxHornerSnapshotDays
+        ? plan.days.sublist(0, _maxHornerSnapshotDays)
         : plan.days;
 
     return days.asMap().entries.map((entry) {

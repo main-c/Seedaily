@@ -98,8 +98,40 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
     // Sauvegarde le plan reconstruit dans Hive
     await plansProvider.importGroupPlan(result.plan);
-
     if (!mounted) return;
+
+    // Groupe déjà commencé : proposer de partir « à jour » plutôt qu'en retard.
+    final plan = plansProvider.plans
+        .firstWhere((p) => p.groupId == result.group.id);
+    final today = DateTime.now();
+    final missed = plan.days
+        .where((d) =>
+            !d.completed &&
+            d.date.isBefore(DateTime(today.year, today.month, today.day)))
+        .length;
+    if (missed > 0) {
+      final catchUp = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Le groupe a commencé il y a $missed jour${missed > 1 ? 's' : ''}'),
+          content: const Text(
+              'Avez-vous déjà lu ces jours-là ? Sinon, vous pourrez les rattraper à votre rythme.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Je rattrape'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Marquer comme lus'),
+            ),
+          ],
+        ),
+      );
+      if (catchUp == true) await plansProvider.catchUpGroupPlan(plan.id);
+      if (!mounted) return;
+    }
+
     context.go('/group/${result.group.id}');
   }
 

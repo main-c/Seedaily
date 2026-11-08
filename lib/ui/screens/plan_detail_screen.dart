@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../domain/models.dart';
 import '../../domain/group_models.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/plans_provider.dart';
 import '../../services/export_service.dart';
+import '../../core/share_invite.dart';
 import '../../core/theme.dart';
 import '../widgets/month_calendar_widget.dart';
 import '../widgets/list_view_widget.dart';
 import '../widgets/weekly_view_widget.dart';
 import '../widgets/by_book_view_widget.dart';
+import '../widgets/member_progress_label.dart';
 
 class PlanDetailScreen extends StatefulWidget {
   final String planId;
@@ -67,11 +68,13 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               tooltip: 'Partager avec des amis',
               onPressed: () => _showConvertToGroupSheet(plan),
             ),
-          IconButton(
-            icon: const Icon(Icons.tune),
-            onPressed: () => context.push('/edit-plan/${widget.planId}'),
-            tooltip: 'Configuration',
-          ),
+          // Un plan de groupe doit rester identique pour tous : pas de réglages.
+          if (!plan.isGroupPlan)
+            IconButton(
+              icon: const Icon(Icons.tune),
+              onPressed: () => context.push('/edit-plan/${widget.planId}'),
+              tooltip: 'Configuration',
+            ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => _showExportBottomSheet(context, plan),
@@ -115,10 +118,22 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       builder: (context, membersSnap) {
         final members = membersSnap.data ?? [];
         return StreamBuilder<List<GroupProgress>>(
-          stream: gp.watchTodayProgress(plan.groupId!),
+          stream: gp.watchProgress(plan.groupId!),
           builder: (context, progressSnap) {
-            final todayProgress = progressSnap.data ?? [];
-            final completedCount = todayProgress.length;
+            // Le plan local a les mêmes jours que le snapshot du groupe.
+            final todayIdx = plan.days.indexWhere((d) =>
+                d.date.year == today.year &&
+                d.date.month == today.month &&
+                d.date.day == today.day);
+            final statuses = GroupDayStatus.compute(
+              members: members,
+              progress: progressSnap.data ?? [],
+              todayDayIndex: todayIdx == -1 ? null : todayIdx,
+              expectedDays: expectedDays,
+              totalDays: plan.days.length,
+            );
+            final completedCount =
+                statuses.where((s) => s.hasCompleted).length;
             final totalCount = members.isEmpty ? 1 : members.length;
             final groupPct = completedCount / totalCount;
 
@@ -130,7 +145,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
               completedCount: completedCount,
               totalCount: totalCount,
               members: members,
-              todayProgress: todayProgress,
+              statuses: statuses,
             );
           },
         );
@@ -146,7 +161,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     int completedCount = 0,
     int totalCount = 0,
     List<GroupMember> members = const [],
-    List<GroupProgress> todayProgress = const [],
+    List<GroupDayStatus> statuses = const [],
   }) {
     final cs = Theme.of(context).colorScheme;
     final isGroup = groupPct != null;
@@ -213,8 +228,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () => _showMembersSheet(
-                members,
-                todayProgress,
+                statuses,
                 context.read<GroupsProvider>().findByPlanGroupId(plan.groupId!)?.hostId ==
                     context.read<AuthProvider>().uid,
                 context.read<AuthProvider>().uid,
@@ -304,7 +318,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   border: Border.all(color: cs.surface, width: 2),
                 ),
                 child: CircleAvatar(
-                  radius: size / 2,
+                  // La bordure de 2 px doit tenir dans `size`, sinon le Stack coupe le cercle.
+                  radius: size / 2 - 2,
                   backgroundColor: AppTheme.seedGold.withValues(alpha: 0.18),
                   backgroundImage: visible[i].avatarUrl != null
                       ? NetworkImage(visible[i].avatarUrl!)
@@ -616,11 +631,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                             Navigator.pop(ctx);
 
                             // Partage le lien d'invitation
-                            Share.share(
-                              'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-                              '${AppTheme.joinUrl(group.inviteCode)}',
-                              subject: 'Lire la Bible ensemble',
-                            );
+                            shareGroupInvite(plan.title, group.inviteCode);
                           },
                     icon: isCreating
                         ? const SizedBox(
@@ -659,20 +670,14 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
       );
       return;
     }
-    Share.share(
-      'Je lis "${plan.title}" sur Seedaily et j\'aimerais qu\'on le lise ensemble 🙏\n\n'
-      '${AppTheme.joinUrl(group.inviteCode)}',
-      subject: 'Lire la Bible ensemble',
-    );
+    shareGroupInvite(plan.title, group.inviteCode);
   }
 
   void _showMembersSheet(
-    List<GroupMember> members,
-    List<GroupProgress> todayProgress,
+    List<GroupDayStatus> statuses,
     bool isHost,
     String? currentUid,
   ) {
-    final completedUserIds = todayProgress.map((p) => p.userId).toSet();
 
     showModalBottomSheet(
       context: context,
@@ -681,13 +686,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) {
         final cs = Theme.of(context).colorScheme;
-        final sorted = [...members]..sort((a, b) {
-            if (a.isHost != b.isHost) return a.isHost ? -1 : 1;
-            final aDone = completedUserIds.contains(a.userId);
-            final bDone = completedUserIds.contains(b.userId);
-            if (aDone != bDone) return aDone ? -1 : 1;
-            return 0;
-          });
 
         return SafeArea(
           child: Padding(
@@ -711,12 +709,10 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                ...sorted.map((m) {
-                  final done = completedUserIds.contains(m.userId);
+                ...statuses.map((status) {
+                  final m = status.member;
+                  final done = status.hasCompleted;
                   final isMe = m.userId == currentUid;
-                  final progress = todayProgress
-                      .where((p) => p.userId == m.userId)
-                      .firstOrNull;
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
@@ -776,17 +772,7 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                                   ],
                                 ],
                               ),
-                              // Heure de lecture : visible par tous si complété
-                              if (done && progress?.completedAt != null)
-                                Text(
-                                  _formatTime(progress!.completedAt),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                          color: cs.onSurface
-                                              .withValues(alpha: 0.45)),
-                                ),
+                              MemberProgressLabel(status: status),
                             ],
                           ),
                         ),
@@ -807,12 +793,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
         );
       },
     );
-  }
-
-  String _formatTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return 'Lu à $h:$m';
   }
 
   void _showExportBottomSheet(BuildContext context, GeneratedPlan plan) {

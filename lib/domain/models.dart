@@ -793,14 +793,16 @@ class GeneratedPlan {
 
   bool get isGroupPlan => groupId != null;
 
-  GeneratedPlan copyWith({String? groupId}) => GeneratedPlan(
+  /// [clearGroup] : le plan redevient solo (groupe supprimé ou quitté).
+  GeneratedPlan copyWith({String? groupId, bool clearGroup = false}) =>
+      GeneratedPlan(
         id: id,
         templateId: templateId,
         title: title,
         options: options,
         days: days,
         createdAt: createdAt,
-        groupId: groupId ?? this.groupId,
+        groupId: clearGroup ? null : groupId ?? this.groupId,
       );
 
   Map<String, dynamic> toJson() => {

@@ -33,6 +33,7 @@ class AuthProvider extends ChangeNotifier {
       _user = user;
       _status = user != null ? AuthStatus.signedIn : AuthStatus.signedOut;
       notifyListeners();
+      if (user != null) _service.storeFcmToken(user.uid);
     });
   }
 

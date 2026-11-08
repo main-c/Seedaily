@@ -3,6 +3,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
@@ -159,60 +160,64 @@ class _SeedailyAppState extends State<SeedailyApp> {
               showTourOnLoad: showTour,
             );
           },
-        ),
-        GoRoute(
-          path: '/plan/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return PlanDetailScreen(planId: id);
-          },
-        ),
-        GoRoute(
-          path: '/customize-plan/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return CustomizePlanScreen(templateId: id);
-          },
-        ),
-        GoRoute(
-          path: '/edit-plan/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return CustomizePlanScreen(planId: id);
-          },
-        ),
-        GoRoute(
-          path: '/about',
-          builder: (context, state) => const AboutScreen(),
-        ),
-        GoRoute(
-          path: '/bible-library',
-          builder: (context, state) => const BibleLibraryScreen(),
-        ),
-        // Groupe — routes poussées par-dessus la shell principale
-        GoRoute(
-          path: '/groups/create',
-          builder: (context, state) => const CreateGroupScreen(),
-        ),
-        GoRoute(
-          path: '/groups/join',
-          builder: (context, state) => const JoinGroupScreen(),
-        ),
-        // Deep link : seedaily://app/join/:code
-        GoRoute(
-          path: '/join/:code',
-          builder: (context, state) {
-            final code = state.pathParameters['code'] ?? '';
-            return JoinGroupScreen(initialCode: code.toUpperCase());
-          },
-        ),
-        // Route groupe — écran détail du groupe
-        GoRoute(
-          path: '/group/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return GroupDetailScreen(groupId: id);
-          },
+          // Sous-routes de '/' : un go('/plan/x') garde l'accueil en dessous,
+          // donc flèche retour et bouton retour Android ramènent à l'accueil.
+          routes: [
+            GoRoute(
+              path: 'plan/:id',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return PlanDetailScreen(planId: id);
+              },
+            ),
+            GoRoute(
+              path: 'customize-plan/:id',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return CustomizePlanScreen(templateId: id);
+              },
+            ),
+            GoRoute(
+              path: 'edit-plan/:id',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return CustomizePlanScreen(planId: id);
+              },
+            ),
+            GoRoute(
+              path: 'about',
+              builder: (context, state) => const AboutScreen(),
+            ),
+            GoRoute(
+              path: 'bible-library',
+              builder: (context, state) => const BibleLibraryScreen(),
+            ),
+            // Groupe — routes poussées par-dessus la shell principale
+            GoRoute(
+              path: 'groups/create',
+              builder: (context, state) => const CreateGroupScreen(),
+            ),
+            GoRoute(
+              path: 'groups/join',
+              builder: (context, state) => const JoinGroupScreen(),
+            ),
+            // Deep link : seedaily://app/join/:code
+            GoRoute(
+              path: 'join/:code',
+              builder: (context, state) {
+                final code = state.pathParameters['code'] ?? '';
+                return JoinGroupScreen(initialCode: code.toUpperCase());
+              },
+            ),
+            // Route groupe — écran détail du groupe
+            GoRoute(
+              path: 'group/:id',
+              builder: (context, state) {
+                final id = state.pathParameters['id']!;
+                return GroupDetailScreen(groupId: id);
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -224,6 +229,17 @@ class _SeedailyAppState extends State<SeedailyApp> {
         _router.go('/');
       }
     };
+
+    // Toucher une notification de groupe (app en arrière-plan ou fermée)
+    // ouvre l'écran du groupe : les pushs envoient déjà data.groupId.
+    void openGroup(RemoteMessage m) {
+      final groupId = m.data['groupId'];
+      if (groupId is String && groupId.isNotEmpty) _router.go('/group/$groupId');
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen(openGroup);
+    FirebaseMessaging.instance.getInitialMessage().then((m) {
+      if (m != null) openGroup(m);
+    });
 
     if (widget.updateStatus != UpdateStatus.upToDate) {
       WidgetsBinding.instance

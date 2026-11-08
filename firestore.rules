@@ -45,6 +45,13 @@ service cloud.firestore {
             || (request.resource.data.role == 'member'
                 && get(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.groupId == groupId));
 
+        // Un membre peut seulement activer/couper ses notifications de lecture.
+        allow update: if request.auth != null
+          && memberId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['notifyOnMemberProgress'])
+          && request.resource.data.notifyOnMemberProgress is bool;
+
         // Quitter : un membre peut supprimer sa propre fiche.
         // Supprimer le groupe : l'hôte peut supprimer toutes les fiches.
         allow delete: if request.auth != null
