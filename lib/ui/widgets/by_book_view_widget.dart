@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import '../../core/theme.dart';
 import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import 'day_card_widget.dart';
 
 /// Widget pour l'affichage par livre biblique (format By Book)
@@ -99,7 +100,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.days.isEmpty) {
-      return const Center(child: Text('Aucun jour de lecture'));
+      return Center(child: Text(context.l10n.noReadingDays));
     }
 
     return ListView.builder(
@@ -170,7 +171,9 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
     int daysCount,
     int completedDays,
   ) {
-    final testament = book?.isOldTestament == true ? 'AT' : 'NT';
+    final testament = book?.isOldTestament == true
+        ? context.l10n.oldTestamentShort
+        : context.l10n.newTestamentShort;
     final testamentColor =
         book?.isOldTestament == true ? Theme.of(context).colorScheme.onSurface : AppTheme.seedGold;
     final progressPercentage =
@@ -221,7 +224,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                       children: [
                         Expanded(
                           child: Text(
-                            bookName,
+                            BibleData.displayName(bookName),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -261,7 +264,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                             size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
-                          '$totalChapters chapitre${totalChapters > 1 ? 's' : ''}',
+                          context.l10n.chapterCount(totalChapters),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -273,7 +276,7 @@ class _ByBookViewWidgetState extends State<ByBookViewWidget> {
                             size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
-                          '$daysCount jour${daysCount > 1 ? 's' : ''}',
+                          context.l10n.dayCount(daysCount),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),

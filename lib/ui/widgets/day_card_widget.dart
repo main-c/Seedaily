@@ -6,6 +6,7 @@ import 'package:seedaily/ui/widgets/today_card_widget.dart';
 
 import '../../core/theme.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import '../../providers/bible_reader_provider.dart';
 import '../screens/bible_reader_screen.dart';
 
@@ -52,7 +53,7 @@ class DayCardWidget extends StatelessWidget {
     }
 
     // Format de date : "Lundi 6 janvier"
-    final dateFormatted = DateFormat('EEEE d MMMM', 'fr_FR').format(day.date);
+    final dateFormatted = DateFormat.MMMMEEEEd().format(day.date);
     final capitalizedDate =
         dateFormatted[0].toUpperCase() + dateFormatted.substring(1);
 
@@ -126,7 +127,7 @@ class DayCardWidget extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'COMPLÉTÉ',
+                                      context.l10n.dayCompletedBadge,
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelSmall
@@ -142,7 +143,7 @@ class DayCardWidget extends StatelessWidget {
                                   if (isOutOfSequence) ...[
                                     const SizedBox(width: 6),
                                     Tooltip(
-                                      message: 'Des jours précédents ne sont pas encore lus',
+                                      message: context.l10n.dayPreviousUnread,
                                       child: Icon(
                                         Icons.warning_amber_rounded,
                                         size: 16,
@@ -218,7 +219,7 @@ class DayCardWidget extends StatelessWidget {
                         .withValues(alpha: 0.4)),
                 const SizedBox(width: 4),
                 Text(
-                  'Ajouter une Bible pour lire',
+                  context.l10n.dayAddBibleToRead,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
@@ -259,7 +260,7 @@ class DayCardWidget extends StatelessWidget {
             ));
           },
           icon: const Icon(Icons.menu_book_outlined, size: 15),
-          label: const Text('Lire'),
+          label: Text(context.l10n.dayRead),
           style: TextButton.styleFrom(
             foregroundColor: AppTheme.seedGold,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

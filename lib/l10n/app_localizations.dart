@@ -1243,6 +1243,294 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Rejoindre'**
   String get groupJoinSubmit;
+
+  /// No description provided for @noReadingDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun jour de lecture'**
+  String get noReadingDays;
+
+  /// No description provided for @weekNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine {n}'**
+  String weekNumber(int n);
+
+  /// No description provided for @weekOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine du {date}'**
+  String weekOf(String date);
+
+  /// No description provided for @booksIncludeDeuterocanonical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure les deutérocanoniques'**
+  String get booksIncludeDeuterocanonical;
+
+  /// No description provided for @booksDeuterocanonicalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livres de la Septante et de la Vulgate'**
+  String get booksDeuterocanonicalSubtitle;
+
+  /// No description provided for @booksChronologicalOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre chronologique'**
+  String get booksChronologicalOrder;
+
+  /// No description provided for @booksTanakh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tanakh (Ancien Testament)'**
+  String get booksTanakh;
+
+  /// No description provided for @booksDeuterocanonical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deutérocanoniques'**
+  String get booksDeuterocanonical;
+
+  /// No description provided for @booksNewTestament.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau Testament'**
+  String get booksNewTestament;
+
+  /// No description provided for @booksOldTestament.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ancien Testament'**
+  String get booksOldTestament;
+
+  /// No description provided for @booksSelectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout sélectionner'**
+  String get booksSelectAll;
+
+  /// No description provided for @booksChapterCountShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} ch.'**
+  String booksChapterCountShort(int n);
+
+  /// No description provided for @oldTestamentShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'AT'**
+  String get oldTestamentShort;
+
+  /// No description provided for @newTestamentShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'NT'**
+  String get newTestamentShort;
+
+  /// No description provided for @chapterCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 chapitre} =1{1 chapitre} other{{count} chapitres}}'**
+  String chapterCount(int count);
+
+  /// No description provided for @dayCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 jour} =1{1 jour} other{{count} jours}}'**
+  String dayCount(int count);
+
+  /// No description provided for @dayCompletedBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'COMPLÉTÉ'**
+  String get dayCompletedBadge;
+
+  /// No description provided for @dayPreviousUnread.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des jours précédents ne sont pas encore lus'**
+  String get dayPreviousUnread;
+
+  /// No description provided for @dayAddBibleToRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une Bible pour lire'**
+  String get dayAddBibleToRead;
+
+  /// No description provided for @dayRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire'**
+  String get dayRead;
+
+  /// No description provided for @statDaysLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{jour} other{jours}}'**
+  String statDaysLabel(int count);
+
+  /// No description provided for @statBooksLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{livre} other{livres}}'**
+  String statBooksLabel(int count);
+
+  /// No description provided for @statChaptersLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{chapitre} other{chapitres}}'**
+  String statChaptersLabel(int count);
+
+  /// No description provided for @statChaptersPerDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'chap/jour'**
+  String get statChaptersPerDay;
+
+  /// No description provided for @statTotalProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'PROGRESSION TOTALE'**
+  String get statTotalProgress;
+
+  /// No description provided for @statPercentDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n}% Terminé'**
+  String statPercentDone(int n);
+
+  /// No description provided for @statDaysFraction.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done}/{total} jours'**
+  String statDaysFraction(int done, int total);
+
+  /// No description provided for @statProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get statProgress;
+
+  /// No description provided for @statDaysCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} / {total} jours complétés'**
+  String statDaysCompleted(int done, int total);
+
+  /// No description provided for @todayCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'LECTURE DU JOUR'**
+  String get todayCardTitle;
+
+  /// No description provided for @todayCardNoReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune lecture'**
+  String get todayCardNoReading;
+
+  /// No description provided for @todayCardComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture complète'**
+  String get todayCardComplete;
+
+  /// No description provided for @todayCardContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer la lecture'**
+  String get todayCardContinue;
+
+  /// No description provided for @calendarPreviewBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'aperçu'**
+  String get calendarPreviewBadge;
+
+  /// No description provided for @calendarPreviewHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez le plan pour voir tous les mois'**
+  String get calendarPreviewHint;
+
+  /// No description provided for @calendarWeekDaysSundayFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dim,Lun,Mar,Mer,Jeu,Ven,Sam'**
+  String get calendarWeekDaysSundayFirst;
+
+  /// No description provided for @planCardDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get planCardDone;
+
+  /// No description provided for @planCardStreakShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} j. de suite'**
+  String planCardStreakShort(int n);
+
+  /// No description provided for @planCardOnTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'À jour'**
+  String get planCardOnTrack;
+
+  /// No description provided for @planCardAhead.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{n} j. d\'avance'**
+  String planCardAhead(int n);
+
+  /// No description provided for @planCardBehind.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} j. de retard'**
+  String planCardBehind(int n);
+
+  /// No description provided for @dayFraction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour {day}/{total}'**
+  String dayFraction(int day, int total);
+
+  /// No description provided for @planCardEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin : {date}'**
+  String planCardEnd(String date);
+
+  /// No description provided for @planCardShortMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jan.,Fév.,Mar.,Avr.,Mai,Jun.,Jul.,Aoû.,Sep.,Oct.,Nov.,Déc.'**
+  String get planCardShortMonths;
+
+  /// No description provided for @shortDayMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{day} {month}'**
+  String shortDayMonth(int day, String month);
+
+  /// No description provided for @planCardReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir'**
+  String get planCardReview;
+
+  /// No description provided for @planCardDeletePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le plan'**
+  String get planCardDeletePlan;
+
+  /// No description provided for @planCardDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer \"{title}\" ?\n\nCette action est irréversible.'**
+  String planCardDeleteConfirm(String title);
 }
 
 class _AppLocalizationsDelegate

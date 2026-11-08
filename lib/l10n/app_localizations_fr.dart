@@ -676,4 +676,218 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get groupJoinSubmit => 'Rejoindre';
+
+  @override
+  String get noReadingDays => 'Aucun jour de lecture';
+
+  @override
+  String weekNumber(int n) {
+    return 'Semaine $n';
+  }
+
+  @override
+  String weekOf(String date) {
+    return 'Semaine du $date';
+  }
+
+  @override
+  String get booksIncludeDeuterocanonical => 'Inclure les deutérocanoniques';
+
+  @override
+  String get booksDeuterocanonicalSubtitle =>
+      'Livres de la Septante et de la Vulgate';
+
+  @override
+  String get booksChronologicalOrder => 'Ordre chronologique';
+
+  @override
+  String get booksTanakh => 'Tanakh (Ancien Testament)';
+
+  @override
+  String get booksDeuterocanonical => 'Deutérocanoniques';
+
+  @override
+  String get booksNewTestament => 'Nouveau Testament';
+
+  @override
+  String get booksOldTestament => 'Ancien Testament';
+
+  @override
+  String get booksSelectAll => 'Tout sélectionner';
+
+  @override
+  String booksChapterCountShort(int n) {
+    return '$n ch.';
+  }
+
+  @override
+  String get oldTestamentShort => 'AT';
+
+  @override
+  String get newTestamentShort => 'NT';
+
+  @override
+  String chapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapitres',
+      one: '1 chapitre',
+      zero: '0 chapitre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours',
+      one: '1 jour',
+      zero: '0 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dayCompletedBadge => 'COMPLÉTÉ';
+
+  @override
+  String get dayPreviousUnread => 'Des jours précédents ne sont pas encore lus';
+
+  @override
+  String get dayAddBibleToRead => 'Ajouter une Bible pour lire';
+
+  @override
+  String get dayRead => 'Lire';
+
+  @override
+  String statDaysLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'jours',
+      one: 'jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statBooksLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'livres',
+      one: 'livre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statChaptersLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'chapitres',
+      one: 'chapitre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statChaptersPerDay => 'chap/jour';
+
+  @override
+  String get statTotalProgress => 'PROGRESSION TOTALE';
+
+  @override
+  String statPercentDone(int n) {
+    return '$n% Terminé';
+  }
+
+  @override
+  String statDaysFraction(int done, int total) {
+    return '$done/$total jours';
+  }
+
+  @override
+  String get statProgress => 'Progression';
+
+  @override
+  String statDaysCompleted(int done, int total) {
+    return '$done / $total jours complétés';
+  }
+
+  @override
+  String get todayCardTitle => 'LECTURE DU JOUR';
+
+  @override
+  String get todayCardNoReading => 'Aucune lecture';
+
+  @override
+  String get todayCardComplete => 'Lecture complète';
+
+  @override
+  String get todayCardContinue => 'Continuer la lecture';
+
+  @override
+  String get calendarPreviewBadge => 'aperçu';
+
+  @override
+  String get calendarPreviewHint => 'Créez le plan pour voir tous les mois';
+
+  @override
+  String get calendarWeekDaysSundayFirst => 'Dim,Lun,Mar,Mer,Jeu,Ven,Sam';
+
+  @override
+  String get planCardDone => 'Terminé';
+
+  @override
+  String planCardStreakShort(int n) {
+    return '$n j. de suite';
+  }
+
+  @override
+  String get planCardOnTrack => 'À jour';
+
+  @override
+  String planCardAhead(int n) {
+    return '+$n j. d\'avance';
+  }
+
+  @override
+  String planCardBehind(int n) {
+    return '$n j. de retard';
+  }
+
+  @override
+  String dayFraction(int day, int total) {
+    return 'Jour $day/$total';
+  }
+
+  @override
+  String planCardEnd(String date) {
+    return 'Fin : $date';
+  }
+
+  @override
+  String get planCardShortMonths =>
+      'Jan.,Fév.,Mar.,Avr.,Mai,Jun.,Jul.,Aoû.,Sep.,Oct.,Nov.,Déc.';
+
+  @override
+  String shortDayMonth(int day, String month) {
+    return '$day $month';
+  }
+
+  @override
+  String get planCardReview => 'Revoir';
+
+  @override
+  String get planCardDeletePlan => 'Supprimer le plan';
+
+  @override
+  String planCardDeleteConfirm(String title) {
+    return 'Êtes-vous sûr de vouloir supprimer \"$title\" ?\n\nCette action est irréversible.';
+  }
 }

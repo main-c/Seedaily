@@ -333,5 +333,191 @@
   "groupJoinTitle": "Rejoindre un groupe",
   "groupJoinEnterCode": "Entrez le code d'invitation",
   "groupJoinAskAdmin": "Demandez le code à l'administrateur de votre groupe.",
-  "groupJoinSubmit": "Rejoindre"
+  "groupJoinSubmit": "Rejoindre",
+  "noReadingDays": "Aucun jour de lecture",
+  "weekNumber": "Semaine {n}",
+  "@weekNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "weekOf": "Semaine du {date}",
+  "@weekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "booksIncludeDeuterocanonical": "Inclure les deutérocanoniques",
+  "booksDeuterocanonicalSubtitle": "Livres de la Septante et de la Vulgate",
+  "booksChronologicalOrder": "Ordre chronologique",
+  "booksTanakh": "Tanakh (Ancien Testament)",
+  "booksDeuterocanonical": "Deutérocanoniques",
+  "booksNewTestament": "Nouveau Testament",
+  "booksOldTestament": "Ancien Testament",
+  "booksSelectAll": "Tout sélectionner",
+  "booksChapterCountShort": "{n} ch.",
+  "@booksChapterCountShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "oldTestamentShort": "AT",
+  "newTestamentShort": "NT",
+  "chapterCount": "{count, plural, =0{0 chapitre} =1{1 chapitre} other{{count} chapitres}}",
+  "@chapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCount": "{count, plural, =0{0 jour} =1{1 jour} other{{count} jours}}",
+  "@dayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayCompletedBadge": "COMPLÉTÉ",
+  "dayPreviousUnread": "Des jours précédents ne sont pas encore lus",
+  "dayAddBibleToRead": "Ajouter une Bible pour lire",
+  "dayRead": "Lire",
+  "statDaysLabel": "{count, plural, =1{jour} other{jours}}",
+  "@statDaysLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statBooksLabel": "{count, plural, =1{livre} other{livres}}",
+  "@statBooksLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statChaptersLabel": "{count, plural, =1{chapitre} other{chapitres}}",
+  "@statChaptersLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statChaptersPerDay": "chap/jour",
+  "statTotalProgress": "PROGRESSION TOTALE",
+  "statPercentDone": "{n}% Terminé",
+  "@statPercentDone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "statDaysFraction": "{done}/{total} jours",
+  "@statDaysFraction": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statProgress": "Progression",
+  "statDaysCompleted": "{done} / {total} jours complétés",
+  "@statDaysCompleted": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "todayCardTitle": "LECTURE DU JOUR",
+  "todayCardNoReading": "Aucune lecture",
+  "todayCardComplete": "Lecture complète",
+  "todayCardContinue": "Continuer la lecture",
+  "calendarPreviewBadge": "aperçu",
+  "calendarPreviewHint": "Créez le plan pour voir tous les mois",
+  "calendarWeekDaysSundayFirst": "Dim,Lun,Mar,Mer,Jeu,Ven,Sam",
+  "planCardDone": "Terminé",
+  "planCardStreakShort": "{n} j. de suite",
+  "@planCardStreakShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "planCardOnTrack": "À jour",
+  "planCardAhead": "+{n} j. d'avance",
+  "@planCardAhead": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "planCardBehind": "{n} j. de retard",
+  "@planCardBehind": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dayFraction": "Jour {day}/{total}",
+  "@dayFraction": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "planCardEnd": "Fin : {date}",
+  "@planCardEnd": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planCardShortMonths": "Jan.,Fév.,Mar.,Avr.,Mai,Jun.,Jul.,Aoû.,Sep.,Oct.,Nov.,Déc.",
+  "shortDayMonth": "{day} {month}",
+  "@shortDayMonth": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "planCardReview": "Revoir",
+  "planCardDeletePlan": "Supprimer le plan",
+  "planCardDeleteConfirm": "Êtes-vous sûr de vouloir supprimer \"{title}\" ?\n\nCette action est irréversible.",
+  "@planCardDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

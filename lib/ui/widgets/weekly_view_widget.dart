@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/theme.dart';
+import '../../domain/bible_data.dart';
 import '../../domain/models.dart';
+import '../../l10n/l10n.dart';
 import 'day_card_widget.dart';
 
 /// Widget pour l'affichage par semaine
@@ -105,7 +107,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
     final books = <String>{};
     for (final day in weekDays) {
       for (final passage in day.passages) {
-        books.add(passage.book);
+        books.add(BibleData.displayName(passage.book));
       }
     }
 
@@ -130,8 +132,8 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.days.isEmpty || _weeklyDays.isEmpty) {
-      return const Center(
-        child: Text('Aucun jour de lecture'),
+      return Center(
+        child: Text(context.l10n.noReadingDays),
       );
     }
 
@@ -173,7 +175,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'Semaine ${_currentWeekIndex + 1}',
+                      context.l10n.weekNumber(_currentWeekIndex + 1),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -268,7 +270,7 @@ class _WeekViewWidgetState extends State<WeekViewWidget> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                'Semaine du ${DateFormat('d MMMM', 'fr_FR').format(weekDays.first.date)}',
+                context.l10n.weekOf(DateFormat.MMMMd().format(weekDays.first.date)),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Theme.of(context).colorScheme.surface,
                       fontWeight: FontWeight.bold,
